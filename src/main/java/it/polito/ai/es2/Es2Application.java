@@ -288,10 +288,24 @@ public class Es2Application {
                         .stream()
                         .forEach(s -> System.out.println(s.toString()));
 
+                System.out.println("---> Test get student in teams for missing course error:");
+                try {
+                    teamService.getStudentsInTeams("corso0");
+                } catch (Exception e) {
+                    System.out.println(e.getClass().toString());
+                }
+
                 System.out.println("---> Get available students for 'corso3':");
                 teamService.getAvailableStudents("corso3")
                         .stream()
                         .forEach(s -> System.out.println(s.toString()));
+
+                System.out.println("---> Test available students for missing course error:");
+                try {
+                    teamService.getAvailableStudents("corso0");
+                } catch (Exception e) {
+                    System.out.println(e.getClass().toString());
+                }
             }
         };
     }

@@ -238,17 +238,21 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public List<StudentDTO> getStudentsInTeams(String courseName) {
-        return courseRepo.getStudentsInTeams(courseName)
-                .stream()
-                .map(s -> modelMapper.map(s, StudentDTO.class))
-                .collect(Collectors.toList());
+        if (courseRepo.findById(courseName).isPresent())
+            return courseRepo.getStudentsInTeams(courseName)
+                    .stream()
+                    .map(s -> modelMapper.map(s, StudentDTO.class))
+                    .collect(Collectors.toList());
+        else throw new CourseNotFoundException();
     }
 
     @Override
     public List<StudentDTO> getAvailableStudents(String courseName) {
-        return courseRepo.getStudentsNotInTeams(courseName)
-                .stream()
-                .map(s -> modelMapper.map(s, StudentDTO.class))
-                .collect(Collectors.toList());
+        if (courseRepo.findById(courseName).isPresent())
+            return courseRepo.getStudentsNotInTeams(courseName)
+                    .stream()
+                    .map(s -> modelMapper.map(s, StudentDTO.class))
+                    .collect(Collectors.toList());
+        else throw new CourseNotFoundException();
     }
 }
