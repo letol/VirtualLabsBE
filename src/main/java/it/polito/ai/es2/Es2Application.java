@@ -25,25 +25,27 @@ public class Es2Application {
         return new ModelMapper();
     }
 
+    // -------------------------------- FOR DEBUGGING PURPOSES ONLY -------------------------------- //
+    // --------------------------------             START           -------------------------------- //
     @Bean
     CommandLineRunner runner() {
         return new CommandLineRunner() {
             @Override
             public void run(String... args) {
                 System.out.println("---> Add course 'corso1':");
-                CourseDTO courseDTO = new CourseDTO("corso1", 3, 4);
+                CourseDTO courseDTO = new CourseDTO("corso1", 3, 4, false);
                 teamService.addCourse(courseDTO);
 
                 System.out.println("---> Add course 'corso2':");
-                courseDTO = new CourseDTO("corso2", 1, 2);
+                courseDTO = new CourseDTO("corso2", 1, 2, false);
                 teamService.addCourse(courseDTO);
 
                 System.out.println("---> Add course 'corso3':");
-                courseDTO = new CourseDTO("corso3", 2, 4);
+                courseDTO = new CourseDTO("corso3", 2, 4, false);
                 teamService.addCourse(courseDTO);
 
                 System.out.println("---> Add course 'corso4':");
-                courseDTO = new CourseDTO("corso4", 3, 5);
+                courseDTO = new CourseDTO("corso4", 3, 5, false);
                 teamService.addCourse(courseDTO);
 
                 System.out.println("---> Get course 'corso4':");
@@ -93,14 +95,14 @@ public class Es2Application {
                 try {
                     teamService.addStudentToCourse("s000000", "corso4");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test enroll to missing course error:");
                 try {
                     teamService.addStudentToCourse("s444444", "corso0");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Get enrolled students of 'corso4':");
@@ -112,7 +114,7 @@ public class Es2Application {
                 try {
                     teamService.getEnrolledStudents("corso0");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Enable 'corso4':");
@@ -124,7 +126,7 @@ public class Es2Application {
                 try {
                     teamService.enableCourse("corso0");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Disable 'corso4':");
@@ -136,14 +138,21 @@ public class Es2Application {
                 try {
                     teamService.disableCourse("corso0");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Add and enroll to 'corso3' from CSV:");
                 try (Reader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("test.csv").getInputStream()))) {
                     teamService.addAndEnroll(reader, "corso3");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
+                }
+
+                System.out.println("---> Test wrong CSV header error:");
+                try (Reader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("testWithWrongHeader.csv").getInputStream()))) {
+                    teamService.addAndEnroll(reader, "corso3");
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Get courses in which 's222222' is enrolled:");
@@ -155,7 +164,7 @@ public class Es2Application {
                 try {
                     teamService.getCourses("s000000");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Enable 'corso3':");
@@ -185,7 +194,7 @@ public class Es2Application {
                 try {
                     teamService.getMembers(0L);
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Get teams for 's222222':");
@@ -197,21 +206,21 @@ public class Es2Application {
                 try {
                     teamService.getTeamsForStudent("s000000");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test propose team for missing course error:");
                 try {
                     teamService.proposeTeam("corse0", "Errore", Arrays.asList(memberIds));
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test propose team for course not enabled error:");
                 try {
                     teamService.proposeTeam("corso4", "Errore", Arrays.asList(memberIds));
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test propose team with not enough members error:");
@@ -219,7 +228,7 @@ public class Es2Application {
                 try {
                     teamService.proposeTeam("corso3", "Errore", Arrays.asList(memberIds));
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test propose team with too many members error:");
@@ -227,7 +236,7 @@ public class Es2Application {
                 try {
                     teamService.proposeTeam("corso3", "Errore", Arrays.asList(memberIds));
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test propose team with duplicated student error:");
@@ -235,7 +244,7 @@ public class Es2Application {
                 try {
                     teamService.proposeTeam("corso3", "Errore", Arrays.asList(memberIds));
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test propose team with missing student error:");
@@ -243,7 +252,7 @@ public class Es2Application {
                 try {
                     teamService.proposeTeam("corso3", "Errore", Arrays.asList(memberIds));
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test propose team with student not enrolled error:");
@@ -251,7 +260,7 @@ public class Es2Application {
                 try {
                     teamService.proposeTeam("corso3", "Errore", Arrays.asList(memberIds));
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Test propose team with student already member error:");
@@ -259,7 +268,15 @@ public class Es2Application {
                 try {
                     teamService.proposeTeam("corso3", "Errore", Arrays.asList(memberIds));
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
+                }
+
+                System.out.println("---> Test propose team with null name error:");
+                memberIds = new String[]{"s111111", "s444444"};
+                try {
+                    teamService.proposeTeam("corso3", null, Arrays.asList(memberIds));
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Propose team 'Il duo':");
@@ -280,7 +297,7 @@ public class Es2Application {
                 try {
                     teamService.getTeamsForCourse("corso0");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Get students in teams for 'corso3':");
@@ -292,7 +309,7 @@ public class Es2Application {
                 try {
                     teamService.getStudentsInTeams("corso0");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
 
                 System.out.println("---> Get available students for 'corso3':");
@@ -304,11 +321,12 @@ public class Es2Application {
                 try {
                     teamService.getAvailableStudents("corso0");
                 } catch (Exception e) {
-                    System.out.println(e.getClass().toString());
+                    System.out.println(e.getMessage());
                 }
             }
         };
     }
+    // --------------------------------              END            -------------------------------- //
 
     public static void main(String[] args) {
         SpringApplication.run(Es2Application.class, args);

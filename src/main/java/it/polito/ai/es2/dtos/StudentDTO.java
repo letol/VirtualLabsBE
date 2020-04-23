@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StudentDTO {
 
-    @CsvBindByName
+    @CsvBindByName(required = true)
     private String id;
 
-    @CsvBindByName
+    @CsvBindByName(required = true)
     private String lastName;
 
-    @CsvBindByName
+    @CsvBindByName(required = true)
     private String firstName;
 }

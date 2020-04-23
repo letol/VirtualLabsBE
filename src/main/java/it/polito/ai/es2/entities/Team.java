@@ -35,13 +35,14 @@ public class Team {
     private List<Student> members = new ArrayList<>();
 
     public boolean setCourse(Course course) {
-        if (course != null)
-            course.getTeams().add(this);
-        else
-            course.getTeams().remove(this);
-
         if (this.course == course)
             return false;
+
+        if (this.course != null)
+            this.course.getTeams().remove(this);
+
+        if (course != null && !course.getTeams().contains(this))
+            course.getTeams().add(this);
 
         this.course = course;
         return true;

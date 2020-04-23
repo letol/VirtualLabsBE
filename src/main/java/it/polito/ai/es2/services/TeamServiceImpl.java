@@ -93,16 +93,16 @@ public class TeamServiceImpl implements TeamService {
                     .stream()
                     .map(s -> modelMapper.map(s, StudentDTO.class))
                     .collect(Collectors.toList());
-        } else throw new CourseNotFoundException();
+        } else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
     }
 
     @Override
     public boolean addStudentToCourse(String studentId, String courseName) {
         Optional<Student> student = studentRepo.findById(studentId);
-        if (!student.isPresent()) throw new StudentNotFoundException();
+        if (!student.isPresent()) throw new StudentNotFoundException("Student id '" + studentId + "' not found!");
 
         Optional<Course> course = courseRepo.findById(courseName);
-        if (!course.isPresent()) throw new CourseNotFoundException();
+        if (!course.isPresent()) throw new CourseNotFoundException("Course '" + courseName + "' not found!");
 
         return student.get().addCourse(course.get());
     }
@@ -112,7 +112,7 @@ public class TeamServiceImpl implements TeamService {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
             course.get().setEnabled(true);
-        else throw new CourseNotFoundException();
+        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
     }
 
     @Override
@@ -120,7 +120,7 @@ public class TeamServiceImpl implements TeamService {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
             course.get().setEnabled(false);
-        else throw new CourseNotFoundException();
+        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
     }
 
     @Override
@@ -159,7 +159,7 @@ public class TeamServiceImpl implements TeamService {
                     .stream()
                     .map(c -> modelMapper.map(c, CourseDTO.class))
                     .collect(Collectors.toList());
-        else throw new StudentNotFoundException();
+        else throw new StudentNotFoundException("Student id '" + studentId + "' not found!");
     }
 
     @Override
@@ -170,7 +170,7 @@ public class TeamServiceImpl implements TeamService {
                     .stream()
                     .map(t -> modelMapper.map(t, TeamDTO.class))
                     .collect(Collectors.toList());
-        else throw new StudentNotFoundException();
+        else throw new StudentNotFoundException("Student id '" + studentId + "' not found!");
     }
 
     @Override
@@ -181,40 +181,40 @@ public class TeamServiceImpl implements TeamService {
                     .stream()
                     .map(s -> modelMapper.map(s, StudentDTO.class))
                     .collect(Collectors.toList());
-        else throw new TeamNotFoundException();
+        else throw new TeamNotFoundException("Team id '" + teamId + "' not found!");
     }
 
     @Override
     public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds) {
         Optional<Course> courseOptional = courseRepo.findById(courseId);
         if (!courseOptional.isPresent())
-            throw new CourseNotFoundException();
+            throw new CourseNotFoundException("Course '" + courseId + "' not found!");
         Course course = courseOptional.get();
 
         if (!course.isEnabled())
-            throw new CourseNotEnabledException();
+            throw new CourseNotEnabledException("Course not yet enabled!");
 
         if (memberIds.size() < course.getMin())
-            throw new TeamMembersMinNotReachedException();
+            throw new TeamMembersMinNotReachedException("Not enough members! Given " + memberIds.size() + ". Should be at least " + course.getMin() + ".");
         if (memberIds.size() > course.getMax())
-            throw new TeamMembersMaxExceededException();
+            throw new TeamMembersMaxExceededException("Too many members! Given " + memberIds.size() + ". Should be at most " + course.getMax() + ".");
 
         Set<String> memberIdsSet = new HashSet<>(memberIds);
         if (memberIdsSet.size() < memberIds.size())
-            throw new StudentDuplicatedException();
+            throw new StudentDuplicatedException("Duplicated student in list!");
 
         List<Student> newMembers = studentRepo.findAllById(memberIdsSet);
         if (newMembers.size() < memberIdsSet.size())
-            throw new StudentNotFoundException();
+            throw new StudentNotFoundException("One or more students not found!");
 
         if (!course.getStudents().containsAll(newMembers))
-            throw new StudentNotEnrolledToCourseException();
+            throw new StudentNotEnrolledToCourseException("One or more students not enrolled to course '" + courseId + "'!");
 
         for (Team team: course.getTeams()) {
             List<Student> teamMembers = team.getMembers();
             for (Student student: newMembers) {
                 if (teamMembers.contains(student))
-                    throw new StudentAlreadyMemberForCourseException();
+                    throw new StudentAlreadyMemberForCourseException("Student '" + student.getId() + "' already has a team!");
             }
         }
 
@@ -233,7 +233,7 @@ public class TeamServiceImpl implements TeamService {
                     .stream()
                     .map(t -> modelMapper.map(t, TeamDTO.class))
                     .collect(Collectors.toList());
-        else throw new CourseNotFoundException();
+        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
     }
 
     @Override
@@ -243,7 +243,7 @@ public class TeamServiceImpl implements TeamService {
                     .stream()
                     .map(s -> modelMapper.map(s, StudentDTO.class))
                     .collect(Collectors.toList());
-        else throw new CourseNotFoundException();
+        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
     }
 
     @Override
@@ -253,6 +253,6 @@ public class TeamServiceImpl implements TeamService {
                     .stream()
                     .map(s -> modelMapper.map(s, StudentDTO.class))
                     .collect(Collectors.toList());
-        else throw new CourseNotFoundException();
+        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
     }
 }
