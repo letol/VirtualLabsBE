@@ -5,10 +5,7 @@ import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -46,5 +43,13 @@ public class CourseController {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
+    }
+
+    @PostMapping({"", "/"})
+    CourseDTO addCourse(@RequestBody CourseDTO courseDTO) {
+        if (teamService.addCourse(courseDTO))
+            return ModelHelper.enrich(courseDTO);
+        else
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + courseDTO.getName() + "' already exists!");
     }
 }
