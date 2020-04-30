@@ -1,6 +1,7 @@
 package it.polito.ai.es2.controllers;
 
 import it.polito.ai.es2.dtos.CourseDTO;
+import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,5 +35,16 @@ public class CourseController {
         if (courseDTO.isPresent())
             return ModelHelper.enrich(courseDTO.get());
         else throw new ResponseStatusException(HttpStatus.CONFLICT, "Course " + name + " not found!");
+    }
+
+    @GetMapping("/{name}/enrolled")
+    List<StudentDTO> enrolledStudents(@PathVariable String name) {
+        try {
+            return teamService.getEnrolledStudents(name).stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
     }
 }
