@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/API/courses")
@@ -22,14 +23,16 @@ public class CourseController {
 
     @GetMapping({"", "/"})
     List<CourseDTO> all() {
-        return teamService.getAllCourses();
+        return teamService.getAllCourses().stream()
+                .map(ModelHelper::enrich)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{name}")
     CourseDTO getOne(@PathVariable String name) {
         Optional<CourseDTO> courseDTO = teamService.getCourse(name);
         if (courseDTO.isPresent())
-            return courseDTO.get();
+            return ModelHelper.enrich(courseDTO.get());
         else throw new ResponseStatusException(HttpStatus.CONFLICT, "Course " + name + " not found!");
     }
 }

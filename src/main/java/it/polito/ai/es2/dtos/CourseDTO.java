@@ -1,14 +1,12 @@
 package it.polito.ai.es2.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseDTO {
+public class CourseDTO extends RepresentationModel<CourseDTO> {
 
     @NonNull
     private String name;
