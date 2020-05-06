@@ -3,6 +3,7 @@ package it.polito.ai.es2;
 import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.services.NotificationService;
 import it.polito.ai.es2.services.TeamService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ import java.util.Arrays;
 public class Es2Application {
     @Autowired
     TeamService teamService;
+
+    @Autowired
+    NotificationService notificationService;
 
     @Bean
     ModelMapper modelMapper() {
