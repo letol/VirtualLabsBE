@@ -1,5 +1,6 @@
 package it.polito.ai.es2.entities;
 
+import it.polito.ai.es2.TeamStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -22,7 +23,7 @@ public class Team {
     @NonNull
     private String name;
 
-    private int status;
+    private TeamStatus status = TeamStatus.PENDING;
 
     @ManyToOne
     @JoinColumn(name = "course_id")

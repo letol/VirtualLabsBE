@@ -1,5 +1,6 @@
 package it.polito.ai.es2.dtos;
 
+import it.polito.ai.es2.TeamStatus;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -15,5 +16,5 @@ public class TeamDTO {
     @NonNull
     private String name;
 
-    private int status = 0;
+    private TeamStatus status = TeamStatus.PENDING;
 }

@@ -6,6 +6,7 @@ import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.dtos.TeamDTO;
 import it.polito.ai.es2.entities.Course;
+import it.polito.ai.es2.TeamStatus;
 import it.polito.ai.es2.entities.Student;
 import it.polito.ai.es2.entities.Team;
 import it.polito.ai.es2.repositories.CourseRepository;
@@ -38,6 +39,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     ModelMapper modelMapper;
+
+    @Autowired
+    NotificationService notificationService;
 
     @Override
     public boolean addCourse(CourseDTO course) {
@@ -222,7 +226,10 @@ public class TeamServiceImpl implements TeamService {
         newMembers.forEach(newTeam::addMember);
         newTeam.setCourse(course);
 
-        return modelMapper.map(newTeam, TeamDTO.class);
+        TeamDTO newTeamDTO = modelMapper.map(newTeam, TeamDTO.class);
+        notificationService.notifyTeam(newTeamDTO, memberIds);
+
+        return newTeamDTO;
     }
 
     @Override
@@ -254,5 +261,29 @@ public class TeamServiceImpl implements TeamService {
                     .map(s -> modelMapper.map(s, StudentDTO.class))
                     .collect(Collectors.toList());
         else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
+    }
+
+    @Override
+    public void enableTeam(Long teamId) {
+        Optional<Team> team = teamRepo.findById(teamId);
+        if (team.isPresent())
+            team.get().setStatus(TeamStatus.ACTIVE);
+        else throw new TeamNotFoundException("Team id '" + teamId + "' not found!");
+    }
+
+    @Override
+    public void evictTeam(Long teamId) {
+        Optional<Team> team = teamRepo.findById(teamId);
+        if (team.isPresent())
+            teamRepo.delete(team.get());
+        else throw new TeamNotFoundException("Team id '" + teamId + "' not found!");
+    }
+
+    @Override
+    public CourseDTO getCourseOfTeam(Long teamId) {
+        Optional<Team> team = teamRepo.findById(teamId);
+        if (team.isPresent())
+            return modelMapper.map(team.get().getCourse(), CourseDTO.class);
+        else throw new TeamNotFoundException("Team id '" + teamId + "' not found!");
     }
 }
