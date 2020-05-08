@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${message.getTitle()}"></title>
+</head>
+<body>
+<div style="border: 3px solid;padding: 1em;text-align: center;" th:styleappend="'border-color:' + ${message.getBorderColour()}">
+    <h1 th:text="${message.getMessage()}"></h1>
+    <p>Now you can close this window.</p>
+</div>
+</body>
+</html>
