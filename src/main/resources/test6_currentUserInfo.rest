@@ -1,0 +1,18 @@
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+###
+
+GET http://localhost:8080/API/user/me
+Authorization: Bearer {{auth_token}}

@@ -1,19 +1,19 @@
 package it.polito.ai.es2.dtos;
 
 import it.polito.ai.es2.TeamStatus;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
+
+import javax.validation.constraints.NotBlank;
 
 @Data
+@Builder
 @NoArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class TeamDTO {
 
     private Long id;
 
-    @NonNull
+    @NotBlank
     private String name;
 
     private TeamStatus status = TeamStatus.PENDING;

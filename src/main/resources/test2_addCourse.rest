@@ -1,0 +1,82 @@
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+###
+# Add course 'c1'
+# Hint: should be done by teacher1
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "c1",
+  "min": 3,
+  "max": 4
+}
+
+###
+# Add course 'c2'
+# Hint: should be done by teacher1
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "c2",
+  "min": 1,
+  "max": 2
+}
+
+###
+# Add course 'c3'
+# Hint: should be done by teacher1
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "c3",
+  "min": 2,
+  "max": 4
+}
+
+###
+# Add course 'c4'
+# Hint: should be done by teacher2
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "c4",
+  "min": 3,
+  "max": 5
+}
+
+###
+# Get course 'c4'
+GET http://localhost:8080/API/courses/c4
+Authorization: Bearer {{auth_token}}
+
+###
+# Test getting not existing course
+GET http://localhost:8080/API/courses/c0
+Authorization: Bearer {{auth_token}}
+
+###
+# Get updated course list
+GET http://localhost:8080/API/courses/
+Authorization: Bearer {{auth_token}}
+
+###

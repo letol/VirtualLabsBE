@@ -8,10 +8,13 @@ import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.Valid;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,10 +39,8 @@ public class CourseController {
 
     @GetMapping("/{name}")
     CourseDTO getOne(@PathVariable String name) {
-        Optional<CourseDTO> courseDTO = teamService.getCourse(name);
-        if (courseDTO.isPresent())
-            return ModelHelper.enrich(courseDTO.get());
-        else throw new ResponseStatusException(HttpStatus.CONFLICT, "Course " + name + " not found!");
+        return ModelHelper.enrich(teamService.getCourse(name)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + name + "' not found!")));
     }
 
     @GetMapping("/{name}/enrolled")
@@ -48,14 +49,15 @@ public class CourseController {
             return teamService.getEnrolledStudents(name).stream()
                     .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
-        } catch (TeamServiceException tse) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, tse.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
     @PostMapping({"", "/"})
-    CourseDTO addCourse(@RequestBody CourseDTO courseDTO) {
-        if (teamService.addCourse(courseDTO))
+    CourseDTO addCourse(@RequestBody @Valid CourseDTO courseDTO) {
+        if (teamService.addCourse(courseDTO, ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .getUsername()))
             return ModelHelper.enrich(courseDTO);
         else
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + courseDTO.getName() + "' already exists!");
@@ -65,8 +67,8 @@ public class CourseController {
     Boolean enrollStudent(@PathVariable String name, @RequestParam("studentId") String studentId) {
         try {
             return teamService.addStudentToCourse(studentId, name);
-        } catch (TeamServiceException tse) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, tse.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -79,16 +81,16 @@ public class CourseController {
             String mimeType = tika.detect(file.getInputStream(), meta);
             if (!mimeType.equals("text/csv"))
                 throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, mimeType);
-        } catch (IOException ioe) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ioe.getMessage());
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             return teamService.addAndEnroll(reader, name);
-        } catch (TeamServiceException tse) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, tse.getMessage());
-        } catch (IOException ioe) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ioe.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 }

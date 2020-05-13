@@ -4,22 +4,22 @@ import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class CourseDTO extends RepresentationModel<CourseDTO> {
+public class UserDTO extends RepresentationModel<UserDTO> {
 
     @NotBlank
-    private String name;
+    private String id;
 
-    @NonNull
-    private Integer min;
+    @NotBlank
+    private String username;
 
-    @NonNull
-    private Integer max;
-
-    private Boolean enabled = false;
+    @NotNull
+    private List<String> roles;
 }

@@ -2,21 +2,27 @@ package it.polito.ai.es2.services;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.exceptions.CsvException;
 import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
+import it.polito.ai.es2.dtos.TeacherDTO;
 import it.polito.ai.es2.dtos.TeamDTO;
 import it.polito.ai.es2.entities.Course;
 import it.polito.ai.es2.TeamStatus;
 import it.polito.ai.es2.entities.Student;
+import it.polito.ai.es2.entities.Teacher;
 import it.polito.ai.es2.entities.Team;
 import it.polito.ai.es2.repositories.CourseRepository;
 import it.polito.ai.es2.repositories.StudentRepository;
+import it.polito.ai.es2.repositories.TeacherRepository;
 import it.polito.ai.es2.repositories.TeamRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.io.Reader;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +41,9 @@ public class TeamServiceImpl implements TeamService {
     StudentRepository studentRepo;
 
     @Autowired
+    TeacherRepository teacherRepo;
+
+    @Autowired
     TeamRepository teamRepo;
 
     @Autowired
@@ -43,12 +52,19 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     NotificationService notificationService;
 
+    @Autowired
+    UserManagementService userManagementService;
+
     @Override
-    public boolean addCourse(CourseDTO course) {
-        if (courseRepo.existsById(course.getName()))
+    @PreAuthorize("hasRole('ROLE_TEACHER') and #teacherId == authentication.principal.username")
+    public boolean addCourse(CourseDTO courseDTO, String teacherId) {
+        if (courseRepo.existsById(courseDTO.getName()))
             return false;
         else {
-            courseRepo.save(modelMapper.map(course, Course.class));
+            Teacher teacher = teacherRepo.findById(teacherId)
+                    .orElseThrow(TeacherNotFoundException::new);
+            Course course = modelMapper.map(courseDTO, Course.class);
+            teacher.addCourse(course);
             return true;
         }
     }
@@ -67,11 +83,14 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public boolean addStudent(StudentDTO student) {
-        if (studentRepo.existsById(student.getId()))
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
+    public boolean addStudent(StudentDTO studentDTO) {
+        if (studentRepo.existsById(studentDTO.getId()))
             return false;
         else {
-            studentRepo.save(modelMapper.map(student, Student.class));
+            Student student = modelMapper.map(studentDTO, Student.class);
+            student.setAuthUser(userManagementService.addUser(studentDTO));
+            studentRepo.save(student);
             return true;
         }
     }
@@ -90,6 +109,33 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public boolean addTeacher(TeacherDTO teacherDTO) {
+        if (teacherRepo.existsById(teacherDTO.getId()))
+            return false;
+        else {
+            Teacher teacher = modelMapper.map(teacherDTO, Teacher.class);
+            teacher.setAuthUser(userManagementService.addUser(teacher));
+            teacherRepo.save(teacher);
+            return true;
+        }
+    }
+
+    @Override
+    public Optional<TeacherDTO> getTeacher(String teacherId) {
+        return teacherRepo.findById(teacherId).map(t -> modelMapper.map(t, TeacherDTO.class));
+    }
+
+    @Override
+    public List<TeacherDTO> getAllTeachers() {
+        return teacherRepo.findAll()
+                .stream()
+                .map(t -> modelMapper.map(t, TeacherDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public List<StudentDTO> getEnrolledStudents(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent()) {
@@ -101,6 +147,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public boolean addStudentToCourse(String studentId, String courseName) {
         Optional<Student> student = studentRepo.findById(studentId);
         if (!student.isPresent()) throw new StudentNotFoundException("Student id '" + studentId + "' not found!");
@@ -112,6 +159,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public void enableCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -120,6 +168,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public void disableCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -128,6 +177,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public List<Boolean> addAll(List<StudentDTO> students) {
         return students.stream()
                 .map(this::addStudent)
@@ -135,6 +185,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
         return studentIds.stream()
                 .map(s -> addStudentToCourse(s, courseName))
@@ -142,13 +193,14 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public List<Boolean> addAndEnroll(Reader r, String courseName) {
         CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder<StudentDTO>(r)
                 .withType(StudentDTO.class)
                 .withIgnoreLeadingWhiteSpace(true)
                 .build();
 
-        List<StudentDTO> studentDTOList = csvToBean.parse();
+        List<@Valid StudentDTO> studentDTOList = csvToBean.parse();
         addAll(studentDTOList);
         return enrollAll(studentDTOList.stream()
                 .map(StudentDTO::getId)
@@ -156,6 +208,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and #studentId == authentication.principal.username) or hasRole('ROLE_ADMIN')")
     public List<CourseDTO> getCourses(String studentId) {
         Optional<Student> student = studentRepo.findById(studentId);
         if (student.isPresent())
@@ -167,6 +220,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and #studentId == authentication.principal.username) or hasRole('ROLE_ADMIN')")
     public List<TeamDTO> getTeamsForStudent(String studentId) {
         Optional<Student> student = studentRepo.findById(studentId);
         if (student.isPresent())
@@ -175,6 +229,18 @@ public class TeamServiceImpl implements TeamService {
                     .map(t -> modelMapper.map(t, TeamDTO.class))
                     .collect(Collectors.toList());
         else throw new StudentNotFoundException("Student id '" + studentId + "' not found!");
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_TEACHER') and #teacherId == authentication.principal.username) or hasRole('ROLE_ADMIN')")
+    public List<CourseDTO> getCoursesForTeacher(String teacherId) {
+        Optional<Teacher> teacher = teacherRepo.findById(teacherId);
+        if (teacher.isPresent())
+            return teacher.get().getCourses()
+                    .stream()
+                    .map(c -> modelMapper.map(c, CourseDTO.class))
+                    .collect(Collectors.toList());
+        else throw new TeacherNotFoundException("Teacher id '" + teacherId + "' not found!");
     }
 
     @Override
@@ -189,6 +255,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and #memberIds.contains(authentication.principal.username)) or hasRole('ROLE_ADMIN')")
     public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds) {
         Optional<Course> courseOptional = courseRepo.findById(courseId);
         if (!courseOptional.isPresent())
@@ -222,7 +289,9 @@ public class TeamServiceImpl implements TeamService {
             }
         }
 
-        Team newTeam = teamRepo.save(new Team(name));
+        Team newTeam = teamRepo.save(Team.builder()
+                .name(name)
+                .build());
         newMembers.forEach(newTeam::addMember);
         newTeam.setCourse(course);
 
@@ -233,6 +302,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
     public List<TeamDTO> getTeamsForCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -244,6 +314,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if (courseRepo.findById(courseName).isPresent())
             return courseRepo.getStudentsInTeams(courseName)
@@ -254,6 +325,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
     public List<StudentDTO> getAvailableStudents(String courseName) {
         if (courseRepo.findById(courseName).isPresent())
             return courseRepo.getStudentsNotInTeams(courseName)

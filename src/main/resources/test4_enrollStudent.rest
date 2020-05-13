@@ -1,0 +1,73 @@
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+###
+# Enroll student 's222222' to 'c4'
+POST http://localhost:8080/API/courses/c4/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s222222
+--WebAppBoundary--
+
+###
+# Enroll student 's444444' to 'c4'
+POST http://localhost:8080/API/courses/c4/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s444444
+--WebAppBoundary--
+
+###
+# Test enrolling missing student
+POST http://localhost:8080/API/courses/c4/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s000000
+--WebAppBoundary--
+
+###
+# Test enrolling to missing course
+POST http://localhost:8080/API/courses/c0/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s444444
+--WebAppBoundary--
+
+###
+# Get enrolled students of 'c4'
+GET http://localhost:8080/API/courses/c4/enrolled
+Authorization: Bearer {{auth_token}}
+
+###
+# Test getting enrolled student of missing course
+GET http://localhost:8080/API/courses/c0/enrolled
+Authorization: Bearer {{auth_token}}
+
+###

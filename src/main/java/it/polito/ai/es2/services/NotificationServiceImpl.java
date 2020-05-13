@@ -31,7 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendMessage(String address, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo("***REMOVED***"); //TODO: remove forced address before deploy
+        message.setTo("***REMOVED***"); //TODO: remove forced address before production
         message.setSubject(subject);
         message.setText(body);
         mailSender.send(message);
