@@ -24,7 +24,7 @@ public class JwtTokenProvider {
     private String secretKey = "segreto";
 
     @Value("${security.jwt.token.expire-length:3600000}")
-    private long validityInMilliseconds = 3600000; // 1h
+    private final long validityInMilliseconds = 3600000; // 1h
 
     @Autowired
     @Qualifier("userDetailsServiceImpl")
@@ -63,7 +63,7 @@ public class JwtTokenProvider {
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer "))
-            return bearerToken.substring(7, bearerToken.length());
+            return bearerToken.substring(7);
         else return null;
     }
 
