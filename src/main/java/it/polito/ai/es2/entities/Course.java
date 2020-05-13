@@ -2,10 +2,7 @@ package it.polito.ai.es2.entities;
 
 import lombok.Data;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,11 +13,16 @@ public class Course {
     @Id
     private String name;
 
+    @Column(nullable = false)
     private int min;
 
+    @Column(nullable = false)
     private int max;
 
     private boolean enabled;
+
+    @ManyToOne
+    private Teacher teacher;
 
     @ManyToMany(mappedBy = "courses")
     private List<Student> students = new ArrayList<>();

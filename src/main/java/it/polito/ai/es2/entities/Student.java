@@ -1,10 +1,12 @@
 package it.polito.ai.es2.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Data
@@ -13,9 +15,14 @@ public class Student {
     @Id
     private String id;
 
+    @Column(nullable = false)
     private String lastName;
 
+    @Column(nullable = false)
     private String firstName;
+
+    @OneToOne
+    private User authUser;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "student_course",

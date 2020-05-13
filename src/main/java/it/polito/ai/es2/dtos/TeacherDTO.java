@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class StudentDTO extends RepresentationModel<StudentDTO> {
+public class TeacherDTO extends RepresentationModel<TeacherDTO> {
 
     @NotBlank
     @CsvBindByName(required = true)

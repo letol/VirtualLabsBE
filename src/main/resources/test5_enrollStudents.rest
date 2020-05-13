@@ -1,0 +1,87 @@
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+###
+# Add and enroll to 'c3' students from CSV
+POST http://localhost:8080/API/courses/c3/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.csv"
+
+< test.csv
+--WebAppBoundary--
+
+###
+# Test CSV with wrong header
+POST http://localhost:8080/API/courses/c3/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.csv"
+
+< testWithWrongHeader.csv
+--WebAppBoundary--
+
+###
+# Test CSV with empty values
+POST http://localhost:8080/API/courses/c3/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.csv"
+
+< testWithEmptyValues.csv
+--WebAppBoundary--
+
+###
+# Test CSV with blank values
+POST http://localhost:8080/API/courses/c3/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.csv"
+
+< testWithBlankValues.csv
+--WebAppBoundary--
+
+###
+# Test MIME type error with coherent extension
+POST http://localhost:8080/API/courses/c3/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.json"
+
+< http-client.env.json
+--WebAppBoundary--
+
+###
+# Test MIME type error with misleading extension
+POST http://localhost:8080/API/courses/c3/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.csv"
+
+< apt
+--WebAppBoundary--
+
+###

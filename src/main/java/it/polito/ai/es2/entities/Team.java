@@ -1,10 +1,7 @@
 package it.polito.ai.es2.entities;
 
 import it.polito.ai.es2.TeamStatus;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,15 +9,16 @@ import java.util.List;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class Team {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    @NonNull
+    @Column(nullable = false)
     private String name;
 
     private TeamStatus status = TeamStatus.PENDING;

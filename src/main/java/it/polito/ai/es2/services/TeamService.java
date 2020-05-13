@@ -2,6 +2,7 @@ package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
+import it.polito.ai.es2.dtos.TeacherDTO;
 import it.polito.ai.es2.dtos.TeamDTO;
 
 import java.io.Reader;
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 public interface TeamService {
 
-    boolean addCourse(CourseDTO course);
+    boolean addCourse(CourseDTO course, String teacherId);
 
     Optional<CourseDTO> getCourse(String name);
 
@@ -21,6 +22,12 @@ public interface TeamService {
     Optional<StudentDTO> getStudent(String studentId);
 
     List<StudentDTO> getAllStudents();
+
+    boolean addTeacher(TeacherDTO teacher);
+
+    Optional<TeacherDTO> getTeacher(String teacherId);
+
+    List<TeacherDTO> getAllTeachers();
 
     List<StudentDTO> getEnrolledStudents(String courseName);
 
@@ -39,6 +46,8 @@ public interface TeamService {
     List<CourseDTO> getCourses(String studentId);
 
     List<TeamDTO> getTeamsForStudent(String studentId);
+
+    List<CourseDTO> getCoursesForTeacher(String teacherId);
 
     List<StudentDTO> getMembers(Long teamId);
 

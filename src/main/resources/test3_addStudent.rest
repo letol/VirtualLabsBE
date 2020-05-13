@@ -1,0 +1,102 @@
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+###
+# Add student 's111111'
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s111111",
+  "lastName": "Rossi",
+  "firstName": "Mario"
+}
+
+###
+# Add student 's222222'
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s222222",
+  "lastName": "Bianchi",
+  "firstName": "Giulio"
+}
+
+###
+# Add student 's333333'
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s333333",
+  "lastName": "Verdi",
+  "firstName": "Giuseppe"
+}
+
+###
+# Add student 's444444'
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s444444",
+  "lastName": "Bruni",
+  "firstName": "Giorgio"
+}
+
+###
+# Test adding student with empty parameter
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s888888",
+  "lastName": "",
+  "firstName": "Giorgio"
+}
+
+###
+# Test adding student with blank parameter
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s888888",
+  "lastName": " ",
+  "firstName": "Giorgio"
+}
+
+###
+# Get student 's444444'
+GET http://localhost:8080/API/students/s444444
+Authorization: Bearer {{auth_token}}
+
+###
+# Test getting not existing user
+GET http://localhost:8080/API/students/s000000
+Authorization: Bearer {{auth_token}}
+
+###
+# Get updated student list
+GET http://localhost:8080/API/students/
+Authorization: Bearer {{auth_token}}
+
+###
