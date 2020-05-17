@@ -20,9 +20,8 @@ public class ScheduledTasks {
         log.info("Token check - Started...");
 
         Timestamp now = new Timestamp(System.currentTimeMillis());
-        tokenRepo.findAll()
+        tokenRepo.findAllByExpiryDateBefore(now)
                 .stream()
-                .filter(token -> token.getExpiryDate().before(now))
                 .forEach(token -> {
                     log.info("Token check - Expired token deleted (" + token.getId() +")");
                     tokenRepo.delete(token);
