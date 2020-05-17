@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -74,9 +74,26 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public List<String> rejectExpired() {
+        List<Token> expiredTokens = tokenRepo.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()));
+
+        expiredTokens.stream()
+                .forEach(tokenRepo::delete);
+
+        expiredTokens.stream()
+                .map(Token::getTeamId)
+                .distinct()
+                .forEach(teamService::evictTeam);
+
+        return expiredTokens.stream()
+                .map(Token::getId)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void notifyTeam(TeamDTO dto, List<String> memberIds) {
         long now = System.currentTimeMillis();
-        long duration = Duration.ofHours(1).toMillis();
+        long duration = 86400000; // 24h
         Timestamp expiryDate = new Timestamp(now + duration);
 
         memberIds.stream()

@@ -1,31 +1,23 @@
 package it.polito.ai.es2.components;
 
-import it.polito.ai.es2.repositories.TokenRepository;
+import it.polito.ai.es2.services.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.sql.Timestamp;
 
 @Component
 @Slf4j
 public class ScheduledTasks {
 
     @Autowired
-    TokenRepository tokenRepo;
+    NotificationService notificationService;
 
     @Scheduled(cron = "${cron.token-check}")
     public void tokenCheck() {
         log.info("Token check - Started...");
 
-        Timestamp now = new Timestamp(System.currentTimeMillis());
-        tokenRepo.findAllByExpiryDateBefore(now)
-                .stream()
-                .forEach(token -> {
-                    log.info("Token check - Expired token deleted (" + token.getId() +")");
-                    tokenRepo.delete(token);
-                });
+        notificationService.rejectExpired().forEach(tokenId -> log.info("Token check - Expired token deleted (" + tokenId +")"));
 
         log.info("Token check - Finished.");
     }

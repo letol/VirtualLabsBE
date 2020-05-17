@@ -12,5 +12,7 @@ public interface NotificationService {
 
     boolean reject(String token);
 
+    List<String> rejectExpired();
+
     void notifyTeam(TeamDTO dto, List<String> memberIds);
 }
