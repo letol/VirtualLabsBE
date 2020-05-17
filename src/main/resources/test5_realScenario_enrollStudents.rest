@@ -1,0 +1,39 @@
+POST http://localhost:8080/auth/signin
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+###
+# Add and enroll to 'Programmazione di Sistema' students from CSV
+POST http://localhost:8080/API/courses/Programmazione%20di%20Sistema/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.csv"
+
+< pds_students.csv
+--WebAppBoundary--
+
+###
+# Add and enroll to 'Applicazioni Internet' students from CSV
+POST http://localhost:8080/API/courses/Applicazioni%20Internet/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.csv"
+
+< ai_students.csv
+--WebAppBoundary--
+
+###
