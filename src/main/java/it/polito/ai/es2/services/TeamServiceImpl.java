@@ -288,9 +288,7 @@ public class TeamServiceImpl implements TeamService {
             }
         }
 
-        Team newTeam = teamRepo.save(Team.builder()
-                .name(name)
-                .build());
+        Team newTeam = teamRepo.save(new Team(name));
         newMembers.forEach(newTeam::addMember);
         newTeam.setCourse(course);
 

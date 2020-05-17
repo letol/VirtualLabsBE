@@ -9,8 +9,8 @@ import java.util.List;
 
 @Entity
 @Data
-@Builder
 @NoArgsConstructor
+@RequiredArgsConstructor
 @AllArgsConstructor
 public class Team {
 
@@ -18,6 +18,7 @@ public class Team {
     @GeneratedValue
     private Long id;
 
+    @NonNull
     @Column(nullable = false)
     private String name;
 
