@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.util.Collections;
 
 @Component
@@ -21,6 +22,7 @@ public class DataInitializer implements CommandLineRunner {
     PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         String admin_user = "admin";
         String admin_pwd = "admin";

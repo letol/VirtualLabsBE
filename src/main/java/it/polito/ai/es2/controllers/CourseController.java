@@ -8,7 +8,7 @@ import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,9 +54,8 @@ public class CourseController {
     }
 
     @PostMapping({"", "/"})
-    CourseDTO addCourse(@RequestBody @Valid CourseDTO courseDTO) {
-        if (teamService.addCourse(courseDTO, ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
-                .getUsername()))
+    CourseDTO addCourse(@RequestBody @Valid CourseDTO courseDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        if (teamService.addCourse(courseDTO, userDetails.getUsername()))
             return ModelHelper.enrich(courseDTO);
         else
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + courseDTO.getName() + "' already exists!");
