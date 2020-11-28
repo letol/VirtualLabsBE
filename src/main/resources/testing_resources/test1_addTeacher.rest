@@ -39,3 +39,30 @@ Authorization: Bearer {{auth_token}}
 }
 
 ###
+
+PUT http://localhost:3000/students/3
+Content-Type: application/json
+
+{
+  "id": 3,
+  "serial": "s333333",
+  "lastName": "Verdi",
+  "firstName": "Giuseppe",
+  "courseId": 1,
+  "groupId": 0
+}
+
+###
+
+GET http://localhost:3000/students
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im9saXZlckBtYWlsLmNvbSIsImlhdCI6MTU5MTQ4OTg5OSwiZXhwIjoxNTkxNDkzNDk5LCJzdWIiOiIxIn0.XWVXf6kPZG8NfBvcu3Hy2PsbJ4Kn4wicGLYBfCeL-lQ
+
+###
+
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+  "email": "oliver@mail.com",
+  "password": "bestPassw0rd"
+}
