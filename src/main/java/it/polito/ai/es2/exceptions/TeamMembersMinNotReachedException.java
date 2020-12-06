@@ -1,4 +1,4 @@
-package it.polito.ai.es2.services;
+package it.polito.ai.es2.exceptions;
 
 public class TeamMembersMinNotReachedException extends TeamServiceException {
     public TeamMembersMinNotReachedException() {

@@ -33,7 +33,7 @@ public class AuthController {
     @Qualifier("userDetailsServiceImpl")
     UserDetailsService userDetailsService;
 
-    @PostMapping("/signin")
+    @PostMapping("/login")
     public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody JwtRequest data) {
         try {
             String username = data.getUsername();

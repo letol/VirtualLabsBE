@@ -64,4 +64,6 @@ public interface TeamService {
     void evictTeam(Long teamId);
 
     CourseDTO getCourseOfTeam(Long teamId);
+
+    List<CourseDTO> getTeacherCourses(String professor);
 }

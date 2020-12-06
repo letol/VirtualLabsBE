@@ -2,6 +2,7 @@ package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.dtos.TeamDTO;
 import it.polito.ai.es2.entities.Token;
+import it.polito.ai.es2.exceptions.TokenNotFoundException;
 import it.polito.ai.es2.repositories.TokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
