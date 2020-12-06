@@ -2,8 +2,12 @@ package it.polito.ai.es2.controllers;
 
 import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
-import it.polito.ai.es2.services.TeamService;
-import it.polito.ai.es2.services.TeamServiceException;
+import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.exceptions.CourseNotFoundException;
+import it.polito.ai.es2.exceptions.StudentNotFoundException;
+import it.polito.ai.es2.exceptions.TeamServiceException;
+import it.polito.ai.es2.services.*;
+import lombok.extern.java.Log;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +24,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
+@Log(topic = "CourseController")
 @RequestMapping("/API/courses")
 public class CourseController {
 
     @Autowired
     TeamService teamService;
+
+    @Autowired
+    NotificationService notificationService;
 
     @GetMapping({"", "/"})
     List<CourseDTO> all() {
@@ -89,6 +98,74 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+    @PostMapping("/{name}/teams")
+    TeamDTO createTeam(@RequestBody Map<String,Object> obj, @PathVariable String name) {
+        /*{
+            "team": {...}
+            "memberIds": [...]
+    }*/
+        try {
+            if (obj.containsKey("team") && obj.containsKey("memberIds")) {
+                List<String> membersId = (List<String>) obj.get("memberIds");
+                log.info("Propose team to members");
+                TeamDTO teamDTO = teamService.proposeTeam(name,(String) obj.get("team"),membersId);
+                //notificationService.notifyTeam(teamDTO,membersId);
+                //TeamDTO team = (TeamDTO) obj.get("te");
+                return teamDTO;
+            } else throw new ResponseStatusException(HttpStatus.CONFLICT,"Bad_input");
+        }catch(CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        } catch (StudentNotFoundException s) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"memberIds");
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+    }
+
+    @GetMapping("/{name}/teams")
+    List<TeamDTO> listTeams(@PathVariable String name) {
+        try {
+            return teamService.getTeamsForCourse(name);
+        } catch (CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        }
+    }
+
+    @GetMapping("/{name}/availableStudents")
+    List<StudentDTO> listFreeStudents(@PathVariable String name){
+        try {
+            return teamService.getAvailableStudents(name);
+        } catch (CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        }
+    }
+
+    @GetMapping("/{name}/StudentsInTeam")
+    List<StudentDTO> studentsInTeam(@PathVariable String name){
+        try {
+            return teamService.getStudentsInTeams(name);
+        } catch (CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        }
+    }
+
+    @GetMapping("/{name}/enableCourse")
+    public void enableCourse(@PathVariable String name ){
+        try{
+            teamService.enableCourse(name);
+        }catch (CourseNotFoundException c){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        }
+    }
+
+    @GetMapping("/{name}/disableCourse")
+    public void disableCourse(@PathVariable String name ){
+        try{
+            teamService.disableCourse(name);
+        }catch (CourseNotFoundException c){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
         }
     }
 }

@@ -1,6 +1,8 @@
 package it.polito.ai.es2.controllers;
 
+import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.TeacherDTO;
+import it.polito.ai.es2.exceptions.TeacherNotFoundException;
 import it.polito.ai.es2.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,4 +40,16 @@ public class TeacherController {
             return ModelHelper.enrich(teacherDTO);
         else throw new ResponseStatusException(HttpStatus.CONFLICT, "Teacher id '" + teacherDTO.getId() + "' already exists!");
     }
+
+    @GetMapping("/{id}/courses")
+    public List<CourseDTO>  getTeachers(@PathVariable String id){
+        try {
+            return teamService.getTeacherCourses(id).stream().map(p -> ModelHelper.enrich(p)).collect(Collectors.toList());
+        }
+        catch(TeacherNotFoundException p) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,id);
+        }
+
+    }
+
 }

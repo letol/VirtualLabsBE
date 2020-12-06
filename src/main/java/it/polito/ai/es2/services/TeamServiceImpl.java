@@ -11,6 +11,7 @@ import it.polito.ai.es2.TeamStatus;
 import it.polito.ai.es2.entities.Student;
 import it.polito.ai.es2.entities.Teacher;
 import it.polito.ai.es2.entities.Team;
+import it.polito.ai.es2.exceptions.*;
 import it.polito.ai.es2.repositories.CourseRepository;
 import it.polito.ai.es2.repositories.StudentRepository;
 import it.polito.ai.es2.repositories.TeacherRepository;
@@ -18,6 +19,7 @@ import it.polito.ai.es2.repositories.TeamRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -146,7 +148,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public boolean addStudentToCourse(String studentId, String courseName) {
         Optional<Student> student = studentRepo.findById(studentId);
         if (!student.isPresent()) throw new StudentNotFoundException("Student id '" + studentId + "' not found!");
@@ -158,7 +160,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public void enableCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -167,7 +169,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public void disableCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -184,7 +186,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
         return studentIds.stream()
                 .map(s -> addStudentToCourse(s, courseName))
@@ -192,7 +194,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<Boolean> addAndEnroll(Reader r, String courseName) {
         CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder<StudentDTO>(r)
                 .withType(StudentDTO.class)
@@ -243,6 +245,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName))or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName))")
     public List<StudentDTO> getMembers(Long teamId) {
         Optional<Team> team = teamRepo.findById(teamId);
         if (team.isPresent())
@@ -254,7 +258,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and #memberIds.contains(authentication.principal.username)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_STUDENT')  and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
     public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds) {
         Optional<Course> courseOptional = courseRepo.findById(courseId);
         if (!courseOptional.isPresent())
@@ -264,8 +268,12 @@ public class TeamServiceImpl implements TeamService {
         if (!course.isEnabled())
             throw new CourseNotEnabledException("Course not yet enabled!");
 
+        if (!memberIds.contains(SecurityContextHolder.getContext().getAuthentication().getName()))
+            throw new TeamServiceException("Auth Student not present");
+
         if (memberIds.size() < course.getMin())
             throw new TeamMembersMinNotReachedException("Not enough members! Given " + memberIds.size() + ". Should be at least " + course.getMin() + ".");
+
         if (memberIds.size() > course.getMax())
             throw new TeamMembersMaxExceededException("Too many members! Given " + memberIds.size() + ". Should be at most " + course.getMax() + ".");
 
@@ -299,7 +307,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<TeamDTO> getTeamsForCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -311,7 +320,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if (courseRepo.findById(courseName).isPresent())
             return courseRepo.getStudentsInTeams(courseName)
@@ -322,7 +332,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<StudentDTO> getAvailableStudents(String courseName) {
         if (courseRepo.findById(courseName).isPresent())
             return courseRepo.getStudentsNotInTeams(courseName)
@@ -354,5 +365,15 @@ public class TeamServiceImpl implements TeamService {
         if (team.isPresent())
             return modelMapper.map(team.get().getCourse(), CourseDTO.class);
         else throw new TeamNotFoundException("Team id '" + teamId + "' not found!");
+    }
+
+    @Override
+    public List<CourseDTO> getTeacherCourses(String professor){
+        Optional<Teacher> professor1 = teacherRepo.findById(professor);
+        if(professor1.isPresent())
+        {
+            return professor1.get().getCourses().
+                    stream().map(p -> modelMapper.map(p,CourseDTO.class)).collect(Collectors.toList());
+        } else throw new TeacherNotFoundException();
     }
 }
