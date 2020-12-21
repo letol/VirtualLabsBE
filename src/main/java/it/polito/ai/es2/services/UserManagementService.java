@@ -10,11 +10,7 @@ import java.util.Optional;
 
 public interface UserManagementService {
 
-    User addUser(User user);
-
-    User addUser(StudentDTO studentDTO);
-
-    User addUser(Teacher teacher);
+    User addUser(String id, String lastname, String firstname, String password, String email);
 
     Optional<UserDTO> getUser(Long userId);
 

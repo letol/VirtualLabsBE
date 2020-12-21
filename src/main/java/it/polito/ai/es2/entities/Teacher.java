@@ -19,6 +19,12 @@ public class Teacher {
     @Column(nullable = false)
     private String firstName;
 
+    @Column(nullable = false)
+    private String email;
+
+    @Column(nullable = false, length = 1000)
+    private byte[] avatar;
+
     @OneToOne
     @JoinColumn(name = "auth_user_id")
     private User authUser;

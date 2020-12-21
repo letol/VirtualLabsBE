@@ -26,4 +26,10 @@ public class TeacherDTO extends RepresentationModel<TeacherDTO> {
     @NotBlank
     @CsvBindByName(required = true)
     private String firstName;
+
+    @NotBlank
+    @CsvBindByName(required = true)
+    private String email;
+
+    private byte[] avatar;
 }
