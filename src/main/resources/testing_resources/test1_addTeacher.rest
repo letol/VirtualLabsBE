@@ -1,8 +1,21 @@
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "{{id}}",
+  "lastname": "{{lastname}}",
+  "firstname": "{{firstname}}",
+  "password": "{{password}}",
+  "email": "{{email}}"
+}
+
+###
+
 POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "username": "{{username}}",
+  "username": "{{id}}",
   "password": "{{password}}"
 }
 
@@ -22,8 +35,8 @@ Authorization: Bearer {{auth_token}}
 {
   "id": "d111111",
   "lastName": "Malnati",
-  "firstName": "Giovanni"
-}
+  "firstName": "Giovanni",
+  "email": "d111111@polito.it"}
 
 ###
 # Add teacher 'd222222' (teacher2)
@@ -35,7 +48,8 @@ Authorization: Bearer {{auth_token}}
 {
   "id": "d222222",
   "lastName": "Servetti",
-  "firstName": "Antonio"
+  "firstName": "Antonio",
+  "email": "d222222@polito.it"
 }
 
 ###

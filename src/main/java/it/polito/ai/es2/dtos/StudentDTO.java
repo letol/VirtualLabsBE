@@ -26,4 +26,11 @@ public class StudentDTO extends RepresentationModel<StudentDTO> {
     @NotBlank
     @CsvBindByName(required = true)
     private String firstName;
+
+    @NotBlank
+    @CsvBindByName(required = true)
+    private String email;
+
+    private byte[] avatar;
+
 }

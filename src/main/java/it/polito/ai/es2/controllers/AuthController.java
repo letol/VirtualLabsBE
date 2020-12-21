@@ -3,8 +3,12 @@ package it.polito.ai.es2.controllers;
 import it.polito.ai.es2.JwtRequest;
 import it.polito.ai.es2.JwtResponse;
 import it.polito.ai.es2.components.JwtTokenProvider;
+import it.polito.ai.es2.exceptions.EmailNotValidException;
+import it.polito.ai.es2.exceptions.UserManagementServiceException;
+import it.polito.ai.es2.services.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,6 +39,9 @@ public class AuthController {
     @Qualifier("userDetailsServiceImpl")
     UserDetailsService userDetailsService;
 
+    @Autowired
+    UserManagementService userManagementService;
+
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody JwtRequest data) {
         try {
@@ -46,6 +55,37 @@ public class AuthController {
             return ResponseEntity.ok(new JwtResponse(token));
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username/password supplied!");
+        }
+    }
+
+    @PostMapping("/register")
+    public boolean createAuthenticationUser(@RequestBody Map<String,String> form) {
+        /*{
+            "id": String,
+            "lastname": String,
+            "firstname": String,
+            "password": String,
+            "email": String
+        }*/
+        try {
+            if (form.containsKey("id") &&
+                    form.containsKey("lastname") &&
+                    form.containsKey("firstname") &&
+                    form.containsKey("password") &&
+                    form.containsKey("email")) {
+
+                userManagementService.addUser(form.get("id"),
+                        form.get("lastname"),
+                        form.get("firstname"),
+                        form.get("password"),
+                        form.get("email"));
+
+                return true;
+            } else {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Missing form key");
+            }
+        } catch (EmailNotValidException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

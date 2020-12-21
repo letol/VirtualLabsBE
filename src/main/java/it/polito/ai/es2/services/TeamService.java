@@ -4,6 +4,7 @@ import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.dtos.TeacherDTO;
 import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.entities.User;
 
 import java.io.Reader;
 import java.util.List;
@@ -19,11 +20,15 @@ public interface TeamService {
 
     boolean addStudent(StudentDTO student);
 
+    void addAuthToStudent(StudentDTO studentDTO, User authUser);
+
     Optional<StudentDTO> getStudent(String studentId);
 
     List<StudentDTO> getAllStudents();
 
     boolean addTeacher(TeacherDTO teacher);
+
+    void addAuthToTeacher(TeacherDTO teacherDTO, User authUser);
 
     Optional<TeacherDTO> getTeacher(String teacherId);
 

@@ -6,11 +6,8 @@ import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.dtos.TeacherDTO;
 import it.polito.ai.es2.dtos.TeamDTO;
-import it.polito.ai.es2.entities.Course;
+import it.polito.ai.es2.entities.*;
 import it.polito.ai.es2.TeamStatus;
-import it.polito.ai.es2.entities.Student;
-import it.polito.ai.es2.entities.Teacher;
-import it.polito.ai.es2.entities.Team;
 import it.polito.ai.es2.exceptions.*;
 import it.polito.ai.es2.repositories.CourseRepository;
 import it.polito.ai.es2.repositories.StudentRepository;
@@ -21,10 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.io.File;
+import java.io.IOException;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class TeamServiceImpl implements TeamService {
+
+    byte[] defaultAvatar;
 
     @Autowired
     CourseRepository courseRepo;
@@ -55,6 +58,11 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     UserManagementService userManagementService;
+
+    public TeamServiceImpl() throws IOException {
+        File defaultAvatarFile = ResourceUtils.getFile("classpath:img/default_user_avatar.png");
+        defaultAvatar = Files.readAllBytes(defaultAvatarFile.toPath());
+    }
 
     @Override
     @PreAuthorize("hasRole('ROLE_TEACHER') and #teacherId == authentication.principal.username")
@@ -84,16 +92,24 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_TEACHER') or hasRole('ROLE_ADMIN')")
     public boolean addStudent(StudentDTO studentDTO) {
         if (studentRepo.existsById(studentDTO.getId()))
             return false;
         else {
+            if (studentDTO.getAvatar() == null) {
+                studentDTO.setAvatar(defaultAvatar);
+            }
             Student student = modelMapper.map(studentDTO, Student.class);
-            student.setAuthUser(userManagementService.addUser(studentDTO));
             studentRepo.save(student);
             return true;
         }
+    }
+
+    @Override
+    public void addAuthToStudent(StudentDTO studentDTO, User authUser) {
+        Student student = studentRepo.findById(studentDTO.getId()).orElseThrow(StudentNotFoundException::new);
+        student.setAuthUser(authUser);
+        studentRepo.save(student);
     }
 
     @Override
@@ -110,16 +126,23 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public boolean addTeacher(TeacherDTO teacherDTO) {
         if (teacherRepo.existsById(teacherDTO.getId()))
             return false;
         else {
+            if(teacherDTO.getAvatar() == null)
+                teacherDTO.setAvatar(defaultAvatar);
             Teacher teacher = modelMapper.map(teacherDTO, Teacher.class);
-            teacher.setAuthUser(userManagementService.addUser(teacher));
             teacherRepo.save(teacher);
             return true;
         }
+    }
+
+    @Override
+    public void addAuthToTeacher(TeacherDTO teacherDTO, User authUser) {
+        Teacher teacher = teacherRepo.findById(teacherDTO.getId()).orElseThrow(TeacherNotFoundException::new);
+        teacher.setAuthUser(authUser);
+        teacherRepo.save(teacher);
     }
 
     @Override
