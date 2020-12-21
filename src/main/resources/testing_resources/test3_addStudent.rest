@@ -21,7 +21,8 @@ Authorization: Bearer {{auth_token}}
 {
   "id": "s111111",
   "lastName": "Rossi",
-  "firstName": "Mario"
+  "firstName": "Mario",
+  "email": "s111111@studenti.polito.it"
 }
 
 ###
@@ -33,7 +34,8 @@ Authorization: Bearer {{auth_token}}
 {
   "id": "s222222",
   "lastName": "Bianchi",
-  "firstName": "Giulio"
+  "firstName": "Giulio",
+  "email": "s222222@studenti.polito.it"
 }
 
 ###
@@ -45,7 +47,8 @@ Authorization: Bearer {{auth_token}}
 {
   "id": "s333333",
   "lastName": "Verdi",
-  "firstName": "Giuseppe"
+  "firstName": "Giuseppe",
+  "email": "s333333@studenti.polito.it"
 }
 
 ###
@@ -57,7 +60,8 @@ Authorization: Bearer {{auth_token}}
 {
   "id": "s444444",
   "lastName": "Bruni",
-  "firstName": "Giorgio"
+  "firstName": "Giorgio",
+  "email": "s444444@studenti.polito.it"
 }
 
 ###
@@ -69,7 +73,8 @@ Authorization: Bearer {{auth_token}}
 {
   "id": "s888888",
   "lastName": "",
-  "firstName": "Giorgio"
+  "firstName": "Giorgio",
+  "email": "s888888@studenti.polito.it"
 }
 
 ###
@@ -81,7 +86,8 @@ Authorization: Bearer {{auth_token}}
 {
   "id": "s888888",
   "lastName": " ",
-  "firstName": "Giorgio"
+  "firstName": "Giorgio",
+  "email": "s888888@studenti.polito.it"
 }
 
 ###

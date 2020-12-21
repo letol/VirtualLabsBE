@@ -36,7 +36,8 @@ Authorization: Bearer {{auth_token}}
   "id": "d111111",
   "lastName": "Malnati",
   "firstName": "Giovanni",
-  "email": "d111111@polito.it"}
+  "email": "d111111@polito.it"
+}
 
 ###
 # Add teacher 'd222222' (teacher2)
