@@ -30,6 +30,9 @@ public class Course {
     @OneToMany(mappedBy = "course")
     private List<Team> teams;
 
+    @OneToMany(mappedBy = "course")
+    private List<Assignment> assignments;
+
     public boolean addStudent(Student student) {
         if (this.students.contains(student))
             return false;
