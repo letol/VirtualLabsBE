@@ -38,6 +38,9 @@ public class Student {
     @ManyToMany(mappedBy = "members")
     private List<Team> teams = new ArrayList<>();
 
+    @OneToMany(mappedBy = "student")
+    private List<Homework> homeworks = new ArrayList<>();
+
     public boolean addCourse(Course course) {
         if (this.courses.contains(course))
             return false;
