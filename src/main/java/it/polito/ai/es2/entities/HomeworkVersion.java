@@ -22,7 +22,10 @@ public class HomeworkVersion {
     Timestamp timestamp;
 
     @ManyToOne
-    @JoinColumn(name = "homework_id")
+    @JoinColumns({
+            @JoinColumn(name = "assignment_id"),
+            @JoinColumn(name = "student_id")
+    })
     private Homework homework;
 
 }
