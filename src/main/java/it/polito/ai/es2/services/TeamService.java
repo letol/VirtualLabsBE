@@ -1,9 +1,6 @@
 package it.polito.ai.es2.services;
 
-import it.polito.ai.es2.dtos.CourseDTO;
-import it.polito.ai.es2.dtos.StudentDTO;
-import it.polito.ai.es2.dtos.TeacherDTO;
-import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.User;
 
 import java.io.Reader;
@@ -71,4 +68,10 @@ public interface TeamService {
     CourseDTO getCourseOfTeam(Long teamId);
 
     List<CourseDTO> getTeacherCourses(String professor);
+
+    VmModelDTO addVmModel(VmModelDTO vmModelDTO, String courseName);
+
+    VmIstanceDTO createVmIstance (VmIstanceDTO vmIstanceDTO, String courseName, Long teamId);
+
+    String changeStatusVM(String command, String courseName, Long tid, Long vmid);
 }

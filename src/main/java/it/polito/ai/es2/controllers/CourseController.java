@@ -1,8 +1,6 @@
 package it.polito.ai.es2.controllers;
 
-import it.polito.ai.es2.dtos.CourseDTO;
-import it.polito.ai.es2.dtos.StudentDTO;
-import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.exceptions.CourseNotFoundException;
 import it.polito.ai.es2.exceptions.StudentNotFoundException;
 import it.polito.ai.es2.exceptions.TeamServiceException;
@@ -123,6 +121,40 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
+
+    @PostMapping("/{name}/vmModel")
+    VmModelDTO createVmModel(@RequestBody VmModelDTO vmModelDTO, @PathVariable String name) {
+        try {
+            return teamService.addVmModel(vmModelDTO,name);
+        }catch(CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+    }
+
+    @PostMapping("/{name}/teams/{id}/vmIstance")
+    VmIstanceDTO createVmIstance(@RequestBody VmIstanceDTO vmIstanceDTO, @PathVariable String name, @PathVariable Long id) {
+        try {
+            return teamService.createVmIstance(vmIstanceDTO,name,id);
+        }catch(CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+    }
+
+    @PostMapping("/{name}/teams/{tid}/vmIstance/{vmid}/addOwner")
+    String changeStatusVM(@RequestBody String command, @PathVariable String name, @PathVariable Long tid, @PathVariable Long vmid) {
+        try {
+            return teamService.changeStatusVM(command,name,tid,vmid);
+        }catch(CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+    }
+
 
     @GetMapping("/{name}/teams")
     List<TeamDTO> listTeams(@PathVariable String name) {

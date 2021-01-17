@@ -35,6 +35,12 @@ public class Student {
             inverseJoinColumns = @JoinColumn(name = "course_name"))
     private List<Course> courses = new ArrayList<>();
 
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "student_course",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "vmIstance"))
+    private List<VmIstance> ownedVMs = new ArrayList<>();
+
     @ManyToMany(mappedBy = "members")
     private List<Team> teams = new ArrayList<>();
 
@@ -45,6 +51,24 @@ public class Student {
             this.courses.add(course);
             course.getStudents().add(this);
             return true;
+        }
+    }
+
+    public boolean addVmOwnership(VmIstance vmIstance) {
+        if (this.ownedVMs.contains(vmIstance))
+            return false;
+        else {
+            this.ownedVMs.add(vmIstance);
+            vmIstance.getOwners().add(this);
+            return true;
+        }
+    }
+
+    public boolean isOwner(VmIstance vmIstance) {
+        if (this.ownedVMs.contains(vmIstance))
+            return true;
+        else {
+            return false;
         }
     }
 

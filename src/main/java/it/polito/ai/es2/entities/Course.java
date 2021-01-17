@@ -30,6 +30,10 @@ public class Course {
     @OneToMany(mappedBy = "course")
     private List<Team> teams;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "vmModel_id", referencedColumnName = "id")
+    private VmModel vmModel;
+
     public boolean addStudent(Student student) {
         if (this.students.contains(student))
             return false;
