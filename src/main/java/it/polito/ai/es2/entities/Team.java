@@ -24,6 +24,22 @@ public class Team {
 
     private TeamStatus status = TeamStatus.PENDING;
 
+    @NonNull
+    @Column(nullable = false)
+    private int vcpuMAX;
+
+    @NonNull
+    @Column(nullable = false)
+    private Float memoryMAX;
+
+    @NonNull
+    @Column(nullable = false)
+    private Float diskMAX;
+
+    private int maxVmIstance = 0;
+
+    private int runningVmIstance = 0;
+
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
@@ -33,6 +49,9 @@ public class Team {
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "student_id"))
     private List<Student> members = new ArrayList<>();
+
+    @OneToMany(mappedBy = "team")
+    private List<VmIstance> vmIstances = new ArrayList<>();
 
     public boolean setCourse(Course course) {
         if (this.course == course)
@@ -65,5 +84,24 @@ public class Team {
             return true;
         } else
             return false;
+    }
+
+    public boolean addVmIstanceToTeam(VmIstance vmIstance) {
+        int totCpu = vmIstance.getVcpu();
+        Float totMemory = vmIstance.getMemory();
+        Float totDisk = vmIstance.getDisk();
+
+        for (VmIstance var:
+                vmIstances ) {
+            totCpu+=var.getVcpu();
+            totMemory+=var.getMemory();
+            totDisk+=var.getDisk();
+        }
+        if(totCpu <= vcpuMAX && totMemory <= memoryMAX && totDisk <= diskMAX)
+        {
+            vmIstances.add(vmIstance);
+            return true;
+        }
+        return false;
     }
 }

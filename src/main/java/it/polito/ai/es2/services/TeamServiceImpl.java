@@ -2,17 +2,11 @@ package it.polito.ai.es2.services;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import it.polito.ai.es2.dtos.CourseDTO;
-import it.polito.ai.es2.dtos.StudentDTO;
-import it.polito.ai.es2.dtos.TeacherDTO;
-import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.*;
 import it.polito.ai.es2.TeamStatus;
 import it.polito.ai.es2.exceptions.*;
-import it.polito.ai.es2.repositories.CourseRepository;
-import it.polito.ai.es2.repositories.StudentRepository;
-import it.polito.ai.es2.repositories.TeacherRepository;
-import it.polito.ai.es2.repositories.TeamRepository;
+import it.polito.ai.es2.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -58,6 +52,13 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     UserManagementService userManagementService;
+
+    @Autowired
+    VmModelRepository vmModelRepository;
+
+    @Autowired
+    VmIstanceRepository vmIstanceRepository;
+
 
     public TeamServiceImpl() throws IOException {
         File defaultAvatarFile = ResourceUtils.getFile("classpath:img/default_user_avatar.png");
@@ -399,4 +400,67 @@ public class TeamServiceImpl implements TeamService {
                     stream().map(p -> modelMapper.map(p,CourseDTO.class)).collect(Collectors.toList());
         } else throw new TeacherNotFoundException();
     }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    public VmModelDTO addVmModel(VmModelDTO vmModelDTO, String courseName) {
+        Optional<Course> optionalCourse = courseRepo.findById(courseName);
+        if (optionalCourse.isPresent())
+        {
+            Course course = optionalCourse.get();
+
+            VmModel vmModel = modelMapper.map(vmModelDTO,VmModel.class);
+            vmModel.setCourse(course);
+            vmModel = vmModelRepository.save(vmModel);
+            course.setVmModel(vmModel);
+            return modelMapper.map(vmModel, VmModelDTO.class);
+
+        }
+        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
+
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId))")
+    public VmIstanceDTO createVmIstance(VmIstanceDTO vmIstanceDTO, String courseName, Long teamId) {
+        Optional<Course> optionalCourse = courseRepo.findById(courseName);
+        if (optionalCourse.isPresent())
+        {
+            Optional<Team> optionalTeam = teamRepo.findById(teamId);
+            if(optionalTeam.isPresent()){
+
+                Optional<Student> student = studentRepo.findById(SecurityContextHolder.getContext().getAuthentication().getName());
+                VmIstance vmIstance = modelMapper.map(vmIstanceDTO,VmIstance.class);
+                vmIstance.getOwners().add(student.get());
+                optionalTeam.get().addVmIstanceToTeam(vmIstance);
+                student.get().addVmOwnership(vmIstance);
+                vmIstanceRepository.save(vmIstance);
+                return vmIstanceDTO;
+            } else throw new TeamNotFoundException("Team '" + teamId + "' not found!");
+
+        }
+        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
+
+    }
+
+    //todo gestire stato vm aggiungendo lo stato alla istance. Valori di default per creare il team dove li mettiamo?
+    //gestire la faccenda dei nomi dei team
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId))")
+    public String changeStatusVM(String command, String courseName, Long tid, Long vmid) {
+        Course course = courseRepo.findById(courseName).get();
+        Team team = teamRepo.findById(tid).get();
+        Student student = studentRepo.findById(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+        if(command.equals("RUN"))
+        {
+        } else if (command.equals("STOP"))
+        {
+
+        } else if (command.equals("DELETE"))
+            {
+
+        }
+    }
+
+
 }

@@ -3,9 +3,11 @@ package it.polito.ai.es2.services;
 import it.polito.ai.es2.entities.Course;
 import it.polito.ai.es2.entities.Student;
 import it.polito.ai.es2.entities.Teacher;
+import it.polito.ai.es2.entities.Team;
 import it.polito.ai.es2.repositories.CourseRepository;
 import it.polito.ai.es2.repositories.StudentRepository;
 import it.polito.ai.es2.repositories.TeacherRepository;
+import it.polito.ai.es2.repositories.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
@@ -22,6 +24,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
     CourseRepository courseRepository;
     @Autowired
     StudentRepository studentRepository;
+    @Autowired
+    TeamRepository teamRepository;
 
     @Override
     public boolean courseOwner(String professor, String course) {
@@ -45,6 +49,15 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 
     }
 
+    @Override
+    public boolean studentInTeam(String student, Long teamId) {
+        Optional<Student> student1= studentRepository.findById(student);
+        Optional<Team> team= teamRepository.findById(teamId);
+        if(student1.isPresent()&&team.isPresent()){
+            return team.get().getMembers().contains(student1.get());
+        }
+        return false;
+    }
 
 
 }
