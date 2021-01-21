@@ -32,4 +32,37 @@ public class Assignment {
 
     @OneToMany(mappedBy = "assignment")
     private List<Homework> homeworks = new ArrayList<>();
+
+    public boolean setCourse(Course course) {
+        if (this.course == course)
+            return false;
+
+        if (this.course != null)
+            this.course.getAssignments().remove(this);
+
+        if (course != null && !course.getAssignments().contains(this))
+            course.getAssignments().add(this);
+
+        this.course = course;
+        return true;
+    }
+
+    public boolean addHomework(Homework homework) {
+        if (this.homeworks.contains(homework))
+            return false;
+        else {
+            this.homeworks.add(homework);
+            homework.setAssignment(this);
+            return true;
+        }
+    }
+
+    public boolean removeHomework(Homework homework) {
+        if (this.homeworks.contains(homework)) {
+            this.homeworks.remove(homework);
+            homework.setAssignment(null);
+            return true;
+        } else
+            return false;
+    }
 }

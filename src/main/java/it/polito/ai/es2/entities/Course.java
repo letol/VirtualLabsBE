@@ -61,4 +61,23 @@ public class Course {
         } else
             return false;
     }
+
+    public boolean addAssignment(Assignment assignment) {
+        if (this.assignments.contains(assignment))
+            return false;
+        else {
+            this.assignments.add(assignment);
+            assignment.setCourse(this);
+            return true;
+        }
+    }
+
+    public boolean removeAssignment(Assignment assignment) {
+        if (this.assignments.contains(assignment)) {
+            this.assignments.remove(assignment);
+            assignment.setCourse(null);
+            return true;
+        } else
+            return false;
+    }
 }

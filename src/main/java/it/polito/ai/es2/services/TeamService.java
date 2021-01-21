@@ -1,9 +1,7 @@
 package it.polito.ai.es2.services;
 
-import it.polito.ai.es2.dtos.CourseDTO;
-import it.polito.ai.es2.dtos.StudentDTO;
-import it.polito.ai.es2.dtos.TeacherDTO;
-import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.HomeworkId;
+import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.User;
 
 import java.io.Reader;
@@ -71,4 +69,22 @@ public interface TeamService {
     CourseDTO getCourseOfTeam(Long teamId);
 
     List<CourseDTO> getTeacherCourses(String professor);
+
+    AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, String courseName);
+
+    List<AssignmentDTO> getAssignmentsForCourse(String courseName);
+
+    Optional<AssignmentDTO> getAssignment(Long assignmentId);
+
+    List<HomeworkDTO> getHomeworksForAssignment(Long assignmentId);
+
+    Optional<HomeworkDTO> getHomework(HomeworkId homeworkId);
+
+    HomeworkVersionDTO submitHomeworkVersion(HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId);
+
+    HomeworkVersionDTO reviseHomeworkVersion(HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit);
+
+    List<HomeworkVersionDTO> getHomeworkVersions(HomeworkId homeworkId);
+
+    Optional<HomeworkVersionDTO> getHomeworkVersion(HomeworkId homeworkId, Long homeworkVersionId);
 }
