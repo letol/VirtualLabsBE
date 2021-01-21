@@ -2,21 +2,18 @@ package it.polito.ai.es2.services;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import it.polito.ai.es2.dtos.CourseDTO;
-import it.polito.ai.es2.dtos.StudentDTO;
-import it.polito.ai.es2.dtos.TeacherDTO;
-import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.HomeworkId;
+import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.*;
 import it.polito.ai.es2.TeamStatus;
 import it.polito.ai.es2.exceptions.*;
-import it.polito.ai.es2.repositories.CourseRepository;
-import it.polito.ai.es2.repositories.StudentRepository;
-import it.polito.ai.es2.repositories.TeacherRepository;
-import it.polito.ai.es2.repositories.TeamRepository;
+import it.polito.ai.es2.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -26,10 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,6 +43,15 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     TeamRepository teamRepo;
+    
+    @Autowired
+    AssignmentRepository assignmentRepo;
+
+    @Autowired
+    HomeworkRepository homeworkRepo;
+
+    @Autowired
+    HomeworkVersionRepository homeworkVersionRepo;
 
     @Autowired
     ModelMapper modelMapper;
@@ -171,7 +174,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public boolean addStudentToCourse(String studentId, String courseName) {
         Optional<Student> student = studentRepo.findById(studentId);
         if (!student.isPresent()) throw new StudentNotFoundException("Student id '" + studentId + "' not found!");
@@ -183,7 +186,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public void enableCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -192,7 +195,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public void disableCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -209,7 +212,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<Boolean> enrollAll(List<String> studentIds, String courseName) {
         return studentIds.stream()
                 .map(s -> addStudentToCourse(s, courseName))
@@ -217,7 +220,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<Boolean> addAndEnroll(Reader r, String courseName) {
         CsvToBean<StudentDTO> csvToBean = new CsvToBeanBuilder<StudentDTO>(r)
                 .withType(StudentDTO.class)
@@ -268,8 +271,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName))or" +
-            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName))")
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId))or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfTeam(authentication.principal.username,#teamId))")
     public List<StudentDTO> getMembers(Long teamId) {
         Optional<Team> team = teamRepo.findById(teamId);
         if (team.isPresent())
@@ -281,7 +284,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT')  and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_STUDENT')  and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
     public TeamDTO proposeTeam(String courseId, String name, List<String> memberIds) {
         Optional<Course> courseOptional = courseRepo.findById(courseId);
         if (!courseOptional.isPresent())
@@ -330,8 +333,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName)) or" +
-            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseName)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<TeamDTO> getTeamsForCourse(String courseName) {
         Optional<Course> course = courseRepo.findById(courseName);
         if (course.isPresent())
@@ -343,8 +346,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName)) or" +
-            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseName)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<StudentDTO> getStudentsInTeams(String courseName) {
         if (courseRepo.findById(courseName).isPresent())
             return courseRepo.getStudentsInTeams(courseName)
@@ -355,8 +358,8 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName)) or" +
-            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseName)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public List<StudentDTO> getAvailableStudents(String courseName) {
         if (courseRepo.findById(courseName).isPresent())
             return courseRepo.getStudentsNotInTeams(courseName)
@@ -398,5 +401,118 @@ public class TeamServiceImpl implements TeamService {
             return professor1.get().getCourses().
                     stream().map(p -> modelMapper.map(p,CourseDTO.class)).collect(Collectors.toList());
         } else throw new TeacherNotFoundException();
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    public AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, String courseName) {
+        Course course = courseRepo.findById(courseName).orElseThrow(CourseNotFoundException::new);
+        Assignment assignment = modelMapper.map(assignmentDTO, Assignment.class);
+        Assignment finalAssignment = assignmentRepo.save(assignment);
+        course.addAssignment(finalAssignment);
+
+        course.getStudents().forEach(
+                student -> {
+                    HomeworkDTO homeworkDTO = HomeworkDTO.builder()
+                            .id(new HomeworkId(finalAssignment.getId(), student.getId()))
+                            .status(Homework.homeworkStatus.NULL)
+                            .build();
+                    Homework finalHomework = homeworkRepo.save(
+                            modelMapper.map(homeworkDTO, Homework.class)
+                    );
+                    finalHomework.setAssignment(finalAssignment);
+                    finalHomework.setStudent(student);
+                }
+        );
+
+        return modelMapper.map(finalAssignment, AssignmentDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseName)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
+    public List<AssignmentDTO> getAssignmentsForCourse(String courseName) {
+        Course course = courseRepo.findById(courseName).orElseThrow(CourseNotFoundException::new);
+        return assignmentRepo.findAllByCourse(course).stream()
+                .map(assignment -> modelMapper.map(assignment, AssignmentDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfAssignment(authentication.principal.username,#assignmentId)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#assignmentId)) or hasRole('ROLE_ADMIN')")
+    public Optional<AssignmentDTO> getAssignment(Long assignmentId) {
+        Optional<AssignmentDTO> assignmentDTOOptional = assignmentRepo.findById(assignmentId)
+                .map(assignment -> modelMapper.map(assignment, AssignmentDTO.class));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (assignmentDTOOptional.isPresent() && authentication.getAuthorities().contains("ROLE_STUDENT")) {
+            UserDetails principal = (UserDetails) authentication.getPrincipal();
+            Homework homework = homeworkRepo.findById(new HomeworkId(assignmentId, principal.getUsername()))
+                    .orElseThrow(HomeworkNotFoundException::new);
+            homework.setStatus(Homework.homeworkStatus.READ);
+        }
+
+        return assignmentDTOOptional;
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#assignmentId)) or hasRole('ROLE_ADMIN')")
+    public List<HomeworkDTO> getHomeworksForAssignment(Long assignmentId) {
+        Assignment assignment = assignmentRepo.findById(assignmentId).orElseThrow(AssignmentNotFoundException::new);
+        return homeworkRepo.findAllByAssignment(assignment).stream()
+                .map(homework -> modelMapper.map(homework, HomeworkDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
+    public Optional<HomeworkDTO> getHomework(HomeworkId homeworkId) {
+        return homeworkRepo.findById(homeworkId)
+                .map(homework -> modelMapper.map(homework, HomeworkDTO.class));
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId))")
+    public HomeworkVersionDTO submitHomeworkVersion(HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId) {
+        Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
+        if (homework.isCanSubmit()) {
+            HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
+            HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
+            homework.addHomeworkVersion(finalHomeworkVersion);
+            homework.setStatus(Homework.homeworkStatus.SUBMITTED);
+            return modelMapper.map(finalHomeworkVersion, HomeworkVersionDTO.class);
+        } else throw new HomeworkCannotBeSubmittedException();
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
+    public HomeworkVersionDTO reviseHomeworkVersion(HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit) {
+        Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
+        HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
+        HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
+        homework.addHomeworkVersion(finalHomeworkVersion);
+        homework.setStatus(Homework.homeworkStatus.REVIEWED);
+        homework.setCanSubmit(canReSubmit);
+        return modelMapper.map(finalHomeworkVersion, HomeworkVersionDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
+    public List<HomeworkVersionDTO> getHomeworkVersions(HomeworkId homeworkId) {
+        Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
+        return homeworkVersionRepo.findAllByHomework(homework).stream()
+                .map(homeworkVersion -> modelMapper.map(homeworkVersion, HomeworkVersionDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
+    public Optional<HomeworkVersionDTO> getHomeworkVersion(HomeworkId homeworkId, Long homeworkVersionId) {
+        return homeworkVersionRepo.findById(homeworkVersionId)
+                .map(homeworkVersion -> modelMapper.map(homeworkVersion, HomeworkVersionDTO.class));
     }
 }

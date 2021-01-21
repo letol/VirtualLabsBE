@@ -13,6 +13,8 @@ import java.sql.Timestamp;
 @EqualsAndHashCode(callSuper = true)
 public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
 
+    private Long id;
+
     @NotNull
     private byte[] content;
 

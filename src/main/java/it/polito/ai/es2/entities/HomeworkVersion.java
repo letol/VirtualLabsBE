@@ -28,4 +28,17 @@ public class HomeworkVersion {
     })
     private Homework homework;
 
+    public boolean setHomework(Homework homework) {
+        if (this.homework == homework)
+            return false;
+
+        if (this.homework != null)
+            this.homework.getVersions().remove(this);
+
+        if (homework != null && !homework.getVersions().contains(this))
+            homework.getVersions().add(this);
+
+        this.homework = homework;
+        return true;
+    }
 }
