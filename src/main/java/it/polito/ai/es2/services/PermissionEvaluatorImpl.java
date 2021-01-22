@@ -25,6 +25,8 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
     AssignmentRepository assignmentRepository;
     @Autowired
     HomeworkRepository homeworkRepository;
+    @Autowired
+    HomeworkVersionRepository homeworkVersionRepository;
 
     @Override
     public boolean teacherHasCourse(String teacherId, String courseName) {
@@ -52,6 +54,16 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
         Optional<Assignment> assignmentOptional = assignmentRepository.findById(assignmentId);
         if (teacherOptional.isPresent() && assignmentOptional.isPresent()) {
             return teacherOptional.get().getCourses().contains(assignmentOptional.get().getCourse());
+        }
+        return false;
+    }
+
+    @Override
+    public boolean teacherHasCourseOfHomeworkVersion(String teacherId, Long homeworkVersionId) {
+        Optional<Teacher> teacherOptional = professorRepository.findById(teacherId);
+        Optional<HomeworkVersion> homeworkVersionOptional = homeworkVersionRepository.findById(homeworkVersionId);
+        if (teacherOptional.isPresent() && homeworkVersionOptional.isPresent()) {
+            return teacherOptional.get().getCourses().contains(homeworkVersionOptional.get().getHomework().getAssignment().getCourse());
         }
         return false;
     }
@@ -92,6 +104,16 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
         Optional<Homework> homeworkOptional = homeworkRepository.findById(homeworkId);
         if (studentOptional.isPresent() && homeworkOptional.isPresent()) {
             return studentOptional.get().getHomeworks().contains(homeworkOptional.get());
+        }
+        return false;
+    }
+
+    @Override
+    public boolean studentHasHomeworkVersion(String studentId, Long homeworkVersionId) {
+        Optional<Student> studentOptional = studentRepository.findById(studentId);
+        Optional<HomeworkVersion> homeworkVersionOptional = homeworkVersionRepository.findById(homeworkVersionId);
+        if (studentOptional.isPresent() && homeworkVersionOptional.isPresent()) {
+            return studentOptional.get().getHomeworks().contains(homeworkVersionOptional.get().getHomework());
         }
         return false;
     }

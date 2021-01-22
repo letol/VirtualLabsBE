@@ -441,12 +441,13 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfAssignment(authentication.principal.username,#assignmentId)) or" +
             "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#assignmentId)) or hasRole('ROLE_ADMIN')")
-    public Optional<AssignmentDTO> getAssignment(Long assignmentId) {
-        Optional<AssignmentDTO> assignmentDTOOptional = assignmentRepo.findById(assignmentId)
-                .map(assignment -> modelMapper.map(assignment, AssignmentDTO.class));
+    public AssignmentDTO getAssignment(Long assignmentId) {
+        AssignmentDTO assignmentDTOOptional = assignmentRepo.findById(assignmentId)
+                .map(assignment -> modelMapper.map(assignment, AssignmentDTO.class))
+                .orElseThrow(AssignmentNotFoundException::new);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (assignmentDTOOptional.isPresent() && authentication.getAuthorities().contains("ROLE_STUDENT")) {
+        if (authentication.getAuthorities().contains("ROLE_STUDENT")) {
             UserDetails principal = (UserDetails) authentication.getPrincipal();
             Homework homework = homeworkRepo.findById(new HomeworkId(assignmentId, principal.getUsername()))
                     .orElseThrow(HomeworkNotFoundException::new);
@@ -468,9 +469,10 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId)) or" +
             "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
-    public Optional<HomeworkDTO> getHomework(HomeworkId homeworkId) {
+    public HomeworkDTO getHomework(HomeworkId homeworkId) {
         return homeworkRepo.findById(homeworkId)
-                .map(homework -> modelMapper.map(homework, HomeworkDTO.class));
+                .map(homework -> modelMapper.map(homework, HomeworkDTO.class))
+                .orElseThrow(HomeworkNotFoundException::new);
     }
 
     @Override
@@ -488,7 +490,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
-    public HomeworkVersionDTO reviseHomeworkVersion(HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit) {
+    public HomeworkVersionDTO reviewHomeworkVersion(HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit) {
         Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
         HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
         HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
@@ -509,10 +511,11 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId)) or" +
-            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
-    public Optional<HomeworkVersionDTO> getHomeworkVersion(HomeworkId homeworkId, Long homeworkVersionId) {
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomeworkVersion(authentication.principal.username,#homeworkVersionId)) or" +
+            "(hasRole('ROLE_PROFESSOR') and @permissionEvaluator.teacherHasCourseOfHomeworkVersion(authentication.principal.username,#homeworkVersionId)) or hasRole('ROLE_ADMIN')")
+    public HomeworkVersionDTO getHomeworkVersion(Long homeworkVersionId) {
         return homeworkVersionRepo.findById(homeworkVersionId)
-                .map(homeworkVersion -> modelMapper.map(homeworkVersion, HomeworkVersionDTO.class));
+                .map(homeworkVersion -> modelMapper.map(homeworkVersion, HomeworkVersionDTO.class))
+                .orElseThrow(HomeworkVersionNotFoundException::new);
     }
 }

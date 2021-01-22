@@ -1,11 +1,8 @@
 package it.polito.ai.es2.controllers;
 
-import it.polito.ai.es2.dtos.CourseDTO;
-import it.polito.ai.es2.dtos.StudentDTO;
-import it.polito.ai.es2.dtos.TeamDTO;
-import it.polito.ai.es2.exceptions.CourseNotFoundException;
-import it.polito.ai.es2.exceptions.StudentNotFoundException;
-import it.polito.ai.es2.exceptions.TeamServiceException;
+import it.polito.ai.es2.HomeworkId;
+import it.polito.ai.es2.dtos.*;
+import it.polito.ai.es2.exceptions.*;
 import it.polito.ai.es2.services.*;
 import lombok.extern.java.Log;
 import org.apache.tika.Tika;
@@ -168,4 +165,103 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.CONFLICT,name);
         }
     }
+
+    @GetMapping("/{name}/assignments")
+    List<AssignmentDTO> listAssignments(@PathVariable String name) {
+        try {
+            return teamService.getAssignmentsForCourse(name);
+        } catch (CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, name);
+        }
+    }
+
+    @PostMapping("/{courseName}/assignment")
+    AssignmentDTO addAssignment(@PathVariable String courseName, @RequestBody @Valid AssignmentDTO assignmentDTO) {
+        try {
+            return teamService.addAssignment(assignmentDTO, courseName);
+        } catch (CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, courseName);
+        }
+    }
+
+    @GetMapping("/{courseName}/assignment/{assignmentId}")
+    AssignmentDTO getAssignment(@PathVariable String courseName, @PathVariable Long assignmentId) {
+        try {
+            return teamService.getAssignment(assignmentId);
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
+    @GetMapping("/{courseName}/assignment/{assignmentId}/homeworks")
+    List<HomeworkDTO> listHomeworks(@PathVariable String courseName, @PathVariable Long assignmentId) {
+        try {
+            return teamService.getHomeworksForAssignment(assignmentId);
+        } catch (AssignmentNotFoundException a) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString());
+        }
+    }
+
+    @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}")
+    HomeworkDTO getHomework(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+        try {
+            return teamService.getHomework(new HomeworkId(assignmentId, studentId));
+        } catch (HomeworkNotFoundException h) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString() + studentId);
+        }
+    }
+
+    @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/submit")
+    HomeworkVersionDTO submitHomework(@RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+        try {
+            return teamService.submitHomeworkVersion(homeworkVersionDTO, new HomeworkId(assignmentId, studentId));
+        } catch (HomeworkNotFoundException h) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString() + studentId);
+        } catch (HomeworkCannotBeSubmittedException noSubmission) {
+            throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Homework submission has been denied");
+        }
+    }
+
+    @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/review")
+    HomeworkVersionDTO reviewHomework(@RequestBody Map<String, Object> body, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+        /*
+        {
+            "homeworkVersion": HomeworkVersionDTO,
+            "canReSubmit": boolean,
+        }
+         */
+        try {
+            if (body.containsKey("homeworkVersion") && body.containsKey("canReSubmit")) {
+                HomeworkVersionDTO homeworkVersionDTO = (HomeworkVersionDTO) body.get("homeworkVersion");
+                boolean canReSubmit = (boolean) body.get("canReSubmit");
+                return teamService.reviewHomeworkVersion(
+                        homeworkVersionDTO,
+                        new HomeworkId(assignmentId, studentId),
+                        canReSubmit
+                );
+            } else throw new ResponseStatusException(HttpStatus.CONFLICT, "Bad_input");
+        } catch (HomeworkNotFoundException h) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString() + studentId);
+        }
+    }
+
+    @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/versions")
+    List<HomeworkVersionDTO> listHomeworkVersions(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+        try {
+            return teamService.getHomeworkVersions(new HomeworkId(assignmentId, studentId));
+        } catch (HomeworkNotFoundException h) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString() + studentId);
+        }
+    }
+
+    @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/version/{versionId}")
+    HomeworkVersionDTO getHomeworkVersion(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId, @PathVariable Long versionId) {
+        try {
+            return teamService.getHomeworkVersion(versionId);
+        } catch (HomeworkVersionNotFoundException hv) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, versionId.toString());
+        }
+    }
+
+
 }
