@@ -1,9 +1,7 @@
 package it.polito.ai.es2.controllers;
 
 import it.polito.ai.es2.dtos.*;
-import it.polito.ai.es2.exceptions.CourseNotFoundException;
-import it.polito.ai.es2.exceptions.StudentNotFoundException;
-import it.polito.ai.es2.exceptions.TeamServiceException;
+import it.polito.ai.es2.exceptions.*;
 import it.polito.ai.es2.services.*;
 import lombok.extern.java.Log;
 import org.apache.tika.Tika;
@@ -145,11 +143,15 @@ public class CourseController {
     }
 
     @PostMapping("/{name}/teams/{tid}/vmIstance/{vmid}/addOwner")
-    String changeStatusVM(@RequestBody String command, @PathVariable String name, @PathVariable Long tid, @PathVariable Long vmid) {
+    VmIstanceDTO changeStatusVM(@RequestBody String command, @PathVariable String name, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
             return teamService.changeStatusVM(command,name,tid,vmid);
         }catch(CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,name);
+        }catch(VmIstanceNotFound e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }catch(VmPermissionDenied e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
         }catch(TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }

@@ -73,5 +73,10 @@ public interface TeamService {
 
     VmIstanceDTO createVmIstance (VmIstanceDTO vmIstanceDTO, String courseName, Long teamId);
 
-    String changeStatusVM(String command, String courseName, Long tid, Long vmid);
+    VmIstanceDTO getVmIstance (Long vmId, String courseName, Long teamId);
+
+
+    VmIstanceDTO changeStatusVM(String command, String courseName, Long tid, Long vmid);
+
+    List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, String courseName);
 }

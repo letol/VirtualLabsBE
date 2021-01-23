@@ -2,6 +2,7 @@ package it.polito.ai.es2.services;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import it.polito.ai.es2.VmStatus;
 import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.*;
 import it.polito.ai.es2.TeamStatus;
@@ -20,10 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -131,7 +129,7 @@ public class TeamServiceImpl implements TeamService {
         if (teacherRepo.existsById(teacherDTO.getId()))
             return false;
         else {
-            if(teacherDTO.getAvatar() == null)
+            if (teacherDTO.getAvatar() == null)
                 teacherDTO.setAvatar(defaultAvatar);
             Teacher teacher = modelMapper.map(teacherDTO, Teacher.class);
             teacherRepo.save(teacher);
@@ -312,18 +310,20 @@ public class TeamServiceImpl implements TeamService {
         if (!course.getStudents().containsAll(newMembers))
             throw new StudentNotEnrolledToCourseException("One or more students not enrolled to course '" + courseId + "'!");
 
-        for (Team team: course.getTeams()) {
+        for (Team team : course.getTeams()) {
             List<Student> teamMembers = team.getMembers();
-            for (Student student: newMembers) {
+            for (Student student : newMembers) {
                 if (teamMembers.contains(student))
                     throw new StudentAlreadyMemberForCourseException("Student '" + student.getId() + "' already has a team!");
             }
         }
 
-        Team newTeam = teamRepo.save(new Team(name));
+        Team newTeam = teamRepo.save(new Team(name,course));
         newMembers.forEach(newTeam::addMember);
-        newTeam.setCourse(course);
-
+        //newTeam.setCourse(course);
+        newTeam.setDiskMAX(course.getDisk());
+        newTeam.setMemoryMAX(course.getMemory());
+        newTeam.setVcpuMAX(course.getVcpu());
         TeamDTO newTeamDTO = modelMapper.map(newTeam, TeamDTO.class);
         notificationService.notifyTeam(newTeamDTO, memberIds);
 
@@ -392,12 +392,11 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<CourseDTO> getTeacherCourses(String professor){
+    public List<CourseDTO> getTeacherCourses(String professor) {
         Optional<Teacher> professor1 = teacherRepo.findById(professor);
-        if(professor1.isPresent())
-        {
+        if (professor1.isPresent()) {
             return professor1.get().getCourses().
-                    stream().map(p -> modelMapper.map(p,CourseDTO.class)).collect(Collectors.toList());
+                    stream().map(p -> modelMapper.map(p, CourseDTO.class)).collect(Collectors.toList());
         } else throw new TeacherNotFoundException();
     }
 
@@ -405,18 +404,16 @@ public class TeamServiceImpl implements TeamService {
     @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName)) or hasRole('ROLE_ADMIN')")
     public VmModelDTO addVmModel(VmModelDTO vmModelDTO, String courseName) {
         Optional<Course> optionalCourse = courseRepo.findById(courseName);
-        if (optionalCourse.isPresent())
-        {
+        if (optionalCourse.isPresent()) {
             Course course = optionalCourse.get();
 
-            VmModel vmModel = modelMapper.map(vmModelDTO,VmModel.class);
+            VmModel vmModel = modelMapper.map(vmModelDTO, VmModel.class);
             vmModel.setCourse(course);
             vmModel = vmModelRepository.save(vmModel);
             course.setVmModel(vmModel);
             return modelMapper.map(vmModel, VmModelDTO.class);
 
-        }
-        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
+        } else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
 
     }
 
@@ -424,13 +421,12 @@ public class TeamServiceImpl implements TeamService {
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId))")
     public VmIstanceDTO createVmIstance(VmIstanceDTO vmIstanceDTO, String courseName, Long teamId) {
         Optional<Course> optionalCourse = courseRepo.findById(courseName);
-        if (optionalCourse.isPresent())
-        {
+        if (optionalCourse.isPresent()) {
             Optional<Team> optionalTeam = teamRepo.findById(teamId);
-            if(optionalTeam.isPresent()){
+            if (optionalTeam.isPresent()) {
 
                 Optional<Student> student = studentRepo.findById(SecurityContextHolder.getContext().getAuthentication().getName());
-                VmIstance vmIstance = modelMapper.map(vmIstanceDTO,VmIstance.class);
+                VmIstance vmIstance = modelMapper.map(vmIstanceDTO, VmIstance.class);
                 vmIstance.getOwners().add(student.get());
                 optionalTeam.get().addVmIstanceToTeam(vmIstance);
                 student.get().addVmOwnership(vmIstance);
@@ -438,28 +434,72 @@ public class TeamServiceImpl implements TeamService {
                 return vmIstanceDTO;
             } else throw new TeamNotFoundException("Team '" + teamId + "' not found!");
 
-        }
-        else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
+        } else throw new CourseNotFoundException("Course '" + courseName + "' not found!");
 
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId)) OR" +
+            " (hasRole('ROLE_PROFESSOR')and @permissionEvaluator.courseOwner(authentication.principal.username,#courseName))")
+    public VmIstanceDTO getVmIstance(Long vmId, String courseName, Long teamId) {
+        Optional<VmIstance> vmIstance = vmIstanceRepository.findById(vmId);
+        if (!vmIstance.isPresent()) throw new VmIstanceNotFound();
+        return modelMapper.map(vmIstance.get(), VmIstanceDTO.class);
     }
 
     //todo gestire stato vm aggiungendo lo stato alla istance. Valori di default per creare il team dove li mettiamo?
     //gestire la faccenda dei nomi dei team
     @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseName) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId))")
-    public String changeStatusVM(String command, String courseName, Long tid, Long vmid) {
-        Course course = courseRepo.findById(courseName).get();
-        Team team = teamRepo.findById(tid).get();
+    public VmIstanceDTO changeStatusVM(String command, String courseName, Long tid, Long vmid) {
         Student student = studentRepo.findById(SecurityContextHolder.getContext().getAuthentication().getName()).get();
-        if(command.equals("RUN"))
-        {
-        } else if (command.equals("STOP"))
-        {
-
-        } else if (command.equals("DELETE"))
-            {
+        Optional<VmIstance> vmIstance = vmIstanceRepository.findById(vmid);
+        if (!vmIstance.isPresent()) throw new VmIstanceNotFound();
+        if (!student.getOwnedVMs().contains(vmIstance.get())) throw new VmPermissionDenied();
+        switch (command) {
+            case "RUN":
+                System.out.println("RUN received");
+                if (vmIstance.get().getStatus() == VmStatus.SUSPENDED) {
+                    vmIstance.get().setStatus(VmStatus.RUNNING);
+                    vmIstanceRepository.save(vmIstance.get());
+                }
+                break;
+            case "SUSPEND":
+                System.out.println("STOP received");
+                if (vmIstance.get().getStatus() == VmStatus.RUNNING) {
+                    vmIstance.get().setStatus(VmStatus.SUSPENDED);
+                    vmIstanceRepository.save(vmIstance.get());
+                } else
+                    break;
+            default:
+                break;
 
         }
+        return modelMapper.map(vmIstance.get(), VmIstanceDTO.class);
+    }
+
+    //todo lista booleano o vmIstance?
+    @Override
+    public List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, String courseName) {
+        List<Boolean> ret = new ArrayList<>();
+        Optional<VmIstance> vmIstance = vmIstanceRepository.findById(vmId);
+        if(!vmIstance.isPresent()) throw new VmIstanceNotFound();
+        for (String studentId:
+             studentsId) {
+            Optional<Student> student = studentRepo.findById(studentId);
+            if(!student.isPresent()) {
+                ret.add(false);
+                break;
+            }
+            boolean var = vmIstance.get().addOwner(student.get());
+            if(var = true)
+            {
+                studentRepo.save(student.get());
+            }
+            ret.add(var);
+        }
+        vmIstanceRepository.save(vmIstance.get());
+        return ret;
     }
 
 

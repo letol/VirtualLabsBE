@@ -1,6 +1,7 @@
 package it.polito.ai.es2.entities;
 import javax.persistence.*;
 
+import it.polito.ai.es2.VmStatus;
 import lombok.*;
 
 import java.util.List;
@@ -26,6 +27,10 @@ public class VmIstance {
     @NonNull
     @Column(nullable = false)
     private float memory;
+
+    @NonNull
+    @Column(nullable = false)
+    private VmStatus status;
 
     @ManyToOne()
     @JoinColumn(name = "vmModel_id", nullable = false)

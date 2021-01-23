@@ -1,5 +1,6 @@
 package it.polito.ai.es2.dtos;
 
+import it.polito.ai.es2.VmStatus;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -14,5 +15,6 @@ public class VmIstanceDTO {
     private int vcpu;
     private Float disk;
     private Float memory;
+    private VmStatus status;
 
 }

@@ -12,6 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Team {
 
     @Id
@@ -20,6 +21,7 @@ public class Team {
 
     @NonNull
     @Column(nullable = false)
+    @PrimaryKeyJoinColumn
     private String name;
 
     private TeamStatus status = TeamStatus.PENDING;
@@ -42,6 +44,7 @@ public class Team {
 
     @ManyToOne
     @JoinColumn(name = "course_id")
+    @PrimaryKeyJoinColumn
     private Course course;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -100,6 +103,26 @@ public class Team {
         if(totCpu <= vcpuMAX && totMemory <= memoryMAX && totDisk <= diskMAX)
         {
             vmIstances.add(vmIstance);
+            maxVmIstance ++;
+            return true;
+        }
+        return false;
+    }
+    public boolean removeVmIstance(VmIstance vmIstance) {
+        int totCpu = vmIstance.getVcpu();
+        Float totMemory = vmIstance.getMemory();
+        Float totDisk = vmIstance.getDisk();
+
+        for (VmIstance var:
+                vmIstances ) {
+            totCpu+=var.getVcpu();
+            totMemory+=var.getMemory();
+            totDisk+=var.getDisk();
+        }
+        if(totCpu <= vcpuMAX && totMemory <= memoryMAX && totDisk <= diskMAX)
+        {
+            vmIstances.add(vmIstance);
+            maxVmIstance ++;
             return true;
         }
         return false;
