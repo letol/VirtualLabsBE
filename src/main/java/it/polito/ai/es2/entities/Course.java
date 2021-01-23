@@ -1,6 +1,7 @@
 package it.polito.ai.es2.entities;
 
 import lombok.Data;
+import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -20,6 +21,18 @@ public class Course {
     private int max;
 
     private boolean enabled;
+
+    @NonNull
+    @Column(nullable = false)
+    private int vcpu;
+
+    @NonNull
+    @Column(nullable = false)
+    private float disk;
+
+    @NonNull
+    @Column(nullable = false)
+    private float memory;
 
     @ManyToOne
     private Teacher teacher;
