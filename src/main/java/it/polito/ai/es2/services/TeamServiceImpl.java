@@ -417,6 +417,13 @@ public class TeamServiceImpl implements TeamService {
     public AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, String courseName) {
         Course course = courseRepo.findById(courseName).orElseThrow(CourseNotFoundException::new);
         Assignment assignment = modelMapper.map(assignmentDTO, Assignment.class);
+
+        Timestamp releaseDate = new Timestamp(System.currentTimeMillis());
+        if (assignment.getExpiryDate().before(releaseDate)) {
+            throw new AssignmentInvalidExpiryDateException();
+        }
+
+        assignment.setReleaseDate(releaseDate);
         Assignment finalAssignment = assignmentRepo.save(assignment);
         course.addAssignment(finalAssignment);
 
@@ -502,6 +509,7 @@ public class TeamServiceImpl implements TeamService {
         Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
         if (homework.isCanSubmit()) {
             HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
+            homeworkVersion.setTimestamp(new Timestamp(System.currentTimeMillis()));
             HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
             homework.addHomeworkVersion(finalHomeworkVersion);
             homework.setStatus(Homework.homeworkStatus.SUBMITTED);
@@ -521,6 +529,7 @@ public class TeamServiceImpl implements TeamService {
 
         Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
         HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
+        homeworkVersion.setTimestamp(new Timestamp(System.currentTimeMillis()));
         HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
         homework.addHomeworkVersion(finalHomeworkVersion);
         homework.setStatus(Homework.homeworkStatus.REVIEWED);
