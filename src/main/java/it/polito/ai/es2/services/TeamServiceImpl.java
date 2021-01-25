@@ -10,17 +10,19 @@ import it.polito.ai.es2.exceptions.*;
 import it.polito.ai.es2.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.sql.Timestamp;
@@ -64,8 +66,10 @@ public class TeamServiceImpl implements TeamService {
     UserManagementService userManagementService;
 
     public TeamServiceImpl() throws IOException {
-        File defaultAvatarFile = ResourceUtils.getFile("classpath:img/default_user_avatar.png");
-        defaultAvatar = Files.readAllBytes(defaultAvatarFile.toPath());
+        Resource resource = new ClassPathResource("img/default_user_avatar.png");
+        InputStream defaultAvatarInputStream = resource.getInputStream();
+        defaultAvatar = new byte[defaultAvatarInputStream.available()];
+        defaultAvatarInputStream.read(defaultAvatar);
     }
 
     @Override
