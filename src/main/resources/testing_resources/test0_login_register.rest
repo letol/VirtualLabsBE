@@ -1,0 +1,26 @@
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "{{id}}",
+  "lastname": "{{lastname}}",
+  "firstname": "{{firstname}}",
+  "password": "{{password}}",
+  "email": "{{email}}"
+}
+
+###
+
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{id}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
