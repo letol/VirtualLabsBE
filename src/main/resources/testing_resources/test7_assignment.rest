@@ -1,0 +1,112 @@
+###
+# Add assignment to course 'c4'
+# content is "assignment1" encoded to Base64 format
+POST http://localhost:8080/API/courses/c4/assignment
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "YXNzaWdubWVudDE=",
+  "expiryDate": "2021-03-01T22:59:59.000+0000"
+}
+
+###
+# Get all assignments of 'c4'
+# Save first available assignment as assignmentId for future requests
+GET http://localhost:8080/API/courses/c4/assignments
+Authorization: Bearer {{auth_token}}
+
+> {%
+if (response.status === 200 && response.body[0] !== undefined) {
+    client.global.set("assignmentId", response.body[0].id);
+}
+ %}
+
+###
+# Get assignment X of 'c4'
+GET http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}
+Authorization: Bearer {{auth_token}}
+
+###
+# Get all homeworks of assignment X of 'c4'
+# Save studentId of first available homework for future requests
+GET http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homeworks
+Authorization: Bearer {{auth_token}}
+
+> {%
+if (response.status === 200 && response.body[0] !== undefined) {
+    client.global.set("studentId", response.body[0].id.student_id);
+}
+ %}
+
+###
+# Get homework of 's222222' of assignment X of 'c4'
+GET http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}
+Authorization: Bearer {{auth_token}}
+
+###
+# Submit version for homework of 's222222' of assignment X of 'c4'
+# Content is "submitted" encoded to Base64 format
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/submit
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "content": "c3VibWl0dGVk"
+}
+
+###
+# Submit review for homework of 's222222' of assignment X of 'c4'
+# Content is "reviewed" encoded to Base64 format
+# Student can submit another version
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/review
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "homeworkVersion": {
+    "content": "c3VibWl0dGVk"
+  },
+  "canReSubmit": true
+}
+
+###
+# Submit review for homework of 's222222' of assignment X of 'c4'
+# Content is "no more submit" encoded to Base64 format
+# Student can't submit another version
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/review
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "homeworkVersion": {
+    "content": "bm8gbW9yZSBzdWJtaXQ="
+  },
+  "canReSubmit": false
+}
+
+###
+# Set score for homework of 's222222' of assignment X of 'c4'
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/setScore
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+
+}
+
+###
+# Get all version of homework of 's222222' of assignment X of 'c4'
+GET http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/versions
+Authorization: Bearer {{auth_token}}
+
+> {%
+if (response.status === 200 && response.body[0] !== undefined) {
+    client.global.set("versionId", response.body[0].id);
+}
+ %}
+
+###
+# Get version Y of homework of 's222222' of assignment X of 'c4'
+GET http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/s222222/version/{{versionId}}
+Authorization: Bearer {{auth_token}}

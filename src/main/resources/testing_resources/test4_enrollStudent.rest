@@ -1,17 +1,3 @@
-POST http://localhost:8080/auth/login
-Content-Type: application/json
-
-{
-  "username": "{{username}}",
-  "password": "{{password}}"
-}
-
-> {%
-if (response.status === 200) {
-    client.global.set("auth_token", response.body.token);
-}
- %}
-
 ###
 # Enroll student 's222222' to 'c4'
 POST http://localhost:8080/API/courses/c4/enrollOne
