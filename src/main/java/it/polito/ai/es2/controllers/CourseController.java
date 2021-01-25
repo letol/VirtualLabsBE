@@ -20,6 +20,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -187,7 +190,7 @@ public class CourseController {
     @GetMapping("/{courseName}/assignment/{assignmentId}")
     AssignmentDTO getAssignment(@PathVariable String courseName, @PathVariable Long assignmentId) {
         try {
-            return teamService.getAssignment(assignmentId);
+            return teamService.getAssignment(courseName, assignmentId);
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
@@ -196,29 +199,29 @@ public class CourseController {
     @GetMapping("/{courseName}/assignment/{assignmentId}/homeworks")
     List<HomeworkDTO> listHomeworks(@PathVariable String courseName, @PathVariable Long assignmentId) {
         try {
-            return teamService.getHomeworksForAssignment(assignmentId);
-        } catch (AssignmentNotFoundException a) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString());
+            return teamService.getHomeworksForAssignment(courseName, assignmentId);
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
     @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}")
     HomeworkDTO getHomework(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return teamService.getHomework(new HomeworkId(assignmentId, studentId));
-        } catch (HomeworkNotFoundException h) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString() + studentId);
+            return teamService.getHomework(courseName, new HomeworkId(assignmentId, studentId));
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
     @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/submit")
     HomeworkVersionDTO submitHomework(@RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return teamService.submitHomeworkVersion(homeworkVersionDTO, new HomeworkId(assignmentId, studentId));
-        } catch (HomeworkNotFoundException h) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString() + studentId);
+            return teamService.submitHomeworkVersion(courseName, homeworkVersionDTO, new HomeworkId(assignmentId, studentId));
         } catch (HomeworkCannotBeSubmittedException noSubmission) {
             throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Homework submission has been denied");
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
@@ -235,31 +238,41 @@ public class CourseController {
                 HomeworkVersionDTO homeworkVersionDTO = (HomeworkVersionDTO) body.get("homeworkVersion");
                 boolean canReSubmit = (boolean) body.get("canReSubmit");
                 return teamService.reviewHomeworkVersion(
+                        courseName,
                         homeworkVersionDTO,
                         new HomeworkId(assignmentId, studentId),
                         canReSubmit
                 );
             } else throw new ResponseStatusException(HttpStatus.CONFLICT, "Bad_input");
-        } catch (HomeworkNotFoundException h) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString() + studentId);
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
+    @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/setScore")
+    void setScore(@RequestBody int score, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+        try {
+            teamService.setScore(courseName, new HomeworkId(assignmentId, studentId), score);
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
     @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/versions")
     List<HomeworkVersionDTO> listHomeworkVersions(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return teamService.getHomeworkVersions(new HomeworkId(assignmentId, studentId));
-        } catch (HomeworkNotFoundException h) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, assignmentId.toString() + studentId);
+            return teamService.getHomeworkVersions(courseName, new HomeworkId(assignmentId, studentId));
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
     @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/version/{versionId}")
     HomeworkVersionDTO getHomeworkVersion(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId, @PathVariable Long versionId) {
         try {
-            return teamService.getHomeworkVersion(versionId);
-        } catch (HomeworkVersionNotFoundException hv) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, versionId.toString());
+            return teamService.getHomeworkVersion(courseName, new HomeworkId(assignmentId, studentId), versionId);
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 

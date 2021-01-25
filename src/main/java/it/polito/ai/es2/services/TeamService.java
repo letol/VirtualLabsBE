@@ -74,17 +74,19 @@ public interface TeamService {
 
     List<AssignmentDTO> getAssignmentsForCourse(String courseName);
 
-    AssignmentDTO getAssignment(Long assignmentId);
+    AssignmentDTO getAssignment(String courseName, Long assignmentId);
 
-    List<HomeworkDTO> getHomeworksForAssignment(Long assignmentId);
+    List<HomeworkDTO> getHomeworksForAssignment(String courseName, Long assignmentId);
 
-    HomeworkDTO getHomework(HomeworkId homeworkId);
+    HomeworkDTO getHomework(String courseName, HomeworkId homeworkId);
 
-    HomeworkVersionDTO submitHomeworkVersion(HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId);
+    HomeworkVersionDTO submitHomeworkVersion(String courseName, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId);
 
-    HomeworkVersionDTO reviewHomeworkVersion(HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit);
+    HomeworkVersionDTO reviewHomeworkVersion(String courseName, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit);
 
     List<HomeworkVersionDTO> getHomeworkVersions(HomeworkId homeworkId);
 
-    HomeworkVersionDTO getHomeworkVersion(Long homeworkVersionId);
+    List<HomeworkVersionDTO> getHomeworkVersions(String courseName, HomeworkId homeworkId);
+
+    HomeworkVersionDTO getHomeworkVersion(String courseName, HomeworkId homeworkId, Long homeworkVersionId);
 }
