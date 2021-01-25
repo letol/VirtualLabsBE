@@ -20,9 +20,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -136,7 +133,9 @@ public class CourseController {
     @GetMapping("/{name}/availableStudents")
     List<StudentDTO> listFreeStudents(@PathVariable String name){
         try {
-            return teamService.getAvailableStudents(name);
+            return teamService.getAvailableStudents(name).stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
         } catch (CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,name);
         }
@@ -145,7 +144,9 @@ public class CourseController {
     @GetMapping("/{name}/StudentsInTeam")
     List<StudentDTO> studentsInTeam(@PathVariable String name){
         try {
-            return teamService.getStudentsInTeams(name);
+            return teamService.getStudentsInTeams(name).stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
         } catch (CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,name);
         }
@@ -172,7 +173,9 @@ public class CourseController {
     @GetMapping("/{name}/assignments")
     List<AssignmentDTO> listAssignments(@PathVariable String name) {
         try {
-            return teamService.getAssignmentsForCourse(name);
+            return teamService.getAssignmentsForCourse(name).stream()
+                    .map(assignmentDTO -> ModelHelper.enrich(name, assignmentDTO))
+                    .collect(Collectors.toList());
         } catch (CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, name);
         }
@@ -181,7 +184,7 @@ public class CourseController {
     @PostMapping("/{courseName}/assignment")
     AssignmentDTO addAssignment(@PathVariable String courseName, @RequestBody @Valid AssignmentDTO assignmentDTO) {
         try {
-            return teamService.addAssignment(assignmentDTO, courseName);
+            return ModelHelper.enrich(courseName, teamService.addAssignment(assignmentDTO, courseName));
         } catch (CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, courseName);
         }
@@ -190,7 +193,7 @@ public class CourseController {
     @GetMapping("/{courseName}/assignment/{assignmentId}")
     AssignmentDTO getAssignment(@PathVariable String courseName, @PathVariable Long assignmentId) {
         try {
-            return teamService.getAssignment(courseName, assignmentId);
+            return ModelHelper.enrich(courseName, teamService.getAssignment(courseName, assignmentId));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
@@ -199,7 +202,9 @@ public class CourseController {
     @GetMapping("/{courseName}/assignment/{assignmentId}/homeworks")
     List<HomeworkDTO> listHomeworks(@PathVariable String courseName, @PathVariable Long assignmentId) {
         try {
-            return teamService.getHomeworksForAssignment(courseName, assignmentId);
+            return teamService.getHomeworksForAssignment(courseName, assignmentId).stream()
+                    .map(homeworkDTO -> ModelHelper.enrich(courseName, assignmentId, homeworkDTO))
+                    .collect(Collectors.toList());
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
@@ -208,7 +213,7 @@ public class CourseController {
     @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}")
     HomeworkDTO getHomework(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return teamService.getHomework(courseName, new HomeworkId(assignmentId, studentId));
+            return ModelHelper.enrich(courseName, assignmentId, teamService.getHomework(courseName, new HomeworkId(assignmentId, studentId)));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
@@ -217,7 +222,7 @@ public class CourseController {
     @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/submit")
     HomeworkVersionDTO submitHomework(@RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return teamService.submitHomeworkVersion(courseName, homeworkVersionDTO, new HomeworkId(assignmentId, studentId));
+            return ModelHelper.enrich(courseName, assignmentId, studentId, teamService.submitHomeworkVersion(courseName, homeworkVersionDTO, new HomeworkId(assignmentId, studentId)));
         } catch (HomeworkCannotBeSubmittedException noSubmission) {
             throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Homework submission has been denied");
         } catch (TeamServiceException t) {
@@ -226,31 +231,23 @@ public class CourseController {
     }
 
     @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/review")
-    HomeworkVersionDTO reviewHomework(@RequestBody Map<String, Object> body, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
-        /*
-        {
-            "homeworkVersion": HomeworkVersionDTO,
-            "canReSubmit": boolean,
-        }
-         */
+    HomeworkVersionDTO reviewHomework(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId,
+                                      @RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO,
+                                      @RequestParam("canReSubmit") boolean canReSubmit) {
         try {
-            if (body.containsKey("homeworkVersion") && body.containsKey("canReSubmit")) {
-                HomeworkVersionDTO homeworkVersionDTO = (HomeworkVersionDTO) body.get("homeworkVersion");
-                boolean canReSubmit = (boolean) body.get("canReSubmit");
-                return teamService.reviewHomeworkVersion(
-                        courseName,
-                        homeworkVersionDTO,
-                        new HomeworkId(assignmentId, studentId),
-                        canReSubmit
-                );
-            } else throw new ResponseStatusException(HttpStatus.CONFLICT, "Bad_input");
+            return ModelHelper.enrich(courseName, assignmentId, studentId, teamService.reviewHomeworkVersion(
+                    courseName,
+                    homeworkVersionDTO,
+                    new HomeworkId(assignmentId, studentId),
+                    canReSubmit
+            ));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
     @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/setScore")
-    void setScore(@RequestBody int score, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+    void setScore(@RequestParam("score") Integer score, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
             teamService.setScore(courseName, new HomeworkId(assignmentId, studentId), score);
         } catch (TeamServiceException t) {
@@ -261,7 +258,9 @@ public class CourseController {
     @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/versions")
     List<HomeworkVersionDTO> listHomeworkVersions(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return teamService.getHomeworkVersions(courseName, new HomeworkId(assignmentId, studentId));
+            return teamService.getHomeworkVersions(courseName, new HomeworkId(assignmentId, studentId)).stream()
+                    .map(homeworkVersionDTO -> ModelHelper.enrich(courseName, assignmentId, studentId, homeworkVersionDTO))
+                    .collect(Collectors.toList());
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
@@ -270,7 +269,7 @@ public class CourseController {
     @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/version/{versionId}")
     HomeworkVersionDTO getHomeworkVersion(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId, @PathVariable Long versionId) {
         try {
-            return teamService.getHomeworkVersion(courseName, new HomeworkId(assignmentId, studentId), versionId);
+            return ModelHelper.enrich(courseName, assignmentId, studentId, teamService.getHomeworkVersion(courseName, new HomeworkId(assignmentId, studentId), versionId));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
