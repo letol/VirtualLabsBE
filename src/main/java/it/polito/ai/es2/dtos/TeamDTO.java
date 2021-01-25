@@ -2,6 +2,7 @@ package it.polito.ai.es2.dtos;
 
 import it.polito.ai.es2.TeamStatus;
 import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotBlank;
 
