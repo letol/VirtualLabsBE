@@ -24,7 +24,6 @@ public class Homework {
     @EmbeddedId
     private HomeworkId id;
 
-    @NotEmpty
     @Column(nullable = false)
     private homeworkStatus status;
 

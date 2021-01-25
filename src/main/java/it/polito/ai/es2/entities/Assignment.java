@@ -16,14 +16,12 @@ public class Assignment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotEmpty
     @Column(nullable = false, length = 1000)
     private byte[] content;
 
     @Column(nullable = false)
     private Timestamp releaseDate;
 
-    @NotEmpty
     @Column(nullable = false)
     private Timestamp expiryDate;
 
