@@ -59,41 +59,37 @@ Authorization: Bearer {{auth_token}}
 # Submit review for homework of 's222222' of assignment X of 'c4'
 # Content is "reviewed" encoded to Base64 format
 # Student can submit another version
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/review
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/review?canReSubmit=true
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "homeworkVersion": {
-    "content": "c3VibWl0dGVk"
-  },
-  "canReSubmit": true
+  "content": "cmV2aWV3ZWQ="
 }
 
 ###
 # Submit review for homework of 's222222' of assignment X of 'c4'
 # Content is "no more submit" encoded to Base64 format
 # Student can't submit another version
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/review
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/review?canReSubmit=false
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "homeworkVersion": {
-    "content": "bm8gbW9yZSBzdWJtaXQ="
-  },
-  "canReSubmit": false
+  "content": "bm8gbW9yZSBzdWJtaXQ="
 }
 
 ###
 # Set score for homework of 's222222' of assignment X of 'c4'
 POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}/setScore
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token}}
 
-{
+--WebAppBoundary
+Content-Disposition: form-data; name="score"
 
-}
+30
+--WebAppBoundary--
 
 ###
 # Get all version of homework of 's222222' of assignment X of 'c4'
