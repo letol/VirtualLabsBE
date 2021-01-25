@@ -84,7 +84,7 @@ public interface TeamService {
 
     HomeworkVersionDTO reviewHomeworkVersion(String courseName, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit);
 
-    List<HomeworkVersionDTO> getHomeworkVersions(HomeworkId homeworkId);
+    void setScore(String courseName, HomeworkId homeworkId, int score);
 
     List<HomeworkVersionDTO> getHomeworkVersions(String courseName, HomeworkId homeworkId);
 
