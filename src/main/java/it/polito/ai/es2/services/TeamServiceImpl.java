@@ -529,6 +529,27 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    public void setScore(String courseName, HomeworkId homeworkId, int score) {
+        Course course = courseRepo.findById(courseName).orElseThrow(CourseNotFoundException::new);
+        Assignment assignment = assignmentRepo.findById(homeworkId.getAssignment_id()).orElseThrow(AssignmentNotFoundException::new);
+
+        if (!course.getAssignments().contains(assignment)) {
+            throw new AssignmentNotInCourseException();
+        }
+
+        Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
+
+        if (homework.getStatus() != Homework.homeworkStatus.REVIEWED) {
+            throw new HomeworkInvalidStatusException("Cannot set score of unreviewed homework");
+        } else {
+            if (score < 0 || score > 31) {
+                throw new HomeworkInvalidScoreException();
+            } else
+                homework.setScore(score);
+        }
+    }
+
+    @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId)) or" +
             "(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
     public List<HomeworkVersionDTO> getHomeworkVersions(String courseName, HomeworkId homeworkId) {
