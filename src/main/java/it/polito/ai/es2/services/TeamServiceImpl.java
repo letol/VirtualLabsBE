@@ -542,6 +542,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
     public void setScore(String courseName, HomeworkId homeworkId, int score) {
         Course course = courseRepo.findById(courseName).orElseThrow(CourseNotFoundException::new);
         Assignment assignment = assignmentRepo.findById(homeworkId.getAssignment_id()).orElseThrow(AssignmentNotFoundException::new);
