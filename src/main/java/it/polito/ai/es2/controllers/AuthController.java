@@ -69,14 +69,14 @@ public class AuthController {
         }*/
         try {
             if (form.containsKey("id") &&
-                    form.containsKey("lastname") &&
-                    form.containsKey("firstname") &&
+                    form.containsKey("lastName") &&
+                    form.containsKey("firstName") &&
                     form.containsKey("password") &&
                     form.containsKey("email")) {
 
                 userManagementService.addUser(form.get("id"),
-                        form.get("lastname"),
-                        form.get("firstname"),
+                        form.get("lastName"),
+                        form.get("firstName"),
                         form.get("password"),
                         form.get("email"));
 
