@@ -3,8 +3,8 @@ Content-Type: application/json
 
 {
   "id": "{{id}}",
-  "lastname": "{{lastname}}",
-  "firstname": "{{firstname}}",
+  "lastName": "{{lastname}}",
+  "firstName": "{{firstname}}",
   "password": "{{password}}",
   "email": "{{email}}"
 }
