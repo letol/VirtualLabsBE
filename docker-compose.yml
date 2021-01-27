@@ -43,6 +43,6 @@ services:
     depends_on:                           #define dependencies of this app
       - db                                #dependency name (which is defined with this name 'db' in this file earlier)
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://ai-mariadb:3306/customer?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://ai-mariadb:3306/teams?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ai-mariadb
