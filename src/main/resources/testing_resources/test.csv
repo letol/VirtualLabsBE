@@ -1,5 +1,5 @@
-id,firstName,lastName
-s222222,Giulio,Bianchi
-s555555,Franco,Neri
-s666666,Luca,Bianchi
-s777777,Maria,Rosa
+id,firstName,lastName,email
+s222222,Giulio,Bianchi,s222222@studenti.polito.it
+s555555,Franco,Neri,s555555@studenti.polito.it
+s666666,Luca,Bianchi,s666666@studenti.polito.it
+s777777,Maria,Rosa,s777777@studenti.polito.it
