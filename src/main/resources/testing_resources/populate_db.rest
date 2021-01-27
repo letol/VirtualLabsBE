@@ -1,0 +1,399 @@
+###
+# Login with admin
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Add teacher 'd111111'
+POST http://localhost:8080/API/teacher/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "d111111",
+  "lastName": "Malnati",
+  "firstName": "Giovanni",
+  "email": "d111111@polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Register teacher 'd111111'
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "d111111",
+  "lastName": "Malnati",
+  "firstName": "Giovanni",
+  "password": "pd1",
+  "email": "d111111@polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add teacher 'd222222'
+POST http://localhost:8080/API/teacher/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "d222222",
+  "lastName": "Servetti",
+  "firstName": "Antonio",
+  "email": "d222222@polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "d222222",
+  "lastName": "Servetti",
+  "firstName": "Antonio",
+  "password": "pd2",
+  "email": "d222222@polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add student 's111111'
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s111111",
+  "lastName": "Rossi",
+  "firstName": "Mario",
+  "email": "s111111@studenti.polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Register student 's111111'
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "s111111",
+  "lastName": "Rossi",
+  "firstName": "Mario",
+  "password": "ps1",
+  "email": "s111111@studenti.polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add student 's222222'
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s222222",
+  "lastName": "Bianchi",
+  "firstName": "Giulio",
+  "email": "s222222@studenti.polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Register student 's222222'
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "s222222",
+  "lastName": "Bianchi",
+  "firstName": "Giulio",
+  "password": "ps2",
+  "email": "s222222@studenti.polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add student 's333333'
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s333333",
+  "lastName": "Verdi",
+  "firstName": "Giuseppe",
+  "email": "s333333@studenti.polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Register student 's333333'
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "s333333",
+  "lastName": "Verdi",
+  "firstName": "Giuseppe",
+  "password": "ps3",
+  "email": "s333333@studenti.polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add student 's444444'
+POST http://localhost:8080/API/students/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "id": "s444444",
+  "lastName": "Bruni",
+  "firstName": "Giorgio",
+  "email": "s444444@studenti.polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Register student 's444444'
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "s444444",
+  "lastName": "Bruni",
+  "firstName": "Giorgio",
+  "password": "ps4",
+  "email": "s444444@studenti.polito.it"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Login with teacher1
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "d111111",
+  "password": "pd1"
+}
+
+
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Add course 'c1'
+# Hint: should be done by teacher1
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "c1",
+  "min": 3,
+  "max": 4
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add course 'c2'
+# Hint: should be done by teacher1
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "c2",
+  "min": 1,
+  "max": 2
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add course 'c3'
+# Hint: should be done by teacher1
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "c3",
+  "min": 2,
+  "max": 4
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add and enroll to 'c3' students from CSV
+POST http://localhost:8080/API/courses/c3/enrollMany
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.csv"
+
+< test.csv
+--WebAppBoundary--
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+###
+# Login with teacher2
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "d222222",
+  "password": "pd2"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Add course 'c4'
+# Hint: should be done by teacher2
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "c4",
+  "min": 3,
+  "max": 5
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Enroll student 's222222' to 'c4'
+POST http://localhost:8080/API/courses/c4/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s222222
+--WebAppBoundary--
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Enroll student 's444444' to 'c4'
+POST http://localhost:8080/API/courses/c4/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s444444
+--WebAppBoundary--
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
