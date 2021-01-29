@@ -76,7 +76,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<String> rejectExpired() {
-        List<Token> expiredTokens = tokenRepo.findAllByExpiryDateBefore(new Timestamp(System.currentTimeMillis()));
+        List<Token> expiredTokens = tokenRepo.findAllByExpiryDateBefore(
+                new Timestamp(System.currentTimeMillis())
+        );
 
         expiredTokens.stream()
                 .forEach(tokenRepo::delete);

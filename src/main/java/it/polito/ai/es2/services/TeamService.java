@@ -89,4 +89,6 @@ public interface TeamService {
     List<HomeworkVersionDTO> getHomeworkVersions(String courseName, HomeworkId homeworkId);
 
     HomeworkVersionDTO getHomeworkVersion(String courseName, HomeworkId homeworkId, Long homeworkVersionId);
+
+    List<String> submitHomeworksOfExpiredAssignments();
 }
