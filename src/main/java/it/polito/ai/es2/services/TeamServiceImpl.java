@@ -602,6 +602,24 @@ public class TeamServiceImpl implements TeamService {
         return modelMapper.map(homeworkVersion, HomeworkVersionDTO.class);
     }
 
+    @Override
+    public List<String> submitHomeworksOfExpiredAssignments() {
+        List<Assignment> expiredAssignments = assignmentRepo.findAllByExpiryDateBefore(
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        expiredAssignments.stream()
+                .flatMap(assignment -> assignment.getHomeworks().stream())
+                .forEach(homework -> {
+                    homework.setCanSubmit(false);
+                    homework.setStatus(Homework.homeworkStatus.SUBMITTED);
+                });
+
+        return expiredAssignments.stream()
+                .map(assignment -> assignment.getId() + " of course " + assignment.getCourse().getName())
+                .collect(Collectors.toList());
+    }
+
     private void generateHomeworkForStudent(Assignment assignment, Student student) {
         HomeworkDTO homeworkDTO = HomeworkDTO.builder()
                 .id(new HomeworkId(assignment.getId(), student.getId()))

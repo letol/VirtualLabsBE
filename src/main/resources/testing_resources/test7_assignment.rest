@@ -1,13 +1,15 @@
 ###
 # Add assignment to course 'c4'
 # content is "assignment1" encoded to Base64 format
+# expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
+# where S are millisecnonds and Z is ISO 8601 time zone
 POST http://localhost:8080/API/courses/c4/assignment
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
   "content": "YXNzaWdubWVudDE=",
-  "expiryDate": "2021-03-01T22:59:59.000+0000"
+  "expiryDate": "2021-01-29T23:59:59.000+0000"
 }
 
 ###
