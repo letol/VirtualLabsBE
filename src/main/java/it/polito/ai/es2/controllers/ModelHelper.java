@@ -50,12 +50,12 @@ public class ModelHelper {
         return homeworkDTO
                 .add(linkTo(CourseController.class).slash(courseName)
                         .slash("assignment").slash(assignmentId)
-                        .slash("homework").slash(homeworkDTO.getId().getStudent_id())
+                        .slash("homework").slash(homeworkDTO.getStudent_id())
                         .withSelfRel())
                 .add(linkTo(methodOn(CourseController.class).listHomeworkVersions(
                         courseName,
-                        homeworkDTO.getId().getAssignment_id(),
-                        homeworkDTO.getId().getStudent_id()
+                        homeworkDTO.getAssignment_id(),
+                        homeworkDTO.getStudent_id()
                 )).withRel("versions"));
     }
 

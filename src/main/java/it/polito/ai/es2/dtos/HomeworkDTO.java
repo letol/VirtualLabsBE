@@ -12,7 +12,9 @@ import org.springframework.hateoas.RepresentationModel;
 @EqualsAndHashCode(callSuper = true)
 public class HomeworkDTO extends RepresentationModel<HomeworkDTO> {
 
-    private HomeworkId id;
+    private Long assignment_id;
+
+    private String student_id;
 
     private homeworkStatus currentStatus;
 
