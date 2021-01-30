@@ -8,8 +8,9 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
+  "name": "assignment1",
   "content": "YXNzaWdubWVudDE=",
-  "expiryDate": "2021-01-29T23:59:59.000+0000"
+  "expiryDate": "2021-01-30T23:59:59.000+0000"
 }
 
 ###
