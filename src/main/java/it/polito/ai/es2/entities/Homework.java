@@ -12,6 +12,7 @@ import java.util.List;
 
 @Entity
 @Data
+@IdClass(HomeworkId.class)
 public class Homework {
 
     public enum homeworkStatus {
@@ -23,8 +24,11 @@ public class Homework {
         SCORED
     }
 
-    @EmbeddedId
-    private HomeworkId id;
+    @Id
+    private Long assignment_id;
+
+    @Id
+    private String student_id;
 
     @Column(nullable = false)
     private homeworkStatus currentStatus;
