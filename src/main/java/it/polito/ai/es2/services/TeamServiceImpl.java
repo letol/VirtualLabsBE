@@ -536,8 +536,14 @@ public class TeamServiceImpl implements TeamService {
         homeworkVersion.setTimestamp(new Timestamp(System.currentTimeMillis()));
         HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
         homework.addHomeworkVersion(finalHomeworkVersion);
-        homework.setStatus(Homework.homeworkStatus.REVIEWED);
         homework.setCanSubmit(canReSubmit);
+
+        if (canReSubmit) {
+            homework.setStatus(Homework.homeworkStatus.REVIEWED);
+        } else {
+            homework.setStatus(Homework.homeworkStatus.DEFINITELY_REVIEWED);
+        }
+
         return modelMapper.map(finalHomeworkVersion, HomeworkVersionDTO.class);
     }
 
@@ -553,13 +559,15 @@ public class TeamServiceImpl implements TeamService {
 
         Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
 
-        if (homework.getStatus() != Homework.homeworkStatus.REVIEWED) {
-            throw new HomeworkInvalidStatusException("Cannot set score of unreviewed homework");
+        if (homework.getStatus() != Homework.homeworkStatus.DEFINITELY_REVIEWED) {
+            throw new HomeworkInvalidStatusException("Cannot set score of submittable homework");
         } else {
             if (score < 0 || score > 31) {
                 throw new HomeworkInvalidScoreException();
-            } else
+            } else {
                 homework.setScore(score);
+                homework.setStatus(Homework.homeworkStatus.SCORED);
+            }
         }
     }
 

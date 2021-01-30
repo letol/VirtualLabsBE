@@ -18,7 +18,9 @@ public class Homework {
         NULL,
         READ,
         SUBMITTED,
-        REVIEWED
+        REVIEWED,
+        DEFINITELY_REVIEWED,
+        SCORED
     }
 
     @EmbeddedId
@@ -29,7 +31,7 @@ public class Homework {
 
     private boolean canSubmit = true;
 
-    private int score;
+    private int score = 0;
 
     @ManyToOne
     @JoinColumn(name = "assignment_id", insertable = false, updatable = false)
