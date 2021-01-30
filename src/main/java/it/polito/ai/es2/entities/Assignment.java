@@ -16,6 +16,9 @@ public class Assignment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false, length = 1000)
     private byte[] content;
 
