@@ -21,6 +21,9 @@ public class HomeworkVersion {
     @Column(nullable = false)
     Timestamp timestamp;
 
+    @Column(nullable = false)
+    private Homework.homeworkStatus versionStatus;
+
     @ManyToOne
     @JoinColumns({
             @JoinColumn(name = "assignment_id"),

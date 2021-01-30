@@ -20,11 +20,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -464,7 +462,7 @@ public class TeamServiceImpl implements TeamService {
             UserDetails principal = (UserDetails) authentication.getPrincipal();
             Homework homework = homeworkRepo.findById(new HomeworkId(assignmentId, principal.getUsername()))
                     .orElseThrow(HomeworkNotFoundException::new);
-            homework.setStatus(Homework.homeworkStatus.READ);
+            homework.setCurrentStatus(Homework.homeworkStatus.READ);
         }
 
         return modelMapper.map(assignment, AssignmentDTO.class);
@@ -514,9 +512,12 @@ public class TeamServiceImpl implements TeamService {
         if (homework.isCanSubmit()) {
             HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
             homeworkVersion.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            homeworkVersion.setVersionStatus(Homework.homeworkStatus.SUBMITTED);
             HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
+
             homework.addHomeworkVersion(finalHomeworkVersion);
-            homework.setStatus(Homework.homeworkStatus.SUBMITTED);
+            homework.setCurrentStatus(Homework.homeworkStatus.SUBMITTED);
+
             return modelMapper.map(finalHomeworkVersion, HomeworkVersionDTO.class);
         } else throw new HomeworkCannotBeSubmittedException();
     }
@@ -532,16 +533,22 @@ public class TeamServiceImpl implements TeamService {
         }
 
         Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
+
         HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
         homeworkVersion.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        if (canReSubmit) {
+            homeworkVersion.setVersionStatus(Homework.homeworkStatus.REVIEWED);
+        } else {
+            homeworkVersion.setVersionStatus(Homework.homeworkStatus.DEFINITELY_REVIEWED);
+        }
         HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
+
         homework.addHomeworkVersion(finalHomeworkVersion);
         homework.setCanSubmit(canReSubmit);
-
         if (canReSubmit) {
-            homework.setStatus(Homework.homeworkStatus.REVIEWED);
+            homework.setCurrentStatus(Homework.homeworkStatus.REVIEWED);
         } else {
-            homework.setStatus(Homework.homeworkStatus.DEFINITELY_REVIEWED);
+            homework.setCurrentStatus(Homework.homeworkStatus.DEFINITELY_REVIEWED);
         }
 
         return modelMapper.map(finalHomeworkVersion, HomeworkVersionDTO.class);
@@ -559,14 +566,14 @@ public class TeamServiceImpl implements TeamService {
 
         Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
 
-        if (homework.getStatus() != Homework.homeworkStatus.DEFINITELY_REVIEWED) {
+        if (homework.getCurrentStatus() != Homework.homeworkStatus.DEFINITELY_REVIEWED) {
             throw new HomeworkInvalidStatusException("Cannot set score of submittable homework");
         } else {
             if (score < 0 || score > 31) {
                 throw new HomeworkInvalidScoreException();
             } else {
                 homework.setScore(score);
-                homework.setStatus(Homework.homeworkStatus.SCORED);
+                homework.setCurrentStatus(Homework.homeworkStatus.SCORED);
             }
         }
     }
@@ -620,7 +627,7 @@ public class TeamServiceImpl implements TeamService {
                 .flatMap(assignment -> assignment.getHomeworks().stream())
                 .forEach(homework -> {
                     homework.setCanSubmit(false);
-                    homework.setStatus(Homework.homeworkStatus.SUBMITTED);
+                    homework.setCurrentStatus(Homework.homeworkStatus.SUBMITTED);
                 });
 
         return expiredAssignments.stream()
@@ -631,7 +638,7 @@ public class TeamServiceImpl implements TeamService {
     private void generateHomeworkForStudent(Assignment assignment, Student student) {
         HomeworkDTO homeworkDTO = HomeworkDTO.builder()
                 .id(new HomeworkId(assignment.getId(), student.getId()))
-                .status(Homework.homeworkStatus.NULL)
+                .currentStatus(Homework.homeworkStatus.NULL)
                 .build();
         Homework finalHomework = homeworkRepo.save(
                 modelMapper.map(homeworkDTO, Homework.class)
