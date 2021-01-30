@@ -457,9 +457,9 @@ public class TeamServiceImpl implements TeamService {
             throw new AssignmentNotInCourseException();
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getAuthorities().contains("ROLE_STUDENT")) {
-            UserDetails principal = (UserDetails) authentication.getPrincipal();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT"))) {
+            UserDetails principal = (UserDetails) auth.getPrincipal();
             Homework homework = homeworkRepo.findById(new HomeworkId(assignmentId, principal.getUsername()))
                     .orElseThrow(HomeworkNotFoundException::new);
             homework.setCurrentStatus(Homework.homeworkStatus.READ);
@@ -637,7 +637,8 @@ public class TeamServiceImpl implements TeamService {
 
     private void generateHomeworkForStudent(Assignment assignment, Student student) {
         HomeworkDTO homeworkDTO = HomeworkDTO.builder()
-                .id(new HomeworkId(assignment.getId(), student.getId()))
+                .assignment_id(assignment.getId())
+                .student_id(student.getId())
                 .currentStatus(Homework.homeworkStatus.NULL)
                 .build();
         Homework finalHomework = homeworkRepo.save(
