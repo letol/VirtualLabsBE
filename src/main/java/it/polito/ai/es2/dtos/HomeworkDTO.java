@@ -14,7 +14,7 @@ public class HomeworkDTO extends RepresentationModel<HomeworkDTO> {
 
     private HomeworkId id;
 
-    private homeworkStatus status;
+    private homeworkStatus currentStatus;
 
     private int score;
 

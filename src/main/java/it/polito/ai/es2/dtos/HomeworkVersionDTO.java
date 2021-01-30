@@ -1,5 +1,6 @@
 package it.polito.ai.es2.dtos;
 
+import it.polito.ai.es2.entities.Homework;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -19,5 +20,7 @@ public class HomeworkVersionDTO extends RepresentationModel<HomeworkVersionDTO> 
     private byte[] content;
 
     private Timestamp timestamp;
+
+    private Homework.homeworkStatus versionStatus;
 
 }

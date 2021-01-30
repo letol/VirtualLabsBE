@@ -27,7 +27,7 @@ public class Homework {
     private HomeworkId id;
 
     @Column(nullable = false)
-    private homeworkStatus status;
+    private homeworkStatus currentStatus;
 
     private boolean canSubmit = true;
 
