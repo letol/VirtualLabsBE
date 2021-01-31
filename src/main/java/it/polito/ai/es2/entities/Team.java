@@ -1,6 +1,9 @@
 package it.polito.ai.es2.entities;
 
-import it.polito.ai.es2.TeamStatus;
+import it.polito.ai.es2.utility.TeamStatus;
+import it.polito.ai.es2.utility.VmStatus;
+import it.polito.ai.es2.exceptions.TeamServiceException;
+import it.polito.ai.es2.exceptions.TooManyVmInstancesException;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,7 +24,6 @@ public class Team {
 
     @NonNull
     @Column(nullable = false)
-    @PrimaryKeyJoinColumn
     private String name;
 
     private TeamStatus status = TeamStatus.PENDING;
@@ -32,19 +34,19 @@ public class Team {
 
     @NonNull
     @Column(nullable = false)
-    private Float memoryMAX;
+    private float memoryMAX;
 
     @NonNull
     @Column(nullable = false)
-    private Float diskMAX;
+    private float diskMAX;
 
     private int maxVmIstance = 0;
 
-    private int runningVmIstance = 0;
+    private int maxRunningVmIstance = 0;
 
+    @NonNull
     @ManyToOne
     @JoinColumn(name = "course_id")
-    @PrimaryKeyJoinColumn
     private Course course;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -54,7 +56,7 @@ public class Team {
     private List<Student> members = new ArrayList<>();
 
     @OneToMany(mappedBy = "team")
-    private List<VmIstance> vmIstances = new ArrayList<>();
+    private List<VmInstance> vmInstances = new ArrayList<>();
 
     public boolean setCourse(Course course) {
         if (this.course == course)
@@ -89,39 +91,64 @@ public class Team {
             return false;
     }
 
-    public boolean addVmIstanceToTeam(VmIstance vmIstance) {
-        int totCpu = vmIstance.getVcpu();
-        Float totMemory = vmIstance.getMemory();
-        Float totDisk = vmIstance.getDisk();
-
-        for (VmIstance var:
-                vmIstances ) {
+    public boolean addVmIstanceToTeam(VmInstance vmInstance) {
+        int totCpu = vmInstance.getVcpu();
+        float totMemory = vmInstance.getMemory();
+        float totDisk = vmInstance.getDisk();
+        int activeVm=0;
+        for (VmInstance var:
+                vmInstances) {
             totCpu+=var.getVcpu();
             totMemory+=var.getMemory();
             totDisk+=var.getDisk();
+            if(var.getStatus()==VmStatus.RUNNING)
+                activeVm++;
         }
         if(totCpu <= vcpuMAX && totMemory <= memoryMAX && totDisk <= diskMAX)
         {
-            vmIstances.add(vmIstance);
+            if((vmInstances.size()+1) > maxVmIstance) throw new TooManyVmInstancesException("Too many vm instances in this team");
+            if(activeVm + 1 > maxRunningVmIstance) throw new TooManyVmInstancesException("Too many vm instances running in this team");
+            vmInstances.add(vmInstance);
             maxVmIstance ++;
             return true;
         }
         return false;
     }
-    public boolean removeVmIstance(VmIstance vmIstance) {
-        int totCpu = vmIstance.getVcpu();
-        Float totMemory = vmIstance.getMemory();
-        Float totDisk = vmIstance.getDisk();
+    // todo continuare da qui
+    public boolean changeStatusVm(VmInstance vmInstance, VmStatus vmStatus) {
+        int activeVm=0;
+        if(vmStatus == VmStatus.RUNNING && vmInstance.getStatus() == VmStatus.SUSPENDED) {
+            for (VmInstance var:
+                    vmInstances) {
+                if(var.getStatus()==VmStatus.RUNNING)
+                    activeVm++;
+            }
+            if (activeVm+1 > maxRunningVmIstance) throw new TooManyVmInstancesException("Too many vm instances running in this team");
+            else vmInstance.setStatus(vmStatus);
+            return true;
+        }
 
-        for (VmIstance var:
-                vmIstances ) {
+        if(vmStatus == VmStatus.SUSPENDED && vmInstance.getStatus() == VmStatus.RUNNING) {
+            vmInstance.setStatus(vmStatus);
+            return true;
+        }
+        throw new TeamServiceException("Command not correct, check vm status");
+    }
+
+    public boolean removeVmIstance(VmInstance vmInstance) {
+        int totCpu = vmInstance.getVcpu();
+        Float totMemory = vmInstance.getMemory();
+        Float totDisk = vmInstance.getDisk();
+
+        for (VmInstance var:
+                vmInstances) {
             totCpu+=var.getVcpu();
             totMemory+=var.getMemory();
             totDisk+=var.getDisk();
         }
         if(totCpu <= vcpuMAX && totMemory <= memoryMAX && totDisk <= diskMAX)
         {
-            vmIstances.add(vmIstance);
+            vmInstances.add(vmInstance);
             maxVmIstance ++;
             return true;
         }

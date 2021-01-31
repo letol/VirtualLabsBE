@@ -5,18 +5,25 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VmModelDTO {
+public class RequestTeamDTO {
 
-    private Long id;
+
+    Long id;
+
     @NotEmpty
-    private String name;
+    String teamName;
+
     @NotEmpty
-    private String configuration;
+    Timestamp deadline;
+
+    @NotEmpty
+    List<String> selectedStudentsId;
 }

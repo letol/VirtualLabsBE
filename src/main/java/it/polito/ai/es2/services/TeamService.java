@@ -1,5 +1,6 @@
 package it.polito.ai.es2.services;
 
+import it.polito.ai.es2.utility.VmStatus;
 import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.User;
 
@@ -11,7 +12,7 @@ public interface TeamService {
 
     boolean addCourse(CourseDTO course, String teacherId);
 
-    Optional<CourseDTO> getCourse(String name);
+    Optional<CourseDTO> getCourse(Long courseId);
 
     List<CourseDTO> getAllCourses();
 
@@ -31,19 +32,19 @@ public interface TeamService {
 
     List<TeacherDTO> getAllTeachers();
 
-    List<StudentDTO> getEnrolledStudents(String courseName);
+    List<StudentDTO> getEnrolledStudents(Long courseId);
 
-    boolean addStudentToCourse(String studentId, String courseName);
+    boolean addStudentToCourse(String studentId, Long courseId);
 
-    void enableCourse(String courseName);
+    void enableCourse(Long courseId);
 
-    void disableCourse(String courseName);
+    void disableCourse(Long courseId);
 
     List<Boolean> addAll(List<StudentDTO> students);
 
-    List<Boolean> enrollAll(List<String> studentIds, String courseName);
+    List<Boolean> enrollAll(List<String> studentIds, Long courseId);
 
-    List<Boolean> addAndEnroll(Reader r, String courseName);
+    List<Boolean> addAndEnroll(Reader r, Long courseId);
 
     List<CourseDTO> getCourses(String studentId);
 
@@ -53,13 +54,13 @@ public interface TeamService {
 
     List<StudentDTO> getMembers(Long teamId);
 
-    TeamDTO proposeTeam(String courseId, String name, List<String> memberIds);
+    TeamDTO proposeTeam(Long courseId, String name, List<String> memberIds);
 
-    List<TeamDTO> getTeamsForCourse(String courseName);
+    List<TeamDTO> getTeamsForCourse(Long courseId);
 
-    List<StudentDTO> getStudentsInTeams(String courseName);
+    List<StudentDTO> getStudentsInTeams(Long courseId);
 
-    List<StudentDTO> getAvailableStudents(String courseName);
+    List<StudentDTO> getAvailableStudents(Long courseId);
 
     void enableTeam(Long teamId);
 
@@ -69,14 +70,19 @@ public interface TeamService {
 
     List<CourseDTO> getTeacherCourses(String professor);
 
-    VmModelDTO addVmModel(VmModelDTO vmModelDTO, String courseName);
+    VmModelDTO addVmModel(VmModelDTO vmModelDTO, Long courseId);
 
-    VmIstanceDTO createVmIstance (VmIstanceDTO vmIstanceDTO, String courseName, Long teamId);
+    VmModelDTO getVmModel(Long courseId);
 
-    VmIstanceDTO getVmIstance (Long vmId, String courseName, Long teamId);
+    VmInstanceDTO createVmInstance (VmInstanceDTO vmInstanceDTO, Long courseId, Long teamId);
 
+    VmInstanceDTO getVmInstanceOfTeam(Long vmId, Long courseId, Long teamId);
 
-    VmIstanceDTO changeStatusVM(String command, String courseName, Long tid, Long vmid);
+    List<VmInstanceDTO> getVmInstancesOfTeam(Long courseId, Long teamId);
 
-    List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, String courseName);
+    List<StudentDTO> getStudentsInATeam(Long courseId,Long id);
+
+    VmInstanceDTO changeStatusVM(VmStatus command, Long courseId, Long tid, Long vmid);
+
+    List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, Long teamId, Long courseId);
 }

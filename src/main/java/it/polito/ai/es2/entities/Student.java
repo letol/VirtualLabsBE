@@ -26,6 +26,8 @@ public class Student {
     @Column(nullable = false, length = 1000)
     private byte[] avatar;
 
+
+
     @OneToOne
     private User authUser;
 
@@ -35,15 +37,23 @@ public class Student {
             inverseJoinColumns = @JoinColumn(name = "course_name"))
     private List<Course> courses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "creator")
+    private List<VmInstance> cretedVMs = new ArrayList<>();
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "student_course",
+    @JoinTable(name = "student_vms",
             joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "vmIstance"))
-    private List<VmIstance> ownedVMs = new ArrayList<>();
+            inverseJoinColumns = @JoinColumn(name = "vmIstance_id"))
+    private List<VmInstance> ownedVMs = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members")
     private List<Team> teams = new ArrayList<>();
 
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "student_notification",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "notification_id"))
+    List<ProposalNotification> notifications;
     public boolean addCourse(Course course) {
         if (this.courses.contains(course))
             return false;
@@ -54,18 +64,18 @@ public class Student {
         }
     }
 
-    public boolean addVmOwnership(VmIstance vmIstance) {
-        if (this.ownedVMs.contains(vmIstance))
+    public boolean addVmOwnership(VmInstance vmInstance) {
+        if (this.ownedVMs.contains(vmInstance))
             return false;
         else {
-            this.ownedVMs.add(vmIstance);
-            vmIstance.getOwners().add(this);
+            this.ownedVMs.add(vmInstance);
+            vmInstance.getOwners().add(this);
             return true;
         }
     }
 
-    public boolean isOwner(VmIstance vmIstance) {
-        if (this.ownedVMs.contains(vmIstance))
+    public boolean isOwner(VmInstance vmInstance) {
+        if (this.ownedVMs.contains(vmInstance))
             return true;
         else {
             return false;

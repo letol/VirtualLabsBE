@@ -1,6 +1,6 @@
 package it.polito.ai.es2.controllers;
 
-import it.polito.ai.es2.ViewMessage;
+import it.polito.ai.es2.utility.ViewMessage;
 import it.polito.ai.es2.services.NotificationService;
 import it.polito.ai.es2.exceptions.NotificationServiceException;
 import org.springframework.beans.factory.annotation.Autowired;

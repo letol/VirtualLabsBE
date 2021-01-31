@@ -14,7 +14,9 @@ public class VmModel {
     @GeneratedValue
     private Long id;
 
-    @NonNull
+    @Column(nullable = false)
+    private String name;
+
     @Column(nullable = false)
     private String configuration;
 
@@ -23,7 +25,7 @@ public class VmModel {
     private Course course;
 
     @OneToMany(mappedBy = "vmModel")
-    private List<VmIstance> vmIstances;
+    private List<VmInstance> vmInstances;
 
 
 }

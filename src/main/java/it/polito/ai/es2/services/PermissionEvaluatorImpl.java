@@ -28,7 +28,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
     TeamRepository teamRepository;
 
     @Override
-    public boolean courseOwner(String professor, String course) {
+    public boolean courseOwner(String professor, Long course) {
         Optional<Teacher> professor1= professorRepository.findById(professor);
         Optional<Course> course1= courseRepository.findById(course);
         if(professor1.isPresent() && course1.isPresent()){
@@ -38,7 +38,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
     }
 
     @Override
-    public boolean studentInCourse(String student, String course)
+    public boolean studentInCourse(String student, Long course)
     {
         Optional<Student> student1= studentRepository.findById(student);
         Optional<Course> course1= courseRepository.findById(course);

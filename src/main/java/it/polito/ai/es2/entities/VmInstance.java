@@ -1,7 +1,7 @@
 package it.polito.ai.es2.entities;
 import javax.persistence.*;
 
-import it.polito.ai.es2.VmStatus;
+import it.polito.ai.es2.utility.VmStatus;
 import lombok.*;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VmIstance {
+public class VmInstance {
     @Id
     @GeneratedValue
     private Long id;
@@ -36,7 +36,12 @@ public class VmIstance {
     @JoinColumn(name = "vmModel_id", nullable = false)
     private VmModel vmModel;
 
-    @ManyToMany(mappedBy = "vmIstances")
+    @NonNull
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private Student creator;
+
+    @ManyToMany(mappedBy = "ownedVMs")
     private List<Student> owners;
 
     @ManyToOne()

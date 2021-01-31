@@ -1,21 +1,19 @@
-package it.polito.ai.es2;
+package it.polito.ai.es2.utility;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JwtRequest {
+public class UserInfo {
 
-    @NotBlank
     private String username;
 
-    @NotBlank
-    private String password;
+    private List<String> roles;
 }
