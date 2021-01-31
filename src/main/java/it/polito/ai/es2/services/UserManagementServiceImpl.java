@@ -5,6 +5,7 @@ import it.polito.ai.es2.dtos.TeacherDTO;
 import it.polito.ai.es2.dtos.UserDTO;
 import it.polito.ai.es2.entities.User;
 import it.polito.ai.es2.exceptions.EmailNotValidException;
+import it.polito.ai.es2.exceptions.TeamServiceException;
 import it.polito.ai.es2.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,16 +44,33 @@ public class UserManagementServiceImpl implements UserManagementService {
         if (!matcher.find()) throw new EmailNotValidException("Email domain is not valid");
 
         if (email.startsWith("s")) {
-            User user = userRepo.save(User.builder()
-                    .username(id)
-                    .password(passwordEncoder.encode(password))
-                    .roles(Collections.singletonList("ROLE_STUDENT"))
-                    .build()
-            );
-            StudentDTO studentDTO = new StudentDTO(id, lastname, firstname, email, null);
-            teamService.addStudent(studentDTO);
-            teamService.addAuthToStudent(studentDTO, user);
-            return user;
+            Optional<StudentDTO> opstudentDTO = teamService.getStudent(id);
+            if(opstudentDTO.isPresent()){
+                if(opstudentDTO.get().getFirstName().equals(firstname) && opstudentDTO.get().getLastName().equals(lastname)
+                && opstudentDTO.get().getEmail().equals(email) && opstudentDTO.get().getId().equals(id)){
+                    User user = userRepo.save(User.builder()
+                            .username(id)
+                            .password(passwordEncoder.encode(password))
+                            .roles(Collections.singletonList("ROLE_STUDENT"))
+                            .build()
+                    );
+                    teamService.addAuthToStudent(opstudentDTO.get(), user);
+                    return user;
+                } else throw new EmailNotValidException("Some fields are not valid");
+
+            } else {
+                User user = userRepo.save(User.builder()
+                        .username(id)
+                        .password(passwordEncoder.encode(password))
+                        .roles(Collections.singletonList("ROLE_STUDENT"))
+                        .build()
+                );
+                StudentDTO studentDTO = new StudentDTO(id, lastname, firstname, email, null);
+                teamService.addStudent(studentDTO);
+                teamService.addAuthToStudent(studentDTO, user);
+                return user;
+            }
+
         } else if (email.startsWith("d")) {
             User user = userRepo.save(User.builder()
                     .username(id)

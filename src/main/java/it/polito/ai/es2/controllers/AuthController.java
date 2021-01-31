@@ -1,10 +1,9 @@
 package it.polito.ai.es2.controllers;
 
-import it.polito.ai.es2.JwtRequest;
-import it.polito.ai.es2.JwtResponse;
+import it.polito.ai.es2.utility.JwtRequest;
+import it.polito.ai.es2.utility.JwtResponse;
 import it.polito.ai.es2.components.JwtTokenProvider;
 import it.polito.ai.es2.exceptions.EmailNotValidException;
-import it.polito.ai.es2.exceptions.UserManagementServiceException;
 import it.polito.ai.es2.services.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

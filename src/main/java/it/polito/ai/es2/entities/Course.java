@@ -1,6 +1,7 @@
 package it.polito.ai.es2.entities;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
@@ -9,17 +10,27 @@ import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class Course {
 
     @Id
+    @GeneratedValue
+    Long id;
+
+    @Column(nullable = false)
+    private String acronym;
+
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private int min;
 
+    @NonNull
     @Column(nullable = false)
     private int max;
 
+    @NonNull
     private boolean enabled;
 
     @NonNull
@@ -28,11 +39,19 @@ public class Course {
 
     @NonNull
     @Column(nullable = false)
-    private float disk;
+    private Float disk;
 
     @NonNull
     @Column(nullable = false)
-    private float memory;
+    private Float memory;
+
+    @NonNull
+    @Column(nullable = false)
+    private int maxVmIstance;
+
+    @NonNull
+    @Column(nullable = false)
+    private int maxRunningVmInstance;
 
     @ManyToOne
     private Teacher teacher;

@@ -35,7 +35,8 @@ public class NotificationServiceImpl implements NotificationService {
         message.setTo("***REMOVED***"); //TODO: remove forced address before production
         message.setSubject(subject);
         message.setText(body);
-        mailSender.send(message);
+        //TODO remove comment before production
+        //mailSender.send(message);
     }
 
     @Override
