@@ -61,11 +61,11 @@ public class CourseController {
 
     @PostMapping({"", "/"})
     CourseDTO addCourse(@RequestBody @Valid CourseDTO courseDTO, @AuthenticationPrincipal UserDetails userDetails) {
-        if (teamService.addCourse(courseDTO, userDetails.getUsername()))
-            return ModelHelper.enrich(courseDTO);
-        else
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + courseDTO.getName() + "' already exists!");
-    }
+        try{
+            return ModelHelper.enrich(teamService.addCourse(courseDTO, userDetails.getUsername()));
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }}
 
     @PostMapping("/{name}/enrollOne")
     Boolean enrollStudent(@PathVariable Long name, @RequestParam("studentId") String studentId) {
@@ -98,28 +98,27 @@ public class CourseController {
         }
     }
     @PostMapping("/{name}/teams")
-    TeamDTO createTeam(@RequestBody Map<String,Object> obj, @PathVariable Long name) {
+    ProposalNotificationDTO createTeam(@RequestBody RequestTeamDTO team, @PathVariable Long name) {
         /*{
             "team": {...}
             "memberIds": [...]
     }*/
         try {
-            if (obj.containsKey("team") && obj.containsKey("memberIds")) {
+
                 log.info("TEAM");
-                List<String> membersId = (List<String>) obj.get("memberIds");
+
                 //String name = String
                 log.info("Propose team to members");
-                TeamDTO teamDTO = teamService.proposeTeam(name,(String) obj.get("team"),membersId);
                 //notificationService.notifyTeam(teamDTO,membersId);
                 //TeamDTO team = (TeamDTO) obj.get("te");
-                return teamDTO;
-            } else throw new ResponseStatusException(HttpStatus.CONFLICT,"Bad_input");
+                return teamService.proposeTeam(name,team);
+
         }catch(CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
         } catch (StudentNotFoundException s) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,"memberIds");
         }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }
     }
 
@@ -158,7 +157,7 @@ public class CourseController {
         }
     }
 
-    @GetMapping("{name}/teams/{id}/vmInstances")
+    @GetMapping("{name}/teams/{tid}/vmInstances")
     List<VmInstanceDTO> getVmInstancesOfTeam(@PathVariable Long name, @PathVariable Long tid)
     {
         try {
@@ -212,17 +211,47 @@ public class CourseController {
 
 
     @PostMapping("/{name}/teams/{tid}/vmInstances/{vmid}/addOwners")
-    List<Boolean> addOwners(@RequestBody List<String> studentIds, @PathVariable Long name, @PathVariable Long tid, @PathVariable Long vmid) {
+    List<Boolean> addOwners(@RequestParam("studentIds") List<String> studentIds, @PathVariable Long name, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
-            return teamService.addOwnersVM(studentIds,name,tid,vmid);
+            return teamService.addOwnersVM(studentIds,vmid,tid,name);
         }catch(CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
         }catch(VmIstanceNotFound e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(VmPermissionDenied e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/teams/{tid}/vmInstances/{vmid}/getOwners")
+    List<StudentDTO> getOwnersVm(@PathVariable Long name, @PathVariable Long tid, @PathVariable Long vmid) {
+        try {
+            return teamService.getOwnersVm(vmid,tid,name);
+        }catch(CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+        }catch(VmIstanceNotFound e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }catch(VmPermissionDenied e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/teams/{tid}/vmInstances/{vmid}/getCreator")
+    StudentDTO getCreatorVm(@PathVariable Long name, @PathVariable Long tid, @PathVariable Long vmid) {
+        try {
+            return teamService.getCreatorVm(vmid,tid,name);
+        }catch(CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+        }catch(VmIstanceNotFound e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }catch(VmPermissionDenied e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }
     }
 
@@ -254,18 +283,20 @@ public class CourseController {
     }
 
     @GetMapping("/{name}/enableCourse")
-    public void enableCourse(@PathVariable Long name ){
+    public boolean enableCourse(@PathVariable Long name ){
         try{
             teamService.enableCourse(name);
+            return true;
         }catch (CourseNotFoundException c){
             throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
         }
     }
 
     @GetMapping("/{name}/disableCourse")
-    public void disableCourse(@PathVariable Long name ){
+    public boolean disableCourse(@PathVariable Long name ){
         try{
             teamService.disableCourse(name);
+            return true;
         }catch (CourseNotFoundException c){
             throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
         }

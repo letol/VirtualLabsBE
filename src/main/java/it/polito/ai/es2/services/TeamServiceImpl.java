@@ -2,6 +2,8 @@ package it.polito.ai.es2.services;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import it.polito.ai.es2.utility.ResponseTypeInvitation;
+import it.polito.ai.es2.utility.StudentStatusInvitation;
 import it.polito.ai.es2.utility.VmStatus;
 import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.*;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,6 +60,9 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     VmIstanceRepository vmIstanceRepository;
 
+    @Autowired
+    ProposalNotificationRepository proposalNotificationRepository;
+
 
     public TeamServiceImpl() throws IOException {
         File defaultAvatarFile = ResourceUtils.getFile("classpath:img/default_user_avatar.png");
@@ -65,18 +71,20 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("hasRole('ROLE_TEACHER') and #teacherId == authentication.principal.username")
-    public boolean addCourse(CourseDTO courseDTO, String teacherId) {
+    public CourseDTO addCourse(CourseDTO courseDTO, String teacherId) {
         try {
-
+            System.out.println("Add course");
             Teacher teacher = teacherRepo.findById(teacherId)
                     .orElseThrow(TeacherNotFoundException::new);
             Course course = courseRepo.save(modelMapper.map(courseDTO, Course.class));
             teacher.addCourse(course);
-            return true;
+
+            courseDTO = modelMapper.map(course,CourseDTO.class);
+
+            return courseDTO;
 
         } catch (Exception e){
-            System.out.println(e.getMessage());
-            return false;
+            throw new TeamServiceException("Failed to create a course");
         }
 
     }
@@ -284,7 +292,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT')  and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
-    public TeamDTO proposeTeam(Long courseId, String name, List<String> memberIds) {
+    public ProposalNotificationDTO proposeTeam(Long courseId, RequestTeamDTO teamRequest) {
+        List<String> memberIds = teamRequest.getSelectedStudentsId();
+        String name = teamRequest.getTeamName();
         Optional<Course> courseOptional = courseRepo.findById(courseId);
         if (!courseOptional.isPresent())
             throw new CourseNotFoundException("Course '" + courseId + "' not found!");
@@ -320,7 +330,22 @@ public class TeamServiceImpl implements TeamService {
                     throw new StudentAlreadyMemberForCourseException("Student '" + student.getId() + "' already has a team!");
             }
         }
+        Student student = studentRepo.findById(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+        List<StudentStatusInvitation> studentStatusInvitations = new ArrayList<>();
+        for (String studentI:memberIds) {
+            if(!studentI.equals(student.getId())){
+                studentStatusInvitations.add(new StudentStatusInvitation(studentI,ResponseTypeInvitation.NOT_REPLY));
+            }
 
+        }
+        ProposalNotification proposalNotification = ProposalNotification.builder()
+                .teamName(name)
+                .course(course)
+                .creator(student)
+                .token(UUID.randomUUID().toString())
+                .deadline(new Timestamp(teamRequest.getDeadline().getTime()+System.currentTimeMillis()))
+                .studentsInvitedWithStatus(studentStatusInvitations).build();
+        /*
         Team newTeam = teamRepo.save(new Team(name,course.getVcpu(),course.getMemory(),course.getDisk(),course));
         newMembers.forEach(newTeam::addMember);
         //newTeam.setCourse(course);
@@ -331,9 +356,12 @@ public class TeamServiceImpl implements TeamService {
         newTeam.setMaxRunningVmIstance(course.getMaxRunningVmInstance());
         System.out.println("imma here");
         TeamDTO newTeamDTO = modelMapper.map(newTeam, TeamDTO.class);
-        //notificationService.notifyTeam(newTeamDTO, memberIds);
-
-        return newTeamDTO;
+        notificationService.notifyTeam(newTeamDTO, memberIds);
+        */
+        proposalNotification = proposalNotificationRepository.save(proposalNotification);
+        notificationService.notifyTeam(proposalNotification);
+        student.getNotificationsCreated().add(proposalNotification);
+        return modelMapper.map(proposalNotification,ProposalNotificationDTO.class);
     }
 
     @Override
@@ -454,14 +482,17 @@ public class TeamServiceImpl implements TeamService {
             Optional<Team> optionalTeam = teamRepo.findById(teamId);
             if (optionalTeam.isPresent()) {
                 if(optionalTeam.get().getStatus()!=TeamStatus.ACTIVE) throw new TeamNotEnabledException("Team not enabled");
-                Optional<Student> student = studentRepo.findById(SecurityContextHolder.getContext().getAuthentication().getName());
+                String studentAuth = SecurityContextHolder.getContext().getAuthentication().getName();
+                Optional<Student> student = studentRepo.findById(studentAuth);
+                vmInstanceDTO.setStatus(VmStatus.SUSPENDED);
                 VmInstance vmInstance = modelMapper.map(vmInstanceDTO, VmInstance.class);
                 vmInstance.setVmModel(vmModel);
                 vmInstance.setCreator(student.get());
                 vmInstance.getOwners().add(student.get());
                 optionalTeam.get().addVmIstanceToTeam(vmInstance);
                 student.get().addVmOwnership(vmInstance);
-                vmIstanceRepository.save(vmInstance);
+                vmInstance=vmIstanceRepository.save(vmInstance);
+                vmInstanceDTO.setId(vmInstance.getId());
                 return vmInstanceDTO;
             } else throw new TeamNotFoundException("Team '" + teamId + "' not found!");
 
@@ -506,13 +537,12 @@ public class TeamServiceImpl implements TeamService {
 
     }
 
-    //todo lista booleano o vmIstance?
     @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId))")
     public List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, Long teamId, Long courseId) {
         List<Boolean> ret = new ArrayList<>();
         Optional<VmInstance> vmIstance = vmIstanceRepository.findById(vmId);
-        if(!vmIstance.isPresent()) throw new VmIstanceNotFound();
+        if(!vmIstance.isPresent()) throw new VmIstanceNotFound("Vm Instance not found");
         for (String studentId:
              studentsId) {
             Optional<Student> student = studentRepo.findById(studentId);
@@ -529,6 +559,29 @@ public class TeamServiceImpl implements TeamService {
         }
         vmIstanceRepository.save(vmIstance.get());
         return ret;
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId))or(hasRole('ROLE_TEACHER')and @permissionEvaluator.courseOwner(authentication.principal.username,#courseId))")
+    public List<StudentDTO> getOwnersVm(Long vmId, Long teamId, Long courseId) {
+        Optional<VmInstance> vmIstance = vmIstanceRepository.findById(vmId);
+        if(!vmIstance.isPresent()) throw new VmIstanceNotFound("Vm instance not found");
+        return vmIstance.get().getOwners().stream().map(p -> modelMapper.map(p,StudentDTO.class)).collect(Collectors.toList());
+    }
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId)) or (hasRole('ROLE_TEACHER')and @permissionEvaluator.courseOwner(authentication.principal.username,#courseId))")
+    public StudentDTO getCreatorVm(Long vmId, Long teamId, Long courseId){
+        Optional<VmInstance> vmIstance = vmIstanceRepository.findById(vmId);
+        if(!vmIstance.isPresent()) throw new VmIstanceNotFound("Vm instance not found");
+        return modelMapper.map(vmIstance.get().getCreator(),StudentDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId))or(hasRole('ROLE_TEACHER'))")
+    public List<ProposalNotificationDTO> getNotifications(Long courseId) {
+        List<ProposalNotification> proposalNotifications =proposalNotificationRepository.findAll();
+
+        return null;
     }
 
 

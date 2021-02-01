@@ -26,8 +26,6 @@ public class Student {
     @Column(nullable = false, length = 1000)
     private byte[] avatar;
 
-
-
     @OneToOne
     private User authUser;
 
@@ -47,13 +45,11 @@ public class Student {
     private List<VmInstance> ownedVMs = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members")
-    private List<Team> teams = new ArrayList<>();
+    private List<Team> teams = new ArrayList<>() ;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "student_notification",
-            joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "notification_id"))
-    List<ProposalNotification> notifications;
+    @OneToMany(mappedBy = "creator")
+    private List<ProposalNotification> notificationsCreated = new ArrayList<>();
+
     public boolean addCourse(Course course) {
         if (this.courses.contains(course))
             return false;

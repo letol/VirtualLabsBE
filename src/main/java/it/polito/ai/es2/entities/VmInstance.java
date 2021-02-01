@@ -4,6 +4,7 @@ import javax.persistence.*;
 import it.polito.ai.es2.utility.VmStatus;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,6 +16,10 @@ public class VmInstance {
     @Id
     @GeneratedValue
     private Long id;
+
+    @NonNull
+    @Column(nullable = false)
+    private String name;
 
     @NonNull
     @Column(nullable = false)
@@ -42,7 +47,7 @@ public class VmInstance {
     private Student creator;
 
     @ManyToMany(mappedBy = "ownedVMs")
-    private List<Student> owners;
+    private List<Student> owners = new ArrayList<>();
 
     @ManyToOne()
     @JoinColumn(name = "team_id", nullable = false)

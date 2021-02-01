@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode(callSuper = true)
 public class CourseDTO extends RepresentationModel<CourseDTO> {
 
-    @NotBlank
+
     private Long id;
 
     @NotBlank

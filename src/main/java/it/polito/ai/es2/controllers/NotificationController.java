@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/notification")
+@RequestMapping("/API/notifications")
 public class NotificationController {
 
     @Autowired

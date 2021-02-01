@@ -1,0 +1,101 @@
+POST http://localhost:8080/auth/register
+Content-Type: application/json
+
+{
+  "id": "{{id}}",
+  "lastname": "{{lastname}}",
+  "firstname": "{{firstname}}",
+  "password": "{{password}}",
+  "email": "{{email}}"
+}
+
+###
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{id}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+
+###
+# Add course 'c1'
+# Hint: should be done by teacher1
+POST http://localhost:8080/API/courses/
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "acronym": "c1",
+  "name": "corso 1",
+  "min": 2,
+  "max": 4,
+  "vcpu": 5,
+  "disk": 10,
+  "memory": 15,
+  "maxVmIstance": 3,
+  "maxRunningVmInstance": 1
+}
+
+###
+# Get course 'c4'
+GET http://localhost:8080/API/courses/5/enableCourse
+Authorization: Bearer {{auth_token}}
+
+###
+# Enroll student 's444444' to 'c4'
+POST http://localhost:8080/API/courses/5/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s111111
+--WebAppBoundary--
+
+
+###
+# Enroll student 's444444' to 'c4'
+POST http://localhost:8080/API/courses/5/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s222222
+--WebAppBoundary--
+
+
+###
+# Add team1
+# Hint: should be done by student1
+POST http://localhost:8080/API/courses/5/teams
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "teamName": "team1",
+  "deadline": 86400000,
+  "selectedStudentsId" :[
+    "s111111",
+    "s222222"
+]
+}
+
+
+###
+# Get course 'c4'
+GET http://localhost:8080/API/notifications/confirm/abf7868a-7480-4a28-adfd-288c917cd735
+Authorization: Bearer {{auth_token}}
+
+###
+
