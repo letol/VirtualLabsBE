@@ -11,7 +11,7 @@ public class ModelHelper {
 
     public static CourseDTO enrich(CourseDTO courseDTO) {
         return courseDTO
-                .add(linkTo(CourseController.class).slash(courseDTO.getName()).withSelfRel())
+                .add(linkTo(CourseController.class).slash(courseDTO.getId()).withSelfRel())
                 .add(linkTo(methodOn(CourseController.class).enrolledStudents(courseDTO.getId())).withRel("enrolled"));
     }
 

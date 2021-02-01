@@ -43,6 +43,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
         Optional<Student> student1= studentRepository.findById(student);
         Optional<Course> course1= courseRepository.findById(course);
         if(student1.isPresent() && course1.isPresent()){
+            System.out.println("student in course "+student1.get().getCourses().contains(course1.get()));
             return student1.get().getCourses().contains(course1.get());
         }
         return false;
@@ -54,6 +55,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
         Optional<Student> student1= studentRepository.findById(student);
         Optional<Team> team= teamRepository.findById(teamId);
         if(student1.isPresent()&&team.isPresent()){
+            System.out.println("student in team "+team.get().getMembers().contains(student1.get()));
             return team.get().getMembers().contains(student1.get());
         }
         return false;

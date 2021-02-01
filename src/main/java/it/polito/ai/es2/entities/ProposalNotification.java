@@ -1,8 +1,10 @@
 package it.polito.ai.es2.entities;
 
+import it.polito.ai.es2.utility.StudentStatusInvitation;
 import lombok.*;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
@@ -21,17 +23,12 @@ public class ProposalNotification {
     @Column(nullable = false)
     String teamName;
 
-    @NonNull
-    @Column(nullable = false)
+    @Column()
     String token;
 
     @NonNull
     @Column(nullable = false)
-    String deadline;
-
-    @NonNull
-    @Column(nullable = false)
-    boolean isValid;
+    Timestamp deadline;
 
     @NonNull
     @ManyToOne
@@ -40,10 +37,10 @@ public class ProposalNotification {
 
     @NonNull
     @ManyToOne
-    @JoinColumn(name = "course_id")
+    @JoinColumn(name = "creator_id")
     Student creator;
 
-    @ManyToMany(mappedBy = "notifications")
-    List<Student> members;
+    @ElementCollection
+    private List<StudentStatusInvitation>  studentsInvitedWithStatus;
 
 }

@@ -66,6 +66,9 @@ public class Course {
     @JoinColumn(name = "vmModel_id", referencedColumnName = "id")
     private VmModel vmModel;
 
+    @OneToMany(mappedBy = "course")
+    private List<ProposalNotification> proposalNotifications;
+
     public boolean addStudent(Student student) {
         if (this.students.contains(student))
             return false;

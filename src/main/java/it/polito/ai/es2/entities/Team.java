@@ -110,6 +110,7 @@ public class Team {
             if(activeVm + 1 > maxRunningVmIstance) throw new TooManyVmInstancesException("Too many vm instances running in this team");
             vmInstances.add(vmInstance);
             maxVmIstance ++;
+            vmInstance.setTeam(this);
             return true;
         }
         return false;

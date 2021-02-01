@@ -14,6 +14,9 @@ public class VmInstanceDTO {
     private Long id;
 
     @NotEmpty
+    private String name;
+
+    @NotEmpty
     private int vcpu;
 
     @NotEmpty
@@ -22,7 +25,6 @@ public class VmInstanceDTO {
     @NotEmpty
     private Float memory;
 
-    @NotEmpty
     private VmStatus status;
 
 }

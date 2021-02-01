@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface TeamService {
 
-    boolean addCourse(CourseDTO course, String teacherId);
+    CourseDTO addCourse(CourseDTO course, String teacherId);
 
     Optional<CourseDTO> getCourse(Long courseId);
 
@@ -54,7 +54,7 @@ public interface TeamService {
 
     List<StudentDTO> getMembers(Long teamId);
 
-    TeamDTO proposeTeam(Long courseId, String name, List<String> memberIds);
+    ProposalNotificationDTO proposeTeam(Long courseId, RequestTeamDTO team);
 
     List<TeamDTO> getTeamsForCourse(Long courseId);
 
@@ -85,4 +85,10 @@ public interface TeamService {
     VmInstanceDTO changeStatusVM(VmStatus command, Long courseId, Long tid, Long vmid);
 
     List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, Long teamId, Long courseId);
+
+    List<StudentDTO> getOwnersVm(Long vmId, Long teamId, Long courseId);
+
+    StudentDTO getCreatorVm(Long vmId, Long teamId, Long courseId);
+
+    List<ProposalNotificationDTO> getNotifications(Long courseId);
 }
