@@ -301,4 +301,24 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
         }
     }
+
+    @GetMapping("/{name}/proposalNotifications")
+    public List<ProposalNotificationDTO> getNotifications(@PathVariable Long name ){
+        try{
+            return teamService.getNotificationsForStudent(name);
+        }catch (CourseNotFoundException c){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
+        }
+    }
+
+    @GetMapping("/{name}/proposalNotifications/{id}/creator")
+    public StudentDTO getProposalCreator(@PathVariable Long name,@PathVariable Long id ){
+        try{
+            return teamService.getCreatorProposal(name,id);
+        }catch (CourseNotFoundException c){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
+        }catch (TeamServiceException t){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,t.getMessage());
+        }
+    }
 }
