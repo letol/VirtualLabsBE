@@ -10,7 +10,7 @@ Content-Type: application/json
 
 > {%
     if (response.status === 200) {
-        client.global.set("auth_token", response.body.token);
+        client.global.set("auth_token_admin", response.body.token);
     }
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -21,7 +21,7 @@ Content-Type: application/json
 # Add teacher 'd111111'
 POST http://localhost:8080/API/teacher/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_admin}}
 
 {
   "id": "d111111",
@@ -57,7 +57,7 @@ Content-Type: application/json
 # Add teacher 'd222222'
 POST http://localhost:8080/API/teacher/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_admin}}
 
 {
   "id": "d222222",
@@ -72,6 +72,7 @@ Authorization: Bearer {{auth_token}}
 %}
 
 ###
+# Register teacher 'd222222'
 POST http://localhost:8080/auth/register
 Content-Type: application/json
 
@@ -92,7 +93,7 @@ Content-Type: application/json
 # Add student 's111111'
 POST http://localhost:8080/API/students/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_admin}}
 
 {
   "id": "s111111",
@@ -128,7 +129,7 @@ Content-Type: application/json
 # Add student 's222222'
 POST http://localhost:8080/API/students/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_admin}}
 
 {
   "id": "s222222",
@@ -164,7 +165,7 @@ Content-Type: application/json
 # Add student 's333333'
 POST http://localhost:8080/API/students/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_admin}}
 
 {
   "id": "s333333",
@@ -200,7 +201,7 @@ Content-Type: application/json
 # Add student 's444444'
 POST http://localhost:8080/API/students/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_admin}}
 
 {
   "id": "s444444",
@@ -245,7 +246,7 @@ Content-Type: application/json
 
 > {%
     if (response.status === 200) {
-        client.global.set("auth_token", response.body.token);
+        client.global.set("auth_token_teacher1", response.body.token);
     }
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -257,7 +258,7 @@ Content-Type: application/json
 # Hint: should be done by teacher1
 POST http://localhost:8080/API/courses/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_teacher1}}
 
 {
   "name": "c1",
@@ -275,7 +276,7 @@ Authorization: Bearer {{auth_token}}
 # Hint: should be done by teacher1
 POST http://localhost:8080/API/courses/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_teacher1}}
 
 {
   "name": "c2",
@@ -293,7 +294,7 @@ Authorization: Bearer {{auth_token}}
 # Hint: should be done by teacher1
 POST http://localhost:8080/API/courses/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_teacher1}}
 
 {
   "name": "c3",
@@ -310,7 +311,7 @@ Authorization: Bearer {{auth_token}}
 # Add and enroll to 'c3' students from CSV
 POST http://localhost:8080/API/courses/c3/enrollMany
 Content-Type: multipart/form-data; boundary=WebAppBoundary
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_teacher1}}
 
 --WebAppBoundary
 Content-Disposition: form-data; name="file"; filename="test.csv"
@@ -323,6 +324,7 @@ Content-Disposition: form-data; name="file"; filename="test.csv"
         client.assert(response.status === 200, "Response status is not 200");
     });
 %}
+
 ###
 # Login with teacher2
 POST http://localhost:8080/auth/login
@@ -335,7 +337,7 @@ Content-Type: application/json
 
 > {%
     if (response.status === 200) {
-        client.global.set("auth_token", response.body.token);
+        client.global.set("auth_token_teacher2", response.body.token);
     }
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -347,7 +349,7 @@ Content-Type: application/json
 # Hint: should be done by teacher2
 POST http://localhost:8080/API/courses/
 Content-Type: application/json
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_teacher2}}
 
 {
   "name": "c4",
@@ -364,7 +366,7 @@ Authorization: Bearer {{auth_token}}
 # Enroll student 's222222' to 'c4'
 POST http://localhost:8080/API/courses/c4/enrollOne
 Content-Type: multipart/form-data; boundary=WebAppBoundary
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_teacher2}}
 
 --WebAppBoundary
 Content-Disposition: form-data; name="studentId"
@@ -382,12 +384,257 @@ s222222
 # Enroll student 's444444' to 'c4'
 POST http://localhost:8080/API/courses/c4/enrollOne
 Content-Type: multipart/form-data; boundary=WebAppBoundary
-Authorization: Bearer {{auth_token}}
+Authorization: Bearer {{auth_token_teacher2}}
 
 --WebAppBoundary
 Content-Disposition: form-data; name="studentId"
 
 s444444
+--WebAppBoundary--
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add assignment to course 'c4'
+# content is "assignment1" encoded to Base64 format
+# expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
+# where S are millisecnonds and Z is ISO 8601 time zone
+POST http://localhost:8080/API/courses/c4/assignment
+Content-Type: application/json
+Authorization: Bearer {{auth_token_teacher2}}
+
+{
+  "name": "assignment1",
+  "content": "YXNzaWdubWVudDE=",
+  "expiryDate": "2021-03-14T23:59:59.000+0000"
+}
+> {%
+    if (response.status === 200) {
+        client.global.set("assignmentId1", response.body.id);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add assignment to course 'c4'
+# content is "assignment2" encoded to Base64 format
+# expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
+# where S are millisecnonds and Z is ISO 8601 time zone
+POST http://localhost:8080/API/courses/c4/assignment
+Content-Type: application/json
+Authorization: Bearer {{auth_token_teacher2}}
+
+{
+  "name": "assignment2",
+  "content": "YXNzaWdubWVudDI=",
+  "expiryDate": "2021-03-14T23:59:59.000+0000"
+}
+> {%
+    if (response.status === 200) {
+        client.global.set("assignmentId2", response.body.id);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Add assignment to course 'c4'
+# content is "assignment3" encoded to Base64 format
+# expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
+# where S are millisecnonds and Z is ISO 8601 time zone
+POST http://localhost:8080/API/courses/c4/assignment
+Content-Type: application/json
+Authorization: Bearer {{auth_token_teacher2}}
+
+{
+  "name": "assignment3",
+  "content": "YXNzaWdubWVudDM=",
+  "expiryDate": "2021-03-14T23:59:59.000+0000"
+}
+> {%
+    if (response.status === 200) {
+        client.global.set("assignmentId3", response.body.id);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Login with student2
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "s222222",
+  "password": "ps2"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token_student2", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Submit version for homework of 's222222' of 'assignment1' of 'c4'
+# Content is "submitted" encoded to Base64 format
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s222222/submit
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
+
+{
+  "content": "c3VibWl0dGVk"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Submit version for homework of 's222222' of 'assignment2' of 'c4'
+# Content is "submitted" encoded to Base64 format
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId2}}/homework/s222222/submit
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
+
+{
+  "content": "c3VibWl0dGVk"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Student 's222222' reads 'assignment3' of 'c4'
+GET http://localhost:8080/API/courses/c4/assignment/{{assignmentId3}}
+Authorization: Bearer {{auth_token_student2}}
+
+###
+# Login with student4
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "s444444",
+  "password": "ps4"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token_student4", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Submit version for homework of 's444444' of 'assignment1' of 'c4'
+# Content is "submitted" encoded to Base64 format
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s444444/submit
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student4}}
+
+{
+  "content": "c3VibWl0dGVk"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Submit version for homework of 's444444' of 'assignment2' of 'c4'
+# Content is "submitted" encoded to Base64 format
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId2}}/homework/s444444/submit
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student4}}
+
+{
+  "content": "c3VibWl0dGVk"
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Submit review for homework of 's222222' of 'assignment1' of 'c4'
+# Content is "no more submit" encoded to Base64 format
+# Student can't submit another version
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s222222/review?canReSubmit=false
+Content-Type: application/json
+Authorization: Bearer {{auth_token_teacher2}}
+
+{
+  "content": "bm8gbW9yZSBzdWJtaXQ="
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Submit review for homework of 's444444' of 'assignment1' of 'c4'
+# Content is "no more submit" encoded to Base64 format
+# Student can't submit another version
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s444444/review?canReSubmit=false
+Content-Type: application/json
+Authorization: Bearer {{auth_token_teacher2}}
+
+{
+  "content": "bm8gbW9yZSBzdWJtaXQ="
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Submit review for homework of 's222222' of 'assignment2' of 'c4'
+# Content is "reviewed" encoded to Base64 format
+# Student can submit another version
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId2}}/homework/s222222/review?canReSubmit=true
+Content-Type: application/json
+Authorization: Bearer {{auth_token_teacher2}}
+
+{
+  "content": "cmV2aWV3ZWQ="
+}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Set score for homework of 's222222' of 'assignment1' of 'c4'
+POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s222222/setScore
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token_teacher2}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="score"
+
+30
 --WebAppBoundary--
 
 > {%
