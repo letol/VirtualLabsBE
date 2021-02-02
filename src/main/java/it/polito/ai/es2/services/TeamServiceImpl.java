@@ -577,11 +577,19 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId) and @permissionEvaluator.studentInTeam(authentication.principal.username,#teamId))or(hasRole('ROLE_TEACHER'))")
-    public List<ProposalNotificationDTO> getNotifications(Long courseId) {
-        List<ProposalNotification> proposalNotifications =proposalNotificationRepository.findAll();
+    @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#courseId)")
+    public List<ProposalNotificationDTO> getNotificationsForStudent(Long courseId) {
+        List<ProposalNotification> proposalNotifications =proposalNotificationRepository.getProposalNotificationsForStudentByCourse(courseId,SecurityContextHolder.getContext().getAuthentication().getName());
+        return proposalNotifications.stream().map(p->modelMapper.map(p,ProposalNotificationDTO.class)).collect(Collectors.toList());
+    }
 
-        return null;
+    @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentInCourse(authentication.principal.username,#name)")
+    public StudentDTO getCreatorProposal(Long name, Long id) {
+        Optional<ProposalNotification> optionalProposalNotification = proposalNotificationRepository.findById(id);
+        if(!optionalProposalNotification.isPresent()) throw new TeamServiceException("ProposalNotification not exists");
+
+        return modelMapper.map(optionalProposalNotification.get().getCreator(),StudentDTO.class);
     }
 
 

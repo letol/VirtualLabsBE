@@ -90,5 +90,7 @@ public interface TeamService {
 
     StudentDTO getCreatorVm(Long vmId, Long teamId, Long courseId);
 
-    List<ProposalNotificationDTO> getNotifications(Long courseId);
+    List<ProposalNotificationDTO> getNotificationsForStudent(Long courseId);
+
+    StudentDTO getCreatorProposal(Long name, Long id);
 }
