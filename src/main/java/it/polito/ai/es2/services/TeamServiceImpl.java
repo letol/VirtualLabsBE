@@ -484,6 +484,15 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourse(authentication.principal.username, #courseName)) or hasRole('ROLE_ADMIN')")
+    public List<HomeworkDTO> getHomeworksForCourse(String courseName) {
+        Course course = courseRepo.findById(courseName).orElseThrow(CourseNotFoundException::new);
+        return homeworkRepo.findAllByAssignment_Course(course).stream()
+                .map(homework -> modelMapper.map(homework, HomeworkDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId)) or" +
             "(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
     public HomeworkDTO getHomework(String courseName, HomeworkId homeworkId) {
