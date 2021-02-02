@@ -181,6 +181,17 @@ public class CourseController {
         }
     }
 
+    @GetMapping("/{courseName}/homeworks")
+    List<HomeworkDTO> listHomeworksOfCourse(@PathVariable String courseName) {
+        try {
+            return teamService.getHomeworksForCourse(courseName).stream()
+                    .map(homeworkDTO -> ModelHelper.enrich(courseName, homeworkDTO.getAssignment_id(), homeworkDTO))
+                    .collect(Collectors.toList());
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
     @PostMapping("/{courseName}/assignment")
     AssignmentDTO addAssignment(@PathVariable String courseName, @RequestBody @Valid AssignmentDTO assignmentDTO) {
         try {

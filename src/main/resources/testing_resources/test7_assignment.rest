@@ -43,6 +43,11 @@ if (response.status === 200 && response.body[0] !== undefined) {
  %}
 
 ###
+# Get all homeworks of 'c4'
+GET http://localhost:8080/API/courses/c4/homeworks
+Authorization: Bearer {{auth_token}}
+
+###
 # Get homework of 's222222' of assignment X of 'c4'
 GET http://localhost:8080/API/courses/c4/assignment/{{assignmentId}}/homework/{{studentId}}
 Authorization: Bearer {{auth_token}}
