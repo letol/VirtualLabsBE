@@ -35,33 +35,33 @@ public class ModelHelper {
                 .add(linkTo(methodOn(TeacherController.class).getTeachers(teacherDTO.getId())).withRel("courses"));
     }
 
-    public static AssignmentDTO enrich(String courseName, AssignmentDTO assignmentDTO) {
+    public static AssignmentDTO enrich(Long courseId, AssignmentDTO assignmentDTO) {
         return assignmentDTO
-                .add(linkTo(CourseController.class).slash(courseName)
+                .add(linkTo(CourseController.class).slash(courseId)
                         .slash("assignment").slash(assignmentDTO.getId())
                         .withSelfRel())
                 .add(linkTo(methodOn(CourseController.class).listHomeworks(
-                        courseName,
+                        courseId,
                         assignmentDTO.getId()
                 )).withRel("homeworks"));
     }
 
-    public static HomeworkDTO enrich(String courseName, Long assignmentId, HomeworkDTO homeworkDTO) {
+    public static HomeworkDTO enrich(Long courseId, Long assignmentId, HomeworkDTO homeworkDTO) {
         return homeworkDTO
-                .add(linkTo(CourseController.class).slash(courseName)
+                .add(linkTo(CourseController.class).slash(courseId)
                         .slash("assignment").slash(assignmentId)
                         .slash("homework").slash(homeworkDTO.getStudent_id())
                         .withSelfRel())
                 .add(linkTo(methodOn(CourseController.class).listHomeworkVersions(
-                        courseName,
+                        courseId,
                         homeworkDTO.getAssignment_id(),
                         homeworkDTO.getStudent_id()
                 )).withRel("versions"));
     }
 
-    public static HomeworkVersionDTO enrich(String courseName, Long assignmentId, String studentId, HomeworkVersionDTO homeworkVersionDTO) {
+    public static HomeworkVersionDTO enrich(Long courseId, Long assignmentId, String studentId, HomeworkVersionDTO homeworkVersionDTO) {
         return homeworkVersionDTO
-                .add(linkTo(CourseController.class).slash(courseName)
+                .add(linkTo(CourseController.class).slash(courseId)
                         .slash("assignment").slash(assignmentId)
                         .slash("homework").slash(studentId)
                         .slash("version").slash(homeworkVersionDTO.getId())

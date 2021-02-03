@@ -3,7 +3,6 @@ package it.polito.ai.es2.services;
 import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.utility.VmStatus;
-import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.User;
 
 import java.io.Reader;
@@ -72,27 +71,27 @@ public interface TeamService {
 
     List<CourseDTO> getTeacherCourses(String professor);
 
-    AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, String courseName);
+    AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, Long courseId);
 
-    List<AssignmentDTO> getAssignmentsForCourse(String courseName);
+    List<AssignmentDTO> getAssignmentsForCourse(Long courseId);
 
-    AssignmentDTO getAssignment(String courseName, Long assignmentId);
+    AssignmentDTO getAssignment(Long courseId, Long assignmentId);
 
-    List<HomeworkDTO> getHomeworksForAssignment(String courseName, Long assignmentId);
+    List<HomeworkDTO> getHomeworksForAssignment(Long courseId, Long assignmentId);
 
-    List<HomeworkDTO> getHomeworksForCourse(String courseName);
+    List<HomeworkDTO> getHomeworksForCourse(Long courseId);
 
-    HomeworkDTO getHomework(String courseName, HomeworkId homeworkId);
+    HomeworkDTO getHomework(Long courseId, HomeworkId homeworkId);
 
-    HomeworkVersionDTO submitHomeworkVersion(String courseName, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId);
+    HomeworkVersionDTO submitHomeworkVersion(Long courseId, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId);
 
-    HomeworkVersionDTO reviewHomeworkVersion(String courseName, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit);
+    HomeworkVersionDTO reviewHomeworkVersion(Long courseId, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit);
 
-    void setScore(String courseName, HomeworkId homeworkId, int score);
+    void setScore(Long courseId, HomeworkId homeworkId, int score);
 
-    List<HomeworkVersionDTO> getHomeworkVersions(String courseName, HomeworkId homeworkId);
+    List<HomeworkVersionDTO> getHomeworkVersions(Long courseId, HomeworkId homeworkId);
 
-    HomeworkVersionDTO getHomeworkVersion(String courseName, HomeworkId homeworkId, Long homeworkVersionId);
+    HomeworkVersionDTO getHomeworkVersion(Long courseId, HomeworkId homeworkId, Long homeworkVersionId);
 
     List<String> submitHomeworksOfExpiredAssignments();
 
