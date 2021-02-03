@@ -53,8 +53,8 @@ public class Course {
     @Column(nullable = false)
     private int maxRunningVmInstance;
 
-    @ManyToOne
-    private Teacher teacher;
+    @ManyToMany(mappedBy = "courses")
+    private List<Teacher> teachers;
 
     @ManyToMany(mappedBy = "courses")
     private List<Student> students = new ArrayList<>();
@@ -71,6 +71,16 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<ProposalNotification> proposalNotifications;
+
+    public boolean addTeacher(Teacher teacher) {
+        if (this.teachers.contains(teacher))
+            return false;
+        else {
+            this.teachers.add(teacher);
+            teacher.getCourses().add(this);
+            return true;
+        }
+    }
 
     public boolean addStudent(Student student) {
         if (this.students.contains(student))

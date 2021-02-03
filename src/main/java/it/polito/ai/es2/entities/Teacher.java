@@ -29,7 +29,7 @@ public class Teacher {
     @JoinColumn(name = "auth_user_id")
     private User authUser;
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "teacher_course",
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "course_name"))
@@ -40,7 +40,7 @@ public class Teacher {
             return false;
         else {
             this.courses.add(course);
-            course.setTeacher(this);
+            course.getTeachers().add(this);
             return true;
         }
     }
