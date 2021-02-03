@@ -27,11 +27,15 @@ public interface TeamService {
 
     boolean addTeacher(TeacherDTO teacher);
 
+    boolean addTeacherToCourse(String teacherId, Long courseId);
+
     void addAuthToTeacher(TeacherDTO teacherDTO, User authUser);
 
     Optional<TeacherDTO> getTeacher(String teacherId);
 
     List<TeacherDTO> getAllTeachers();
+
+    List<TeacherDTO> getTeachersOfCourse(Long courseId);
 
     List<StudentDTO> getEnrolledStudents(Long courseId);
 
