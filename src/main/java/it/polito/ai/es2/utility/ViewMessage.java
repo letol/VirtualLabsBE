@@ -1,4 +1,4 @@
-package it.polito.ai.es2;
+package it.polito.ai.es2.utility;
 
 import lombok.*;
 

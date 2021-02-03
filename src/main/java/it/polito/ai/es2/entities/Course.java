@@ -1,6 +1,8 @@
 package it.polito.ai.es2.entities;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -8,18 +10,48 @@ import java.util.List;
 
 @Entity
 @Data
+@NoArgsConstructor
 public class Course {
 
     @Id
+    @GeneratedValue
+    Long id;
+
+    @Column(nullable = false)
+    private String acronym;
+
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
     private int min;
 
+    @NonNull
     @Column(nullable = false)
     private int max;
 
+    @NonNull
     private boolean enabled;
+
+    @NonNull
+    @Column(nullable = false)
+    private int vcpu;
+
+    @NonNull
+    @Column(nullable = false)
+    private Float disk;
+
+    @NonNull
+    @Column(nullable = false)
+    private Float memory;
+
+    @NonNull
+    @Column(nullable = false)
+    private int maxVmIstance;
+
+    @NonNull
+    @Column(nullable = false)
+    private int maxRunningVmInstance;
 
     @ManyToOne
     private Teacher teacher;
@@ -32,6 +64,13 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<Assignment> assignments;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "vmModel_id", referencedColumnName = "id")
+    private VmModel vmModel;
+
+    @OneToMany(mappedBy = "course")
+    private List<ProposalNotification> proposalNotifications;
 
     public boolean addStudent(Student student) {
         if (this.students.contains(student))

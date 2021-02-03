@@ -2,6 +2,8 @@ package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.dtos.*;
+import it.polito.ai.es2.utility.VmStatus;
+import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.entities.User;
 
 import java.io.Reader;
@@ -10,9 +12,9 @@ import java.util.Optional;
 
 public interface TeamService {
 
-    boolean addCourse(CourseDTO course, String teacherId);
+    CourseDTO addCourse(CourseDTO course, String teacherId);
 
-    Optional<CourseDTO> getCourse(String name);
+    Optional<CourseDTO> getCourse(Long courseId);
 
     List<CourseDTO> getAllCourses();
 
@@ -32,19 +34,19 @@ public interface TeamService {
 
     List<TeacherDTO> getAllTeachers();
 
-    List<StudentDTO> getEnrolledStudents(String courseName);
+    List<StudentDTO> getEnrolledStudents(Long courseId);
 
-    boolean addStudentToCourse(String studentId, String courseName);
+    boolean addStudentToCourse(String studentId, Long courseId);
 
-    void enableCourse(String courseName);
+    void enableCourse(Long courseId);
 
-    void disableCourse(String courseName);
+    void disableCourse(Long courseId);
 
     List<Boolean> addAll(List<StudentDTO> students);
 
-    List<Boolean> enrollAll(List<String> studentIds, String courseName);
+    List<Boolean> enrollAll(List<String> studentIds, Long courseId);
 
-    List<Boolean> addAndEnroll(Reader r, String courseName);
+    List<Boolean> addAndEnroll(Reader r, Long courseId);
 
     List<CourseDTO> getCourses(String studentId);
 
@@ -54,13 +56,13 @@ public interface TeamService {
 
     List<StudentDTO> getMembers(Long teamId);
 
-    TeamDTO proposeTeam(String courseId, String name, List<String> memberIds);
+    ProposalNotificationDTO proposeTeam(Long courseId, RequestTeamDTO team);
 
-    List<TeamDTO> getTeamsForCourse(String courseName);
+    List<TeamDTO> getTeamsForCourse(Long courseId);
 
-    List<StudentDTO> getStudentsInTeams(String courseName);
+    List<StudentDTO> getStudentsInTeams(Long courseId);
 
-    List<StudentDTO> getAvailableStudents(String courseName);
+    List<StudentDTO> getAvailableStudents(Long courseId);
 
     void enableTeam(Long teamId);
 
@@ -93,4 +95,28 @@ public interface TeamService {
     HomeworkVersionDTO getHomeworkVersion(String courseName, HomeworkId homeworkId, Long homeworkVersionId);
 
     List<String> submitHomeworksOfExpiredAssignments();
+
+    VmModelDTO addVmModel(VmModelDTO vmModelDTO, Long courseId);
+
+    VmModelDTO getVmModel(Long courseId);
+
+    VmInstanceDTO createVmInstance (VmInstanceDTO vmInstanceDTO, Long courseId, Long teamId);
+
+    VmInstanceDTO getVmInstanceOfTeam(Long vmId, Long courseId, Long teamId);
+
+    List<VmInstanceDTO> getVmInstancesOfTeam(Long courseId, Long teamId);
+
+    List<StudentDTO> getStudentsInATeam(Long courseId,Long id);
+
+    VmInstanceDTO changeStatusVM(VmStatus command, Long courseId, Long tid, Long vmid);
+
+    List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, Long teamId, Long courseId);
+
+    List<StudentDTO> getOwnersVm(Long vmId, Long teamId, Long courseId);
+
+    StudentDTO getCreatorVm(Long vmId, Long teamId, Long courseId);
+
+    List<ProposalNotificationDTO> getNotificationsForStudent(Long courseId);
+
+    StudentDTO getCreatorProposal(Long name, Long id);
 }

@@ -3,6 +3,14 @@ package it.polito.ai.es2.services;
 import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.entities.*;
 import it.polito.ai.es2.repositories.*;
+import it.polito.ai.es2.entities.Course;
+import it.polito.ai.es2.entities.Student;
+import it.polito.ai.es2.entities.Teacher;
+import it.polito.ai.es2.entities.Team;
+import it.polito.ai.es2.repositories.CourseRepository;
+import it.polito.ai.es2.repositories.StudentRepository;
+import it.polito.ai.es2.repositories.TeacherRepository;
+import it.polito.ai.es2.repositories.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import javax.transaction.Transactional;
@@ -29,9 +37,9 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
     HomeworkVersionRepository homeworkVersionRepository;
 
     @Override
-    public boolean teacherHasCourse(String teacherId, String courseName) {
+    public boolean teacherHasCourse(String teacherId, Long course) {
         Optional<Teacher> teacherOptional = professorRepository.findById(teacherId);
-        Optional<Course> courseOptional = courseRepository.findById(courseName);
+        Optional<Course> courseOptional = courseRepository.findById(course);
         if (teacherOptional.isPresent() && courseOptional.isPresent()){
             return teacherOptional.get().getCourses().contains(courseOptional.get());
         }
@@ -69,9 +77,9 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
     }
 
     @Override
-    public boolean studentEnrolledInCourse(String studentId, String courseName) {
+    public boolean studentEnrolledInCourse(String studentId, Long course) {
         Optional<Student> studentOptional = studentRepository.findById(studentId);
-        Optional<Course> courseOptional = courseRepository.findById(courseName);
+        Optional<Course> courseOptional = courseRepository.findById(course);
         if (studentOptional.isPresent() && courseOptional.isPresent()){
             return studentOptional.get().getCourses().contains(courseOptional.get());
         }

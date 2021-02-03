@@ -1,6 +1,7 @@
 package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.dtos.TeamDTO;
+import it.polito.ai.es2.entities.ProposalNotification;
 
 import java.util.List;
 
@@ -14,5 +15,5 @@ public interface NotificationService {
 
     List<String> rejectExpired();
 
-    void notifyTeam(TeamDTO dto, List<String> memberIds);
+    void notifyTeam(ProposalNotification proposalNotification);
 }

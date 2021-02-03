@@ -14,12 +14,12 @@ public class ModelHelper {
 
     public static CourseDTO enrich(CourseDTO courseDTO) {
         return courseDTO
-                .add(linkTo(CourseController.class).slash(courseDTO.getName()).withSelfRel())
-                .add(linkTo(methodOn(CourseController.class).enrolledStudents(courseDTO.getName())).withRel("enrolled"))
-                .add(linkTo(methodOn(CourseController.class).listTeams(courseDTO.getName())).withRel("teams"))
-                .add(linkTo(methodOn(CourseController.class).studentsInTeam(courseDTO.getName())).withRel("studentsInTeam"))
-                .add(linkTo(methodOn(CourseController.class).listFreeStudents(courseDTO.getName())).withRel("availableStudents"))
-                .add(linkTo(methodOn(CourseController.class).listAssignments(courseDTO.getName())).withRel("assignments"));
+                .add(linkTo(CourseController.class).slash(courseDTO.getId()).withSelfRel())
+                .add(linkTo(methodOn(CourseController.class).enrolledStudents(courseDTO.getId())).withRel("enrolled"))
+                .add(linkTo(methodOn(CourseController.class).listTeams(courseDTO.getId())).withRel("teams"))
+                .add(linkTo(methodOn(CourseController.class).studentsInTeam(courseDTO.getId())).withRel("studentsInTeam"))
+                .add(linkTo(methodOn(CourseController.class).listFreeStudents(courseDTO.getId())).withRel("availableStudents"))
+                .add(linkTo(methodOn(CourseController.class).listAssignments(courseDTO.getId())).withRel("assignments"));
     }
 
     public static StudentDTO enrich(StudentDTO studentDTO) {

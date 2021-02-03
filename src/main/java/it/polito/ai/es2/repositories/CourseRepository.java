@@ -9,11 +9,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CourseRepository extends JpaRepository<Course, String> {
+public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    @Query("SELECT s FROM Student s INNER JOIN s.teams t INNER JOIN t.course c WHERE c.name=:courseName")
-    List<Student> getStudentsInTeams(String courseName);
+    @Query("SELECT s FROM Student s INNER JOIN s.teams t INNER JOIN t.course c WHERE c.id=:courseId")
+    List<Student> getStudentsInTeams(Long courseId);
 
-    @Query("SELECT s FROM Student s LEFT JOIN s.teams t INNER JOIN s.courses c WHERE c.name=:courseName AND t.id IS NULL")
-    List<Student> getStudentsNotInTeams(String courseName);
+    @Query("SELECT s FROM Student s LEFT JOIN s.teams t INNER JOIN s.courses c WHERE c.id=:courseId AND t.id IS NULL")
+    List<Student> getStudentsNotInTeams(Long courseId);
 }
