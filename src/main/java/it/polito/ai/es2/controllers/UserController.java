@@ -1,6 +1,6 @@
 package it.polito.ai.es2.controllers;
 
-import it.polito.ai.es2.UserInfo;
+import it.polito.ai.es2.utility.UserInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

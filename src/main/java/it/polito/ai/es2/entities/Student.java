@@ -35,8 +35,20 @@ public class Student {
             inverseJoinColumns = @JoinColumn(name = "course_name"))
     private List<Course> courses = new ArrayList<>();
 
+    @OneToMany(mappedBy = "creator")
+    private List<VmInstance> cretedVMs = new ArrayList<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "student_vms",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "vmIstance_id"))
+    private List<VmInstance> ownedVMs = new ArrayList<>();
+
     @ManyToMany(mappedBy = "members")
-    private List<Team> teams = new ArrayList<>();
+    private List<Team> teams = new ArrayList<>() ;
+
+    @OneToMany(mappedBy = "creator")
+    private List<ProposalNotification> notificationsCreated = new ArrayList<>();
 
     @OneToMany(mappedBy = "student")
     private List<Homework> homeworks = new ArrayList<>();
@@ -48,6 +60,24 @@ public class Student {
             this.courses.add(course);
             course.getStudents().add(this);
             return true;
+        }
+    }
+
+    public boolean addVmOwnership(VmInstance vmInstance) {
+        if (this.ownedVMs.contains(vmInstance))
+            return false;
+        else {
+            this.ownedVMs.add(vmInstance);
+            vmInstance.getOwners().add(this);
+            return true;
+        }
+    }
+
+    public boolean isOwner(VmInstance vmInstance) {
+        if (this.ownedVMs.contains(vmInstance))
+            return true;
+        else {
+            return false;
         }
     }
 

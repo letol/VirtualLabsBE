@@ -1,0 +1,85 @@
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{id}}",
+  "password": "{{password}}"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+
+###
+# Enroll student 's444444' to 'c4'
+POST http://localhost:8080/API/courses/c1/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s222222
+--WebAppBoundary--
+
+###
+# Add team1
+# Hint: should be done by student1
+POST http://localhost:8080/API/courses/5/vmModel
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "name": "nome1",
+  "configuration": "config"
+
+}
+###
+# Add team1
+# Hint: should be done by student1
+POST http://localhost:8080/API/courses/5/teams/7/vmInstances
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "vcpu": 1,
+  "disk": 1,
+  "memory": 1
+
+}
+
+###
+# Get course 'c4'
+GET http://localhost:8080/API/courses/5/teams/7/vmInstances/11/getOwners
+Authorization: Bearer {{auth_token}}
+
+###
+
+###
+# Add team1
+# Hint: should be done by student1
+POST http://localhost:8080/API/courses/5/teams/7/vmInstances/11/addOwners
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentIds"
+
+s222222
+--WebAppBoundary--
+
+###
+# Add team1
+# Hint: should be done by student1
+POST http://localhost:8080/API/courses/5/teams/7/vmInstances/11/command
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  1
+}
+
+###
