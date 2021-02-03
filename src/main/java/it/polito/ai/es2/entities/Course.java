@@ -82,6 +82,15 @@ public class Course {
         }
     }
 
+    public boolean removeTeacher(Teacher teacher) {
+        if (this.teachers.contains(teacher)) {
+            this.teachers.remove(teacher);
+            teacher.getCourses().remove(this);
+            return true;
+        } else
+            return false;
+    }
+
     public boolean addStudent(Student student) {
         if (this.students.contains(student))
             return false;

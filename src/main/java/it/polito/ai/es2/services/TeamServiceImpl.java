@@ -164,6 +164,34 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
+    public TeacherDTO addTeacherToCourse(String teacherId, Long courseId) {
+        Teacher teacher = teacherRepo.findById(teacherId)
+                .orElseThrow(() -> new TeacherNotFoundException("Teacher id '" + teacherId + "' not found!"));
+
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Course '" + courseId + "' not found!"));
+
+        teacher.addCourse(course);
+
+        return modelMapper.map(teacher, TeacherDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
+    public TeacherDTO removeTeacherFromCourse(String teacherId, Long courseId) {
+        Teacher teacher = teacherRepo.findById(teacherId)
+                .orElseThrow(() -> new TeacherNotFoundException("Teacher id '" + teacherId + "' not found!"));
+
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Course '" + courseId + "' not found!"));
+
+        teacher.removeCourse(course);
+
+        return modelMapper.map(teacher, TeacherDTO.class);
+    }
+
+    @Override
     public void addAuthToTeacher(TeacherDTO teacherDTO, User authUser) {
         Teacher teacher = teacherRepo.findById(teacherDTO.getId()).orElseThrow(TeacherNotFoundException::new);
         teacher.setAuthUser(authUser);
@@ -180,6 +208,15 @@ public class TeamServiceImpl implements TeamService {
         return teacherRepo.findAll()
                 .stream()
                 .map(t -> modelMapper.map(t, TeacherDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<TeacherDTO> getTeachersOfCourse(Long courseId) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Course id " + courseId + " not found!"));
+        return course.getTeachers().stream()
+                .map(teacher -> modelMapper.map(teacher, TeacherDTO.class))
                 .collect(Collectors.toList());
     }
 

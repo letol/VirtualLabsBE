@@ -9,6 +9,7 @@ import lombok.extern.java.Log;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,6 +49,35 @@ public class CourseController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + courseId + "' not found!")));
     }
 
+    @GetMapping("/{courseId}/teachers")
+    List<TeacherDTO> listCourseTeachers(@PathVariable Long courseId) {
+        try {
+            return teamService.getTeachersOfCourse(courseId).stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
+    @PutMapping("/{courseId}/addTeacher")
+    TeacherDTO addTeacher(@PathVariable Long courseId, @RequestParam("teacherId") String teacherId) {
+        try {
+            return ModelHelper.enrich(teamService.addTeacherToCourse(teacherId, courseId));
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
+    @PutMapping("/{courseId}/removeTeacher")
+    TeacherDTO removeTeacher(@PathVariable Long courseId, @RequestParam("teacherId") String teacherId) {
+        try {
+            return ModelHelper.enrich(teamService.removeTeacherFromCourse(teacherId, courseId));
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
     @GetMapping("/{courseId}/enrolled")
     List<StudentDTO> enrolledStudents(@PathVariable Long courseId) {
         try {
@@ -65,7 +95,8 @@ public class CourseController {
             return ModelHelper.enrich(teamService.addCourse(courseDTO, userDetails.getUsername()));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
-        }}
+        }
+    }
 
     @PostMapping("/{courseId}/enrollOne")
     Boolean enrollStudent(@PathVariable Long courseId, @RequestParam("studentId") String studentId) {
@@ -286,6 +317,7 @@ public class CourseController {
         }
     }
 
+    //TODO: PUT
     @GetMapping("/{courseId}/enableCourse")
     public boolean enableCourse(@PathVariable Long courseId ){
         try{
@@ -296,6 +328,7 @@ public class CourseController {
         }
     }
 
+    //TODO: PUT
     @GetMapping("/{courseId}/disableCourse")
     public boolean disableCourse(@PathVariable Long courseId ){
         try{
