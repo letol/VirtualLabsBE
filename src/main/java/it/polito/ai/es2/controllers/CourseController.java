@@ -48,6 +48,26 @@ public class CourseController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + courseId + "' not found!")));
     }
 
+    @GetMapping("/{courseId}/teachers")
+    List<TeacherDTO> listCourseTeachers(@PathVariable Long courseId) {
+        try {
+            return teamService.getTeachersOfCourse(courseId).stream()
+                    .map(ModelHelper::enrich)
+                    .collect(Collectors.toList());
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
+    @PostMapping("/{courseId}/teachers")
+    Boolean addTeacher(@PathVariable Long courseId, @RequestParam("teacherId") String teacherId) {
+        try {
+            return teamService.addTeacherToCourse(teacherId, courseId);
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
     @GetMapping("/{courseId}/enrolled")
     List<StudentDTO> enrolledStudents(@PathVariable Long courseId) {
         try {
@@ -65,7 +85,8 @@ public class CourseController {
             return ModelHelper.enrich(teamService.addCourse(courseDTO, userDetails.getUsername()));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
-        }}
+        }
+    }
 
     @PostMapping("/{courseId}/enrollOne")
     Boolean enrollStudent(@PathVariable Long courseId, @RequestParam("studentId") String studentId) {
