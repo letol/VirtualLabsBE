@@ -112,6 +112,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
     public boolean reject(String token) {
         /*
         Optional<Token> tokenOptional = tokenRepo.findById(token);

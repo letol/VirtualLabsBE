@@ -216,7 +216,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
     public void enableCourse(Long courseId) {
         Optional<Course> course = courseRepo.findById(courseId);
         if (course.isPresent())
@@ -301,7 +301,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId))or" +
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId)) or" +
             "(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourseOfTeam(authentication.principal.username,#teamId))")
     public List<StudentDTO> getMembers(Long teamId) {
         Optional<Team> team = teamRepo.findById(teamId);
@@ -731,7 +731,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseId) and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseId))" +
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseId)) or" +
             "(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
     public VmModelDTO getVmModel(Long courseId) {
         VmModel vmModel = courseRepo.findById(courseId).get().getVmModel();
