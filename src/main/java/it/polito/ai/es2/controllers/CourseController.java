@@ -4,8 +4,6 @@ import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.exceptions.*;
 import it.polito.ai.es2.utility.VmStatus;
-import it.polito.ai.es2.dtos.*;
-import it.polito.ai.es2.exceptions.*;
 import it.polito.ai.es2.services.*;
 import lombok.extern.java.Log;
 import org.apache.tika.Tika;
@@ -24,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,16 +42,16 @@ public class CourseController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{name}")
-    CourseDTO getOne(@PathVariable Long name) {
-        return ModelHelper.enrich(teamService.getCourse(name)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + name + "' not found!")));
+    @GetMapping("/{courseId}")
+    CourseDTO getOne(@PathVariable Long courseId) {
+        return ModelHelper.enrich(teamService.getCourse(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + courseId + "' not found!")));
     }
 
-    @GetMapping("/{name}/enrolled")
-    List<StudentDTO> enrolledStudents(@PathVariable Long name) {
+    @GetMapping("/{courseId}/enrolled")
+    List<StudentDTO> enrolledStudents(@PathVariable Long courseId) {
         try {
-            return teamService.getEnrolledStudents(name).stream()
+            return teamService.getEnrolledStudents(courseId).stream()
                     .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         } catch (TeamServiceException e) {
@@ -70,17 +67,17 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }}
 
-    @PostMapping("/{name}/enrollOne")
-    Boolean enrollStudent(@PathVariable Long name, @RequestParam("studentId") String studentId) {
+    @PostMapping("/{courseId}/enrollOne")
+    Boolean enrollStudent(@PathVariable Long courseId, @RequestParam("studentId") String studentId) {
         try {
-            return teamService.addStudentToCourse(studentId, name);
+            return teamService.addStudentToCourse(studentId, courseId);
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
-    @PostMapping("/{name}/enrollMany")
-    List<Boolean> enrollStudents(@PathVariable Long name, @RequestParam("file") MultipartFile file) {
+    @PostMapping("/{courseId}/enrollMany")
+    List<Boolean> enrollStudents(@PathVariable Long courseId, @RequestParam("file") MultipartFile file) {
         Tika tika = new Tika();
         Metadata meta = new Metadata();
         meta.add(Metadata.RESOURCE_NAME_KEY, file.getOriginalFilename());
@@ -93,15 +90,15 @@ public class CourseController {
         }
 
         try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            return teamService.addAndEnroll(reader, name);
+            return teamService.addAndEnroll(reader, courseId);
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
-    @PostMapping("/{name}/teams")
-    ProposalNotificationDTO createTeam(@RequestBody RequestTeamDTO team, @PathVariable Long name) {
+    @PostMapping("/{courseId}/teams")
+    ProposalNotificationDTO createTeam(@RequestBody RequestTeamDTO team, @PathVariable Long courseId) {
         /*{
             "team": {...}
             "memberIds": [...]
@@ -110,14 +107,14 @@ public class CourseController {
 
                 log.info("TEAM");
 
-                //String name = String
+                //String courseId = String
                 log.info("Propose team to members");
                 //notificationService.notifyTeam(teamDTO,membersId);
                 //TeamDTO team = (TeamDTO) obj.get("te");
-                return teamService.proposeTeam(name,team);
+                return teamService.proposeTeam(courseId,team);
 
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         } catch (StudentNotFoundException s) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,"memberIds");
         }catch(TeamServiceException e) {
@@ -125,71 +122,71 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{name}/vmModel")
-    VmModelDTO createVmModel(@RequestBody VmModelDTO vmModelDTO, @PathVariable Long name) {
+    @PostMapping("/{courseId}/vmModel")
+    VmModelDTO createVmModel(@RequestBody VmModelDTO vmModelDTO, @PathVariable Long courseId) {
         try {
-            return teamService.addVmModel(vmModelDTO,name);
+            return teamService.addVmModel(vmModelDTO,courseId);
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
-    @GetMapping("/{name}/vmModel")
-    VmModelDTO getVmModelDTO( @PathVariable Long name) {
+    @GetMapping("/{courseId}/vmModel")
+    VmModelDTO getVmModelDTO( @PathVariable Long courseId) {
         try {
-            return teamService.getVmModel(name);
+            return teamService.getVmModel(courseId);
         }catch(TeamNotFoundException t){
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
-    @PostMapping("/{name}/teams/{id}/vmInstances")
-    VmInstanceDTO createVmInstance(@RequestBody VmInstanceDTO vmInstanceDTO, @PathVariable Long name, @PathVariable Long id) {
+    @PostMapping("/{courseId}/teams/{id}/vmInstances")
+    VmInstanceDTO createVmInstance(@RequestBody VmInstanceDTO vmInstanceDTO, @PathVariable Long courseId, @PathVariable Long id) {
         try {
-            return teamService.createVmInstance(vmInstanceDTO,name,id);
+            return teamService.createVmInstance(vmInstanceDTO,courseId,id);
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
-    @GetMapping("{name}/teams/{tid}/vmInstances")
-    List<VmInstanceDTO> getVmInstancesOfTeam(@PathVariable Long name, @PathVariable Long tid)
+    @GetMapping("{courseId}/teams/{tid}/vmInstances")
+    List<VmInstanceDTO> getVmInstancesOfTeam(@PathVariable Long courseId, @PathVariable Long tid)
     {
         try {
-            return teamService.getVmInstancesOfTeam(name,tid);
+            return teamService.getVmInstancesOfTeam(courseId,tid);
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
-    @GetMapping("{name}/teams/{id}/vmInstances/{vid}")
-    VmInstanceDTO getVmInstanceOfTeam(@PathVariable Long name, @PathVariable Long id, @PathVariable Long vid)
+    @GetMapping("{courseId}/teams/{id}/vmInstances/{vid}")
+    VmInstanceDTO getVmInstanceOfTeam(@PathVariable Long courseId, @PathVariable Long id, @PathVariable Long vid)
     {
         try {
-            return teamService.getVmInstanceOfTeam(vid,name,id);
+            return teamService.getVmInstanceOfTeam(vid,courseId,id);
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }
     }
 
 
-    @GetMapping("{name}/teams/{id}/students")
-    List<StudentDTO> getStudentsInTeam(@PathVariable Long name, @PathVariable Long tid)
+    @GetMapping("{courseId}/teams/{tid}/students")
+    List<StudentDTO> getStudentsInTeam(@PathVariable Long courseId, @PathVariable Long tid)
     {
         try {
-            return teamService.getStudentsInATeam(name,tid);
+            return teamService.getStudentsInATeam(courseId,tid);
         } catch(TeamNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
         }catch(CourseNotFoundException e) {
@@ -197,12 +194,12 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{name}/teams/{tid}/vmInstances/{vmid}/command")
-    VmInstanceDTO changeStatusVM(@RequestBody VmStatus command, @PathVariable Long name, @PathVariable Long tid, @PathVariable Long vmid) {
+    @PostMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}/command")
+    VmInstanceDTO changeStatusVM(@RequestBody VmStatus command, @PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
-            return teamService.changeStatusVM(command,name,tid,vmid);
+            return teamService.changeStatusVM(command,courseId,tid,vmid);
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(VmIstanceNotFound e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }catch(VmPermissionDenied e) {
@@ -213,12 +210,12 @@ public class CourseController {
     }
 
 
-    @PostMapping("/{name}/teams/{tid}/vmInstances/{vmid}/addOwners")
-    List<Boolean> addOwners(@RequestParam("studentIds") List<String> studentIds, @PathVariable Long name, @PathVariable Long tid, @PathVariable Long vmid) {
+    @PostMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}/addOwners")
+    List<Boolean> addOwners(@RequestParam("studentIds") List<String> studentIds, @PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
-            return teamService.addOwnersVM(studentIds,vmid,tid,name);
+            return teamService.addOwnersVM(studentIds,vmid,tid,courseId);
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(VmIstanceNotFound e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(VmPermissionDenied e) {
@@ -228,12 +225,12 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{name}/teams/{tid}/vmInstances/{vmid}/getOwners")
-    List<StudentDTO> getOwnersVm(@PathVariable Long name, @PathVariable Long tid, @PathVariable Long vmid) {
+    @GetMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}/getOwners")
+    List<StudentDTO> getOwnersVm(@PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
-            return teamService.getOwnersVm(vmid,tid,name);
+            return teamService.getOwnersVm(vmid,tid,courseId);
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(VmIstanceNotFound e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(VmPermissionDenied e) {
@@ -243,12 +240,12 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{name}/teams/{tid}/vmInstances/{vmid}/getCreator")
-    StudentDTO getCreatorVm(@PathVariable Long name, @PathVariable Long tid, @PathVariable Long vmid) {
+    @GetMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}/getCreator")
+    StudentDTO getCreatorVm(@PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
-            return teamService.getCreatorVm(vmid,tid,name);
+            return teamService.getCreatorVm(vmid,tid,courseId);
         }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(VmIstanceNotFound e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(VmPermissionDenied e) {
@@ -258,70 +255,70 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{name}/teams")
-    List<TeamDTO> listTeams(@PathVariable Long name) {
+    @GetMapping("/{courseId}/teams")
+    List<TeamDTO> listTeams(@PathVariable Long courseId) {
         try {
-            return teamService.getTeamsForCourse(name);
+            return teamService.getTeamsForCourse(courseId);
         } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }
     }
 
-    @GetMapping("/{name}/availableStudents")
-    List<StudentDTO> listFreeStudents(@PathVariable Long name){
+    @GetMapping("/{courseId}/availableStudents")
+    List<StudentDTO> listFreeStudents(@PathVariable Long courseId){
         try {
-            return teamService.getAvailableStudents(name).stream()
+            return teamService.getAvailableStudents(courseId).stream()
                     .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }
     }
 
-    @GetMapping("/{name}/studentsInTeam")
-    List<StudentDTO> studentsInTeam(@PathVariable Long name){
+    @GetMapping("/{courseId}/studentsInTeam")
+    List<StudentDTO> studentsInTeam(@PathVariable Long courseId){
         try {
-            return teamService.getStudentsInTeams(name).stream()
+            return teamService.getStudentsInTeams(courseId).stream()
                     .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
         } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }
     }
 
-    @GetMapping("/{name}/enableCourse")
-    public boolean enableCourse(@PathVariable Long name ){
+    @GetMapping("/{courseId}/enableCourse")
+    public boolean enableCourse(@PathVariable Long courseId ){
         try{
-            teamService.enableCourse(name);
+            teamService.enableCourse(courseId);
             return true;
         }catch (CourseNotFoundException c){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }
     }
 
-    @GetMapping("/{name}/disableCourse")
-    public boolean disableCourse(@PathVariable Long name ){
+    @GetMapping("/{courseId}/disableCourse")
+    public boolean disableCourse(@PathVariable Long courseId ){
         try{
-            teamService.disableCourse(name);
+            teamService.disableCourse(courseId);
             return true;
         }catch (CourseNotFoundException c){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,name.toString());
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }
     }
 
-    @GetMapping("/{name}/proposalNotifications")
-    public List<ProposalNotificationDTO> getNotifications(@PathVariable Long name ){
+    @GetMapping("/{courseId}/proposalNotifications")
+    public List<ProposalNotificationDTO> getNotifications(@PathVariable Long courseId ){
         try{
-            return teamService.getNotificationsForStudent(name);
+            return teamService.getNotificationsForStudent(courseId);
         }catch (CourseNotFoundException c){
             throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
         }
     }
 
-    @GetMapping("/{name}/proposalNotifications/{id}/creator")
-    public StudentDTO getProposalCreator(@PathVariable Long name,@PathVariable Long id ){
+    @GetMapping("/{courseId}/proposalNotifications/{id}/creator")
+    public StudentDTO getProposalCreator(@PathVariable Long courseId,@PathVariable Long id ){
         try{
-            return teamService.getCreatorProposal(name,id);
+            return teamService.getCreatorProposal(courseId,id);
         }catch (CourseNotFoundException c){
             throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
         }catch (TeamServiceException t){
@@ -329,70 +326,70 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{name}/assignments")
-    List<AssignmentDTO> listAssignments(@PathVariable String name) {
+    @GetMapping("/{courseId}/assignments")
+    List<AssignmentDTO> listAssignments(@PathVariable Long courseId) {
         try {
-            return teamService.getAssignmentsForCourse(name).stream()
-                    .map(assignmentDTO -> ModelHelper.enrich(name, assignmentDTO))
+            return teamService.getAssignmentsForCourse(courseId).stream()
+                    .map(assignmentDTO -> ModelHelper.enrich(courseId, assignmentDTO))
                     .collect(Collectors.toList());
         } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, name);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, courseId.toString());
         }
     }
 
-    @GetMapping("/{courseName}/homeworks")
-    List<HomeworkDTO> listHomeworksOfCourse(@PathVariable String courseName) {
+    @GetMapping("/{courseId}/homeworks")
+    List<HomeworkDTO> listHomeworksOfCourse(@PathVariable Long courseId) {
         try {
-            return teamService.getHomeworksForCourse(courseName).stream()
-                    .map(homeworkDTO -> ModelHelper.enrich(courseName, homeworkDTO.getAssignment_id(), homeworkDTO))
+            return teamService.getHomeworksForCourse(courseId).stream()
+                    .map(homeworkDTO -> ModelHelper.enrich(courseId, homeworkDTO.getAssignment_id(), homeworkDTO))
                     .collect(Collectors.toList());
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
-    @PostMapping("/{courseName}/assignment")
-    AssignmentDTO addAssignment(@PathVariable String courseName, @RequestBody @Valid AssignmentDTO assignmentDTO) {
+    @PostMapping("/{courseId}/assignment")
+    AssignmentDTO addAssignment(@PathVariable Long courseId, @RequestBody @Valid AssignmentDTO assignmentDTO) {
         try {
-            return ModelHelper.enrich(courseName, teamService.addAssignment(assignmentDTO, courseName));
+            return ModelHelper.enrich(courseId, teamService.addAssignment(assignmentDTO, courseId));
         } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, courseName);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, courseId.toString());
         }
     }
 
-    @GetMapping("/{courseName}/assignment/{assignmentId}")
-    AssignmentDTO getAssignment(@PathVariable String courseName, @PathVariable Long assignmentId) {
+    @GetMapping("/{courseId}/assignment/{assignmentId}")
+    AssignmentDTO getAssignment(@PathVariable Long courseId, @PathVariable Long assignmentId) {
         try {
-            return ModelHelper.enrich(courseName, teamService.getAssignment(courseName, assignmentId));
+            return ModelHelper.enrich(courseId, teamService.getAssignment(courseId, assignmentId));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
-    @GetMapping("/{courseName}/assignment/{assignmentId}/homeworks")
-    List<HomeworkDTO> listHomeworks(@PathVariable String courseName, @PathVariable Long assignmentId) {
+    @GetMapping("/{courseId}/assignment/{assignmentId}/homeworks")
+    List<HomeworkDTO> listHomeworks(@PathVariable Long courseId, @PathVariable Long assignmentId) {
         try {
-            return teamService.getHomeworksForAssignment(courseName, assignmentId).stream()
-                    .map(homeworkDTO -> ModelHelper.enrich(courseName, assignmentId, homeworkDTO))
+            return teamService.getHomeworksForAssignment(courseId, assignmentId).stream()
+                    .map(homeworkDTO -> ModelHelper.enrich(courseId, assignmentId, homeworkDTO))
                     .collect(Collectors.toList());
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
-    @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}")
-    HomeworkDTO getHomework(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+    @GetMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}")
+    HomeworkDTO getHomework(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return ModelHelper.enrich(courseName, assignmentId, teamService.getHomework(courseName, new HomeworkId(assignmentId, studentId)));
+            return ModelHelper.enrich(courseId, assignmentId, teamService.getHomework(courseId, new HomeworkId(assignmentId, studentId)));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
-    @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/submit")
-    HomeworkVersionDTO submitHomework(@RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+    @PostMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/submit")
+    HomeworkVersionDTO submitHomework(@RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO, @PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return ModelHelper.enrich(courseName, assignmentId, studentId, teamService.submitHomeworkVersion(courseName, homeworkVersionDTO, new HomeworkId(assignmentId, studentId)));
+            return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.submitHomeworkVersion(courseId, homeworkVersionDTO, new HomeworkId(assignmentId, studentId)));
         } catch (HomeworkCannotBeSubmittedException noSubmission) {
             throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Homework submission has been denied");
         } catch (TeamServiceException t) {
@@ -400,14 +397,13 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/review")
-    HomeworkVersionDTO reviewHomework(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId,
+    @PostMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/review")
+    HomeworkVersionDTO reviewHomework(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId,
                                       @RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO,
                                       @RequestParam("canReSubmit") boolean canReSubmit) {
         try {
-            return ModelHelper.enrich(courseName, assignmentId, studentId, teamService.reviewHomeworkVersion(
-                    courseName,
-                    homeworkVersionDTO,
+            return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.reviewHomeworkVersion(
+                    courseId, homeworkVersionDTO,
                     new HomeworkId(assignmentId, studentId),
                     canReSubmit
             ));
@@ -416,30 +412,30 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/setScore")
-    void setScore(@RequestParam("score") Integer score, @PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+    @PostMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/setScore")
+    void setScore(@RequestParam("score") Integer score, @PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            teamService.setScore(courseName, new HomeworkId(assignmentId, studentId), score);
+            teamService.setScore(courseId, new HomeworkId(assignmentId, studentId), score);
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
-    @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/versions")
-    List<HomeworkVersionDTO> listHomeworkVersions(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId) {
+    @GetMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/versions")
+    List<HomeworkVersionDTO> listHomeworkVersions(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            return teamService.getHomeworkVersions(courseName, new HomeworkId(assignmentId, studentId)).stream()
-                    .map(homeworkVersionDTO -> ModelHelper.enrich(courseName, assignmentId, studentId, homeworkVersionDTO))
+            return teamService.getHomeworkVersions(courseId, new HomeworkId(assignmentId, studentId)).stream()
+                    .map(homeworkVersionDTO -> ModelHelper.enrich(courseId, assignmentId, studentId, homeworkVersionDTO))
                     .collect(Collectors.toList());
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
     }
 
-    @GetMapping("/{courseName}/assignment/{assignmentId}/homework/{studentId}/version/{versionId}")
-    HomeworkVersionDTO getHomeworkVersion(@PathVariable String courseName, @PathVariable Long assignmentId, @PathVariable String studentId, @PathVariable Long versionId) {
+    @GetMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/version/{versionId}")
+    HomeworkVersionDTO getHomeworkVersion(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId, @PathVariable Long versionId) {
         try {
-            return ModelHelper.enrich(courseName, assignmentId, studentId, teamService.getHomeworkVersion(courseName, new HomeworkId(assignmentId, studentId), versionId));
+            return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.getHomeworkVersion(courseId, new HomeworkId(assignmentId, studentId), versionId));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
