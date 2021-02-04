@@ -44,4 +44,13 @@ public class Teacher {
             return true;
         }
     }
+
+    public boolean removeCourse(Course course) {
+        if (this.courses.contains(course)) {
+            this.courses.remove(course);
+            course.getTeachers().remove(this);
+            return true;
+        } else
+            return false;
+    }
 }

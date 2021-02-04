@@ -165,14 +165,30 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
-    public boolean addTeacherToCourse(String teacherId, Long courseId) {
+    public TeacherDTO addTeacherToCourse(String teacherId, Long courseId) {
         Teacher teacher = teacherRepo.findById(teacherId)
                 .orElseThrow(() -> new TeacherNotFoundException("Teacher id '" + teacherId + "' not found!"));
 
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Course '" + courseId + "' not found!"));
 
-        return teacher.addCourse(course);
+        teacher.addCourse(course);
+
+        return modelMapper.map(teacher, TeacherDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
+    public TeacherDTO removeTeacherFromCourse(String teacherId, Long courseId) {
+        Teacher teacher = teacherRepo.findById(teacherId)
+                .orElseThrow(() -> new TeacherNotFoundException("Teacher id '" + teacherId + "' not found!"));
+
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Course '" + courseId + "' not found!"));
+
+        teacher.removeCourse(course);
+
+        return modelMapper.map(teacher, TeacherDTO.class);
     }
 
     @Override

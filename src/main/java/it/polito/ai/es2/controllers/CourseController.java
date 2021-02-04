@@ -9,6 +9,7 @@ import lombok.extern.java.Log;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,10 +60,19 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/{courseId}/teachers")
-    Boolean addTeacher(@PathVariable Long courseId, @RequestParam("teacherId") String teacherId) {
+    @PutMapping("/{courseId}/addTeacher")
+    TeacherDTO addTeacher(@PathVariable Long courseId, @RequestParam("teacherId") String teacherId) {
         try {
-            return teamService.addTeacherToCourse(teacherId, courseId);
+            return ModelHelper.enrich(teamService.addTeacherToCourse(teacherId, courseId));
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
+    @PutMapping("/{courseId}/removeTeacher")
+    TeacherDTO removeTeacher(@PathVariable Long courseId, @RequestParam("teacherId") String teacherId) {
+        try {
+            return ModelHelper.enrich(teamService.removeTeacherFromCourse(teacherId, courseId));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
@@ -307,6 +317,7 @@ public class CourseController {
         }
     }
 
+    //TODO: PUT
     @GetMapping("/{courseId}/enableCourse")
     public boolean enableCourse(@PathVariable Long courseId ){
         try{
@@ -317,6 +328,7 @@ public class CourseController {
         }
     }
 
+    //TODO: PUT
     @GetMapping("/{courseId}/disableCourse")
     public boolean disableCourse(@PathVariable Long courseId ){
         try{

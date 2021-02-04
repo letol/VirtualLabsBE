@@ -27,7 +27,9 @@ public interface TeamService {
 
     boolean addTeacher(TeacherDTO teacher);
 
-    boolean addTeacherToCourse(String teacherId, Long courseId);
+    TeacherDTO addTeacherToCourse(String teacherId, Long courseId);
+
+    TeacherDTO removeTeacherFromCourse(String teacherId, Long courseId);
 
     void addAuthToTeacher(TeacherDTO teacherDTO, User authUser);
 
