@@ -19,14 +19,14 @@ public class Assignment {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 1000)
-    private byte[] content;
-
     @Column(nullable = false)
     private Timestamp releaseDate;
 
     @Column(nullable = false)
     private Timestamp expiryDate;
+
+    @OneToOne
+    private Document content;
 
     @ManyToOne
     private Course course;

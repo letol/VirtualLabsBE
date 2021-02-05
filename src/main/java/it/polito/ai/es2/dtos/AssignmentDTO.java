@@ -18,9 +18,6 @@ public class AssignmentDTO extends RepresentationModel<AssignmentDTO> {
     @NotNull
     private String name;
 
-    @NotNull
-    private byte[] content;
-
     private Timestamp releaseDate;
 
     @NotNull
