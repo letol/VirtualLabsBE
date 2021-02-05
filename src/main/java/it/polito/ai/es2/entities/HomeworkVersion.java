@@ -14,15 +14,14 @@ public class HomeworkVersion {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotEmpty
-    @Column(nullable = false, length = 1000)
-    private byte[] content;
-
     @Column(nullable = false)
     Timestamp timestamp;
 
     @Column(nullable = false)
     private Homework.homeworkStatus versionStatus;
+
+    @OneToOne
+    private Document content;
 
     @ManyToOne
     @JoinColumns({

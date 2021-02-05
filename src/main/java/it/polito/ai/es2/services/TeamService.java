@@ -94,15 +94,17 @@ public interface TeamService {
 
     HomeworkDTO getHomework(Long courseId, HomeworkId homeworkId);
 
-    HomeworkVersionDTO submitHomeworkVersion(Long courseId, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId);
+    HomeworkVersionDTO submitHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content) throws IOException, NoSuchAlgorithmException;
 
-    HomeworkVersionDTO reviewHomeworkVersion(Long courseId, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit);
+    HomeworkVersionDTO reviewHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content, boolean canReSubmit) throws IOException, NoSuchAlgorithmException;
 
     void setScore(Long courseId, HomeworkId homeworkId, int score);
 
     List<HomeworkVersionDTO> getHomeworkVersions(Long courseId, HomeworkId homeworkId);
 
     HomeworkVersionDTO getHomeworkVersion(Long courseId, HomeworkId homeworkId, Long homeworkVersionId);
+
+    DocumentDTO getDocumentOfHomeworkVersion(Long courseId, HomeworkId homeworkId, Long homeworkVersionId) throws IOException;
 
     List<String> submitHomeworksOfExpiredAssignments();
 
