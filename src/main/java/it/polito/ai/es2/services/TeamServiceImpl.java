@@ -13,6 +13,7 @@ import it.polito.ai.es2.exceptions.*;
 import it.polito.ai.es2.repositories.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,12 +21,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,6 +68,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Autowired
     UserManagementService userManagementService;
+
+    @Autowired
+    DocumentService documentService;
 
     @Autowired
     VmModelRepository vmModelRepository;
@@ -509,7 +515,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
-    public AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, Long courseId) {
+    public AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, MultipartFile content, Long courseId) throws IOException, NoSuchAlgorithmException {
         Course course = courseRepo.findById(courseId).orElseThrow(CourseNotFoundException::new);
         Assignment assignment = modelMapper.map(assignmentDTO, Assignment.class);
 
@@ -518,7 +524,11 @@ public class TeamServiceImpl implements TeamService {
             throw new AssignmentInvalidExpiryDateException();
         }
 
+        Document document = documentService.addDocument(content);
+
         assignment.setReleaseDate(releaseDate);
+        assignment.setContent(document);
+
         Assignment finalAssignment = assignmentRepo.save(assignment);
         course.addAssignment(finalAssignment);
 
@@ -527,6 +537,38 @@ public class TeamServiceImpl implements TeamService {
         );
 
         return modelMapper.map(finalAssignment, AssignmentDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfAssignment(authentication.principal.username,#assignmentId)) or" +
+            "(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#assignmentId)) or hasRole('ROLE_ADMIN')")
+    public DocumentDTO getDocumentOfAssignment(Long courseId, Long assignmentId) throws IOException {
+        Course course = courseRepo.findById(courseId).orElseThrow(CourseNotFoundException::new);
+        Assignment assignment = assignmentRepo.findById(assignmentId).orElseThrow(AssignmentNotFoundException::new);
+
+        if (!course.getAssignments().contains(assignment)) {
+            throw new AssignmentNotInCourseException();
+        }
+
+        Document document = assignment.getContent();
+
+        ByteArrayResource content = documentService.getDocumentContent(document);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT"))) {
+            UserDetails principal = (UserDetails) auth.getPrincipal();
+            Homework homework = homeworkRepo.findById(new HomeworkId(assignmentId, principal.getUsername()))
+                    .orElseThrow(HomeworkNotFoundException::new);
+            homework.setCurrentStatus(Homework.homeworkStatus.READ);
+        }
+
+        return DocumentDTO.builder()
+                .id(document.getId())
+                .name(document.getName())
+                .mimeType(document.getMimeType())
+                .size(document.getSize())
+                .content(content)
+                .build();
     }
 
     @Override
@@ -548,14 +590,6 @@ public class TeamServiceImpl implements TeamService {
 
         if (!course.getAssignments().contains(assignment)) {
             throw new AssignmentNotInCourseException();
-        }
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT"))) {
-            UserDetails principal = (UserDetails) auth.getPrincipal();
-            Homework homework = homeworkRepo.findById(new HomeworkId(assignmentId, principal.getUsername()))
-                    .orElseThrow(HomeworkNotFoundException::new);
-            homework.setCurrentStatus(Homework.homeworkStatus.READ);
         }
 
         return modelMapper.map(assignment, AssignmentDTO.class);

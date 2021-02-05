@@ -7,10 +7,14 @@ import it.polito.ai.es2.utility.VmStatus;
 import it.polito.ai.es2.services.*;
 import lombok.extern.java.Log;
 import org.apache.tika.Tika;
+import org.apache.tika.metadata.HttpHeaders;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -382,11 +387,15 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/assignment")
-    AssignmentDTO addAssignment(@PathVariable Long courseId, @RequestBody @Valid AssignmentDTO assignmentDTO) {
+    AssignmentDTO addAssignment(@PathVariable Long courseId,
+                                @RequestParam("assignment") @Valid AssignmentDTO assignmentDTO,
+                                @RequestParam("content") MultipartFile content) {
         try {
-            return ModelHelper.enrich(courseId, teamService.addAssignment(assignmentDTO, courseId));
+            return ModelHelper.enrich(courseId, teamService.addAssignment(assignmentDTO, content, courseId));
         } catch (CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, courseId.toString());
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -394,6 +403,22 @@ public class CourseController {
     AssignmentDTO getAssignment(@PathVariable Long courseId, @PathVariable Long assignmentId) {
         try {
             return ModelHelper.enrich(courseId, teamService.getAssignment(courseId, assignmentId));
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
+    @GetMapping("/{courseId}/assignment/{assignmentId}/content")
+    ResponseEntity<Resource> getContent(@PathVariable Long courseId, @PathVariable Long assignmentId) {
+        try {
+            DocumentDTO documentDTO = teamService.getDocumentOfAssignment(courseId, assignmentId);
+            return ResponseEntity.ok()
+                    .contentLength(documentDTO.getSize())
+                    .contentType(MediaType.parseMediaType(documentDTO.getMimeType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + documentDTO.getName() + "\"")
+                    .body(documentDTO.getContent());
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }

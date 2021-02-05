@@ -4,8 +4,11 @@ import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.dtos.*;
 import it.polito.ai.es2.utility.VmStatus;
 import it.polito.ai.es2.entities.User;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.io.Reader;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +80,9 @@ public interface TeamService {
 
     List<CourseDTO> getTeacherCourses(String professor);
 
-    AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, Long courseId);
+    AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, MultipartFile content, Long courseId) throws IOException, NoSuchAlgorithmException;
+
+    DocumentDTO getDocumentOfAssignment(Long courseId, Long assignmentId) throws IOException;
 
     List<AssignmentDTO> getAssignmentsForCourse(Long courseId);
 
