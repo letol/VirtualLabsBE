@@ -16,9 +16,6 @@ public class HomeworkVersionDTO extends RepresentationModel<HomeworkVersionDTO> 
 
     private Long id;
 
-    @NotNull
-    private byte[] content;
-
     private Timestamp timestamp;
 
     private Homework.homeworkStatus versionStatus;

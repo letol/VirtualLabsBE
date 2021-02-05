@@ -636,7 +636,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomework(authentication.principal.username,#homeworkId))")
-    public HomeworkVersionDTO submitHomeworkVersion(Long courseId, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId) {
+    public HomeworkVersionDTO submitHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content) throws IOException, NoSuchAlgorithmException {
         Course course = courseRepo.findById(courseId).orElseThrow(CourseNotFoundException::new);
         Assignment assignment = assignmentRepo.findById(homeworkId.getAssignment_id()).orElseThrow(AssignmentNotFoundException::new);
 
@@ -646,9 +646,13 @@ public class TeamServiceImpl implements TeamService {
 
         Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
         if (homework.isCanSubmit()) {
-            HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
+            Document document = documentService.addDocument(content);
+
+            HomeworkVersion homeworkVersion = new HomeworkVersion();
             homeworkVersion.setTimestamp(new Timestamp(System.currentTimeMillis()));
             homeworkVersion.setVersionStatus(Homework.homeworkStatus.SUBMITTED);
+            homeworkVersion.setContent(document);
+
             HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
 
             homework.addHomeworkVersion(finalHomeworkVersion);
@@ -660,7 +664,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
-    public HomeworkVersionDTO reviewHomeworkVersion(Long courseId, HomeworkVersionDTO homeworkVersionDTO, HomeworkId homeworkId, boolean canReSubmit) {
+    public HomeworkVersionDTO reviewHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content, boolean canReSubmit) throws IOException, NoSuchAlgorithmException {
         Course course = courseRepo.findById(courseId).orElseThrow(CourseNotFoundException::new);
         Assignment assignment = assignmentRepo.findById(homeworkId.getAssignment_id()).orElseThrow(AssignmentNotFoundException::new);
 
@@ -670,13 +674,17 @@ public class TeamServiceImpl implements TeamService {
 
         Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
 
-        HomeworkVersion homeworkVersion = modelMapper.map(homeworkVersionDTO, HomeworkVersion.class);
+        Document document = documentService.addDocument(content);
+
+        HomeworkVersion homeworkVersion = new HomeworkVersion();
         homeworkVersion.setTimestamp(new Timestamp(System.currentTimeMillis()));
         if (canReSubmit) {
             homeworkVersion.setVersionStatus(Homework.homeworkStatus.REVIEWED);
         } else {
             homeworkVersion.setVersionStatus(Homework.homeworkStatus.DEFINITELY_REVIEWED);
         }
+        homeworkVersion.setContent(document);
+
         HomeworkVersion finalHomeworkVersion = homeworkVersionRepo.save(homeworkVersion);
 
         homework.addHomeworkVersion(finalHomeworkVersion);
@@ -751,6 +759,43 @@ public class TeamServiceImpl implements TeamService {
         }
 
         return modelMapper.map(homeworkVersion, HomeworkVersionDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentHasHomeworkVersion(authentication.principal.username,#homeworkVersionId)) or" +
+            "(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourseOfHomeworkVersion(authentication.principal.username,#homeworkVersionId)) or hasRole('ROLE_ADMIN')")
+    public DocumentDTO getDocumentOfHomeworkVersion(Long courseId, HomeworkId homeworkId, Long homeworkVersionId) throws IOException {
+        Course course = courseRepo.findById(courseId).orElseThrow(CourseNotFoundException::new);
+        Assignment assignment = assignmentRepo.findById(homeworkId.getAssignment_id()).orElseThrow(AssignmentNotFoundException::new);
+
+        if (!course.getAssignments().contains(assignment)) {
+            throw new AssignmentNotInCourseException();
+        }
+
+        Homework homework = homeworkRepo.findById(homeworkId).orElseThrow(HomeworkNotFoundException::new);
+        HomeworkVersion homeworkVersion = homeworkVersionRepo.findById(homeworkVersionId)
+                .orElseThrow(HomeworkVersionNotFoundException::new);
+
+        if (!homework.getVersions().contains(homeworkVersion)) {
+            throw new HomeworkVersionNotInHomeworkException();
+        }
+
+        Document document = homeworkVersion.getContent();
+
+        ByteArrayResource content = documentService.getDocumentContent(document);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT"))) {
+            homework.setCurrentStatus(Homework.homeworkStatus.READ);
+        }
+
+        return DocumentDTO.builder()
+                .id(document.getId())
+                .name(document.getName())
+                .mimeType(document.getMimeType())
+                .size(document.getSize())
+                .content(content)
+                .build();
     }
 
     @Override

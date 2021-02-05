@@ -10,7 +10,6 @@ import org.apache.tika.Tika;
 import org.apache.tika.metadata.HttpHeaders;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -409,7 +408,7 @@ public class CourseController {
     }
 
     @GetMapping("/{courseId}/assignment/{assignmentId}/content")
-    ResponseEntity<Resource> getContent(@PathVariable Long courseId, @PathVariable Long assignmentId) {
+    ResponseEntity<Resource> getContentOfAssignment(@PathVariable Long courseId, @PathVariable Long assignmentId) {
         try {
             DocumentDTO documentDTO = teamService.getDocumentOfAssignment(courseId, assignmentId);
             return ResponseEntity.ok()
@@ -445,28 +444,38 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/submit")
-    HomeworkVersionDTO submitHomework(@RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO, @PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId) {
+    HomeworkVersionDTO submitHomework(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId,
+                                      @RequestParam("content") MultipartFile content) {
         try {
-            return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.submitHomeworkVersion(courseId, homeworkVersionDTO, new HomeworkId(assignmentId, studentId)));
+            return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.submitHomeworkVersion(
+                    courseId,
+                    new HomeworkId(assignmentId, studentId),
+                    content
+            ));
         } catch (HomeworkCannotBeSubmittedException noSubmission) {
             throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Homework submission has been denied");
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/review")
     HomeworkVersionDTO reviewHomework(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId,
-                                      @RequestBody @Valid HomeworkVersionDTO homeworkVersionDTO,
+                                      @RequestParam("content") MultipartFile content,
                                       @RequestParam("canReSubmit") boolean canReSubmit) {
         try {
             return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.reviewHomeworkVersion(
-                    courseId, homeworkVersionDTO,
+                    courseId,
                     new HomeworkId(assignmentId, studentId),
+                    content,
                     canReSubmit
             ));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (NoSuchAlgorithmException | IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -499,5 +508,19 @@ public class CourseController {
         }
     }
 
-
+    @GetMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/version/{versionId}/content")
+    ResponseEntity<Resource> getContentOfHomeworkVersion(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId, @PathVariable Long versionId) {
+        try {
+            DocumentDTO documentDTO = teamService.getDocumentOfHomeworkVersion(courseId, new HomeworkId(assignmentId, studentId), versionId);
+            return ResponseEntity.ok()
+                    .contentLength(documentDTO.getSize())
+                    .contentType(MediaType.parseMediaType(documentDTO.getMimeType()))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + documentDTO.getName() + "\"")
+                    .body(documentDTO.getContent());
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
 }
