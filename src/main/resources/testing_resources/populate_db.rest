@@ -268,7 +268,7 @@ Authorization: Bearer {{auth_token_teacher1}}
   "vcpu": 5,
   "disk": 10,
   "memory": 15,
-  "maxVmIstance": 3,
+  "maxVmInstance": 3,
   "maxRunningVmInstance": 1
 }
 > {%
@@ -295,7 +295,7 @@ Authorization: Bearer {{auth_token_teacher1}}
   "vcpu": 5,
   "disk": 10,
   "memory": 15,
-  "maxVmIstance": 3,
+  "maxVmInstance": 3,
   "maxRunningVmInstance": 1
 }
 > {%
@@ -322,7 +322,7 @@ Authorization: Bearer {{auth_token_teacher1}}
   "vcpu": 5,
   "disk": 10,
   "memory": 15,
-  "maxVmIstance": 3,
+  "maxVmInstance": 3,
   "maxRunningVmInstance": 1
 }
 > {%
@@ -386,7 +386,7 @@ Authorization: Bearer {{auth_token_teacher2}}
   "vcpu": 5,
   "disk": 10,
   "memory": 15,
-  "maxVmIstance": 3,
+  "maxVmInstance": 3,
   "maxRunningVmInstance": 1
 }
 > {%

@@ -40,7 +40,7 @@ Authorization: Bearer {{auth_token}}
   "vcpu": 5,
   "disk": 10,
   "memory": 15,
-  "maxVmIstance": 3,
+  "maxVmInstance": 3,
   "maxRunningVmInstance": 1
 }
 
