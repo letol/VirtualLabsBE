@@ -54,7 +54,7 @@ public class Course {
     private int maxRunningVmInstance;
 
     @ManyToMany(mappedBy = "courses")
-    private List<Teacher> teachers;
+    private List<Teacher> teachers = new ArrayList<>();
 
     @ManyToMany(mappedBy = "courses")
     private List<Student> students = new ArrayList<>();
