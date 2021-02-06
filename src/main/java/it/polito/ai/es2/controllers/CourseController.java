@@ -387,8 +387,8 @@ public class CourseController {
 
     @PostMapping("/{courseId}/assignment")
     AssignmentDTO addAssignment(@PathVariable Long courseId,
-                                @RequestParam("assignment") @Valid AssignmentDTO assignmentDTO,
-                                @RequestParam("content") MultipartFile content) {
+                                @RequestPart("assignment") @Valid AssignmentDTO assignmentDTO,
+                                @RequestPart("content") MultipartFile content) {
         try {
             return ModelHelper.enrich(courseId, teamService.addAssignment(assignmentDTO, content, courseId));
         } catch (CourseNotFoundException c) {
@@ -445,7 +445,7 @@ public class CourseController {
 
     @PostMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/submit")
     HomeworkVersionDTO submitHomework(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId,
-                                      @RequestParam("content") MultipartFile content) {
+                                      @RequestPart("content") MultipartFile content) {
         try {
             return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.submitHomeworkVersion(
                     courseId,
@@ -463,7 +463,7 @@ public class CourseController {
 
     @PostMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/review")
     HomeworkVersionDTO reviewHomework(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId,
-                                      @RequestParam("content") MultipartFile content,
+                                      @RequestPart("content") MultipartFile content,
                                       @RequestParam("canReSubmit") boolean canReSubmit) {
         try {
             return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.reviewHomeworkVersion(

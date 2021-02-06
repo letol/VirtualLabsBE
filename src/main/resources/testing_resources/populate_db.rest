@@ -454,18 +454,28 @@ s444444
 
 ###
 # Add assignment to course 'c4'
-# content is "assignment1" encoded to Base64 format
 # expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
 # where S are millisecnonds and Z is ISO 8601 time zone
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="assignment"
+Content-Type: application/json
 
 {
   "name": "assignment1",
-  "content": "YXNzaWdubWVudDE=",
   "expiryDate": "2021-03-14T23:59:59.000+0000"
 }
+
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="assignment1.txt"
+Content-Type: application/txt
+
+< lipsum.txt
+--WebAppBoundary
+
 > {%
     if (response.status === 200) {
         client.global.set("assignmentId1", response.body.id);
@@ -477,18 +487,28 @@ Authorization: Bearer {{auth_token_teacher2}}
 
 ###
 # Add assignment to course 'c4'
-# content is "assignment2" encoded to Base64 format
 # expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
 # where S are millisecnonds and Z is ISO 8601 time zone
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="assignment"
+Content-Type: application/json
 
 {
   "name": "assignment2",
-  "content": "YXNzaWdubWVudDI=",
   "expiryDate": "2021-03-14T23:59:59.000+0000"
 }
+
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="assignment2.pdf"
+Content-Type: application/pdf
+
+< lipsum.pdf
+--WebAppBoundary
+
 > {%
     if (response.status === 200) {
         client.global.set("assignmentId2", response.body.id);
@@ -500,18 +520,28 @@ Authorization: Bearer {{auth_token_teacher2}}
 
 ###
 # Add assignment to course 'c4'
-# content is "assignment3" encoded to Base64 format
 # expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
 # where S are millisecnonds and Z is ISO 8601 time zone
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="assignment"
+Content-Type: application/json
 
 {
   "name": "assignment3",
-  "content": "YXNzaWdubWVudDM=",
   "expiryDate": "2021-03-14T23:59:59.000+0000"
 }
+
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="assignment3.png"
+Content-Type: image/png
+
+< lipsum.png
+--WebAppBoundary
+
 > {%
     if (response.status === 200) {
         client.global.set("assignmentId3", response.body.id);
@@ -542,14 +572,17 @@ Content-Type: application/json
 
 ###
 # Submit version for homework of 's222222' of 'assignment1' of 'c4'
-# Content is "submitted" encoded to Base64 format
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s222222/submit
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_student2}}
 
-{
-  "content": "c3VibWl0dGVk"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="s222222_assignment1_submitted.txt"
+Content-Type: application/txt
+
+< lipsum.txt
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -558,14 +591,17 @@ Authorization: Bearer {{auth_token_student2}}
 
 ###
 # Submit version for homework of 's222222' of 'assignment2' of 'c4'
-# Content is "submitted" encoded to Base64 format
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId2}}/homework/s222222/submit
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_student2}}
 
-{
-  "content": "c3VibWl0dGVk"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="s222222_assignment2_submitted.pdf"
+Content-Type: application/pdf
+
+< lipsum.pdf
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -574,7 +610,7 @@ Authorization: Bearer {{auth_token_student2}}
 
 ###
 # Student 's222222' reads 'assignment3' of 'c4'
-GET http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId3}}
+GET http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId3}}/content
 Authorization: Bearer {{auth_token_student2}}
 
 ###
@@ -598,14 +634,17 @@ Content-Type: application/json
 
 ###
 # Submit version for homework of 's444444' of 'assignment1' of 'c4'
-# Content is "submitted" encoded to Base64 format
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s444444/submit
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_student4}}
 
-{
-  "content": "c3VibWl0dGVk"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="s444444_assignment1_submitted.txt"
+Content-Type: application/txt
+
+< lipsum.txt
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -614,14 +653,17 @@ Authorization: Bearer {{auth_token_student4}}
 
 ###
 # Submit version for homework of 's444444' of 'assignment2' of 'c4'
-# Content is "submitted" encoded to Base64 format
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId2}}/homework/s444444/submit
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_student4}}
 
-{
-  "content": "c3VibWl0dGVk"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="s444444_assignment2_submitted.pdf"
+Content-Type: application/pdf
+
+< lipsum.pdf
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -630,15 +672,18 @@ Authorization: Bearer {{auth_token_student4}}
 
 ###
 # Submit review for homework of 's222222' of 'assignment1' of 'c4'
-# Content is "no more submit" encoded to Base64 format
 # Student can't submit another version
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s222222/review?canReSubmit=false
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 
-{
-  "content": "bm8gbW9yZSBzdWJtaXQ="
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="s222222_assignment1_definitely_reviewed.txt"
+Content-Type: application/txt
+
+< lipsum.txt
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -647,15 +692,18 @@ Authorization: Bearer {{auth_token_teacher2}}
 
 ###
 # Submit review for homework of 's444444' of 'assignment1' of 'c4'
-# Content is "no more submit" encoded to Base64 format
 # Student can't submit another version
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s444444/review?canReSubmit=false
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 
-{
-  "content": "bm8gbW9yZSBzdWJtaXQ="
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="s444444_assignment1_definitely_reviewed.txt"
+Content-Type: application/txt
+
+< lipsum.txt
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -664,15 +712,18 @@ Authorization: Bearer {{auth_token_teacher2}}
 
 ###
 # Submit review for homework of 's222222' of 'assignment2' of 'c4'
-# Content is "reviewed" encoded to Base64 format
 # Student can submit another version
 POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId2}}/homework/s222222/review?canReSubmit=true
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 
-{
-  "content": "cmV2aWV3ZWQ="
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="content"; filename="s222222_assignment2_reviewed.pdf"
+Content-Type: application/pdf
+
+< lipsum.pdf
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");

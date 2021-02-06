@@ -34,7 +34,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public Document addDocument(MultipartFile multipartFile) throws NoSuchAlgorithmException, IOException {
         Document document = new Document();
-        document.setName(multipartFile.getName());
+        document.setName(multipartFile.getOriginalFilename());
         document.setMimeType(multipartFile.getContentType());
         document.setSize(multipartFile.getSize());
         document.setHash();
