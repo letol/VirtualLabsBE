@@ -200,7 +200,7 @@ public class CourseController {
             return teamService.changeStatusVM(command,courseId,tid,vmid);
         }catch(CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(VmIstanceNotFound e) {
+        }catch(VmInstanceNotFound e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
         }catch(VmPermissionDenied e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT);
@@ -216,7 +216,7 @@ public class CourseController {
             return teamService.addOwnersVM(studentIds,vmid,tid,courseId);
         }catch(CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(VmIstanceNotFound e) {
+        }catch(VmInstanceNotFound e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(VmPermissionDenied e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
@@ -231,7 +231,7 @@ public class CourseController {
             return teamService.getOwnersVm(vmid,tid,courseId);
         }catch(CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(VmIstanceNotFound e) {
+        }catch(VmInstanceNotFound e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(VmPermissionDenied e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
@@ -246,7 +246,7 @@ public class CourseController {
             return teamService.getCreatorVm(vmid,tid,courseId);
         }catch(CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(VmIstanceNotFound e) {
+        }catch(VmInstanceNotFound e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(VmPermissionDenied e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());

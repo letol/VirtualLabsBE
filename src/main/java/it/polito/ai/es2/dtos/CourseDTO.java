@@ -37,10 +37,10 @@ public class CourseDTO extends RepresentationModel<CourseDTO> {
     @Min(value = 1, message = "Number of memory not valid")
     private float memory;
 
-    @Min(value = 1, message = "Number of maximum vm istances is not valid")
-    private int maxVmIstance;
+    @Min(value = 1, message = "Number of maximum vm instances is not valid")
+    private int maxVmInstance;
 
-    @Min(value = 1, message = "Number of maximum running vm istances is not valid")
+    @Min(value = 1, message = "Number of maximum running vm instances is not valid")
     private int maxRunningVmInstance;
 
 
