@@ -399,6 +399,24 @@ Authorization: Bearer {{auth_token_teacher2}}
 %}
 
 ###
+# Add teacher1 to course 'c4'
+PUT http://localhost:8080/API/courses/{{c4_id}}/addTeacher
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token_teacher2}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="teacherId"
+
+d111111
+--WebAppBoundary--
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
 # Enroll student 's222222' to 'c4'
 POST http://localhost:8080/API/courses/{{c4_id}}/enrollOne
 Content-Type: multipart/form-data; boundary=WebAppBoundary
