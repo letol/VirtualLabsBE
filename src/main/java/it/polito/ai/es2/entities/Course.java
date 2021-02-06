@@ -47,14 +47,14 @@ public class Course {
 
     @NonNull
     @Column(nullable = false)
-    private int maxVmIstance;
+    private int maxVmInstance;
 
     @NonNull
     @Column(nullable = false)
     private int maxRunningVmInstance;
 
     @ManyToMany(mappedBy = "courses")
-    private List<Teacher> teachers;
+    private List<Teacher> teachers = new ArrayList<>();
 
     @ManyToMany(mappedBy = "courses")
     private List<Student> students = new ArrayList<>();

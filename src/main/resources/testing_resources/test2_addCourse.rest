@@ -56,6 +56,30 @@ GET http://localhost:8080/API/courses/c4
 Authorization: Bearer {{auth_token}}
 
 ###
+# Add teacher1 to course 'c4'
+PUT http://localhost:8080/API/courses/c4/addTeacher
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="teacherId"
+
+d111111
+--WebAppBoundary--
+
+###
+# Remove teacher1 to course 'c4'
+PUT http://localhost:8080/API/courses/c4/removeTeacher
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="teacherId"
+
+d111111
+--WebAppBoundary--
+
+###
 # Test getting not existing course
 GET http://localhost:8080/API/courses/c0
 Authorization: Bearer {{auth_token}}
