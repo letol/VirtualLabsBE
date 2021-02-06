@@ -1,7 +1,5 @@
 package it.polito.ai.es2.services;
 
-import it.polito.ai.es2.dtos.ProposalNotificationDTO;
-import it.polito.ai.es2.dtos.TeamDTO;
 import it.polito.ai.es2.entities.*;
 import it.polito.ai.es2.exceptions.TeamServiceException;
 import it.polito.ai.es2.exceptions.TokenNotFoundException;
@@ -98,8 +96,8 @@ public class NotificationServiceImpl implements NotificationService {
             memberIdsSet.add(proposalNotification.get().getCreator().getId());
             List<Student> newMembers = studentRepository.findAllById(memberIdsSet);
             newMembers.forEach(newTeam::addMember);
-            newTeam.setMaxVmIstance(course.getMaxVmIstance());
-            newTeam.setMaxRunningVmIstance(course.getMaxRunningVmInstance());
+            newTeam.setMaxVmInstance(course.getMaxVmInstance());
+            newTeam.setMaxRunningVmInstance(course.getMaxRunningVmInstance());
             newTeam.setStatus(TeamStatus.ACTIVE);
             tokenRepo.delete(t);
             proposalNotificationRepository.delete(proposalNotification.get());

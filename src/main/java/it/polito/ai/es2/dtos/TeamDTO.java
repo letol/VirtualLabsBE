@@ -25,7 +25,7 @@ public class TeamDTO {
 
     private Float diskMAX;
 
-    private int maxVmIstance;
+    private int maxVmInstance;
 
-    private int runningVmIstance;
+    private int runningVmInstance;
 }

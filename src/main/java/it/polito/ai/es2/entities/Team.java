@@ -40,9 +40,9 @@ public class Team {
     @Column(nullable = false)
     private float diskMAX;
 
-    private int maxVmIstance = 0;
+    private int maxVmInstance = 0;
 
-    private int maxRunningVmIstance = 0;
+    private int maxRunningVmInstance = 0;
 
     @NonNull
     @ManyToOne
@@ -91,7 +91,7 @@ public class Team {
             return false;
     }
 
-    public boolean addVmIstanceToTeam(VmInstance vmInstance) {
+    public boolean addVmInstanceToTeam(VmInstance vmInstance) {
         int totCpu = vmInstance.getVcpu();
         float totMemory = vmInstance.getMemory();
         float totDisk = vmInstance.getDisk();
@@ -106,10 +106,10 @@ public class Team {
         }
         if(totCpu <= vcpuMAX && totMemory <= memoryMAX && totDisk <= diskMAX)
         {
-            if((vmInstances.size()+1) > maxVmIstance) throw new TooManyVmInstancesException("Too many vm instances in this team");
-            if(activeVm + 1 > maxRunningVmIstance) throw new TooManyVmInstancesException("Too many vm instances running in this team");
+            if((vmInstances.size()+1) > maxVmInstance) throw new TooManyVmInstancesException("Too many vm instances in this team");
+            if(activeVm + 1 > maxRunningVmInstance) throw new TooManyVmInstancesException("Too many vm instances running in this team");
             vmInstances.add(vmInstance);
-            maxVmIstance ++;
+            maxVmInstance++;
             vmInstance.setTeam(this);
             return true;
         }
@@ -124,7 +124,7 @@ public class Team {
                 if(var.getStatus()==VmStatus.RUNNING)
                     activeVm++;
             }
-            if (activeVm+1 > maxRunningVmIstance) throw new TooManyVmInstancesException("Too many vm instances running in this team");
+            if (activeVm+1 > maxRunningVmInstance) throw new TooManyVmInstancesException("Too many vm instances running in this team");
             else vmInstance.setStatus(vmStatus);
             return true;
         }
@@ -136,7 +136,7 @@ public class Team {
         throw new TeamServiceException("Command not correct, check vm status");
     }
 
-    public boolean removeVmIstance(VmInstance vmInstance) {
+    public boolean removeVmInstance(VmInstance vmInstance) {
         int totCpu = vmInstance.getVcpu();
         Float totMemory = vmInstance.getMemory();
         Float totDisk = vmInstance.getDisk();
@@ -150,7 +150,7 @@ public class Team {
         if(totCpu <= vcpuMAX && totMemory <= memoryMAX && totDisk <= diskMAX)
         {
             vmInstances.add(vmInstance);
-            maxVmIstance ++;
+            maxVmInstance++;
             return true;
         }
         return false;
