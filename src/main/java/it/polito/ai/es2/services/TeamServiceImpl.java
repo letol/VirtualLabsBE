@@ -559,7 +559,8 @@ public class TeamServiceImpl implements TeamService {
             UserDetails principal = (UserDetails) auth.getPrincipal();
             Homework homework = homeworkRepo.findById(new HomeworkId(assignmentId, principal.getUsername()))
                     .orElseThrow(HomeworkNotFoundException::new);
-            homework.setCurrentStatus(Homework.homeworkStatus.READ);
+            if (homework.getCurrentStatus() == Homework.homeworkStatus.NULL)
+                homework.setCurrentStatus(Homework.homeworkStatus.READ);
         }
 
         return DocumentDTO.builder()
