@@ -63,6 +63,15 @@ public class Student {
         }
     }
 
+    public boolean removeCourse(Course course) {
+        if (this.courses.contains(course)) {
+            this.courses.remove(course);
+            course.getStudents().remove(this);
+            return true;
+        } else
+            return false;
+    }
+
     public boolean addVmOwnership(VmInstance vmInstance) {
         if (this.ownedVMs.contains(vmInstance))
             return false;
