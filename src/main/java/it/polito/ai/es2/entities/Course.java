@@ -47,7 +47,7 @@ public class Course {
 
     @NonNull
     @Column(nullable = false)
-    private int maxVmIstance;
+    private int maxVmInstance;
 
     @NonNull
     @Column(nullable = false)

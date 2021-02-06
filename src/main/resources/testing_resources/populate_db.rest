@@ -19,7 +19,7 @@ Content-Type: application/json
 
 ###
 # Add teacher 'd111111'
-POST http://localhost:8080/API/teacher/
+POST http://localhost:8080/API/teachers/
 Content-Type: application/json
 Authorization: Bearer {{auth_token_admin}}
 
@@ -55,7 +55,7 @@ Content-Type: application/json
 
 ###
 # Add teacher 'd222222'
-POST http://localhost:8080/API/teacher/
+POST http://localhost:8080/API/teachers/
 Content-Type: application/json
 Authorization: Bearer {{auth_token_admin}}
 
@@ -261,11 +261,20 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher1}}
 
 {
-  "name": "c1",
-  "min": 3,
-  "max": 4
+  "acronym": "c1",
+  "name": "corso di pino",
+  "min": 2,
+  "max": 4,
+  "vcpu": 5,
+  "disk": 10,
+  "memory": 15,
+  "maxVmInstance": 3,
+  "maxRunningVmInstance": 1
 }
 > {%
+    if (response.status === 200) {
+        client.global.set("c1_id", response.body.id);
+    }
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
     });
@@ -279,11 +288,20 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher1}}
 
 {
-  "name": "c2",
+  "acronym": "c2",
+  "name": "corso di alex",
   "min": 1,
-  "max": 2
+  "max": 2,
+  "vcpu": 5,
+  "disk": 10,
+  "memory": 15,
+  "maxVmInstance": 3,
+  "maxRunningVmInstance": 1
 }
 > {%
+    if (response.status === 200) {
+        client.global.set("c2_id", response.body.id);
+    }
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
     });
@@ -297,11 +315,20 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher1}}
 
 {
-  "name": "c3",
+  "acronym": "c3",
+  "name": "corso di leo",
   "min": 2,
-  "max": 4
+  "max": 4,
+  "vcpu": 5,
+  "disk": 10,
+  "memory": 15,
+  "maxVmInstance": 3,
+  "maxRunningVmInstance": 1
 }
 > {%
+    if (response.status === 200) {
+        client.global.set("c3_id", response.body.id);
+    }
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
     });
@@ -309,7 +336,7 @@ Authorization: Bearer {{auth_token_teacher1}}
 
 ###
 # Add and enroll to 'c3' students from CSV
-POST http://localhost:8080/API/courses/c3/enrollMany
+POST http://localhost:8080/API/courses/{{c3_id}}/enrollMany
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher1}}
 
@@ -352,11 +379,20 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher2}}
 
 {
-  "name": "c4",
+  "acronym": "c4",
+  "name": "corso di pino",
   "min": 3,
-  "max": 5
+  "max": 5,
+  "vcpu": 5,
+  "disk": 10,
+  "memory": 15,
+  "maxVmInstance": 3,
+  "maxRunningVmInstance": 1
 }
 > {%
+    if (response.status === 200) {
+        client.global.set("c4_id", response.body.id);
+    }
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
     });
@@ -364,7 +400,7 @@ Authorization: Bearer {{auth_token_teacher2}}
 
 ###
 # Enroll student 's222222' to 'c4'
-POST http://localhost:8080/API/courses/c4/enrollOne
+POST http://localhost:8080/API/courses/{{c4_id}}/enrollOne
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 
@@ -382,7 +418,7 @@ s222222
 
 ###
 # Enroll student 's444444' to 'c4'
-POST http://localhost:8080/API/courses/c4/enrollOne
+POST http://localhost:8080/API/courses/{{c4_id}}/enrollOne
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 
@@ -403,7 +439,7 @@ s444444
 # content is "assignment1" encoded to Base64 format
 # expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
 # where S are millisecnonds and Z is ISO 8601 time zone
-POST http://localhost:8080/API/courses/c4/assignment
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment
 Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher2}}
 
@@ -426,7 +462,7 @@ Authorization: Bearer {{auth_token_teacher2}}
 # content is "assignment2" encoded to Base64 format
 # expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
 # where S are millisecnonds and Z is ISO 8601 time zone
-POST http://localhost:8080/API/courses/c4/assignment
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment
 Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher2}}
 
@@ -449,7 +485,7 @@ Authorization: Bearer {{auth_token_teacher2}}
 # content is "assignment3" encoded to Base64 format
 # expiryDate is in UTC with format: "yyyy-mm-ddThh:mm:ss.SSSZ"
 # where S are millisecnonds and Z is ISO 8601 time zone
-POST http://localhost:8080/API/courses/c4/assignment
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment
 Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher2}}
 
@@ -489,7 +525,7 @@ Content-Type: application/json
 ###
 # Submit version for homework of 's222222' of 'assignment1' of 'c4'
 # Content is "submitted" encoded to Base64 format
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s222222/submit
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s222222/submit
 Content-Type: application/json
 Authorization: Bearer {{auth_token_student2}}
 
@@ -505,7 +541,7 @@ Authorization: Bearer {{auth_token_student2}}
 ###
 # Submit version for homework of 's222222' of 'assignment2' of 'c4'
 # Content is "submitted" encoded to Base64 format
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId2}}/homework/s222222/submit
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId2}}/homework/s222222/submit
 Content-Type: application/json
 Authorization: Bearer {{auth_token_student2}}
 
@@ -520,7 +556,7 @@ Authorization: Bearer {{auth_token_student2}}
 
 ###
 # Student 's222222' reads 'assignment3' of 'c4'
-GET http://localhost:8080/API/courses/c4/assignment/{{assignmentId3}}
+GET http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId3}}
 Authorization: Bearer {{auth_token_student2}}
 
 ###
@@ -545,7 +581,7 @@ Content-Type: application/json
 ###
 # Submit version for homework of 's444444' of 'assignment1' of 'c4'
 # Content is "submitted" encoded to Base64 format
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s444444/submit
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s444444/submit
 Content-Type: application/json
 Authorization: Bearer {{auth_token_student4}}
 
@@ -561,7 +597,7 @@ Authorization: Bearer {{auth_token_student4}}
 ###
 # Submit version for homework of 's444444' of 'assignment2' of 'c4'
 # Content is "submitted" encoded to Base64 format
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId2}}/homework/s444444/submit
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId2}}/homework/s444444/submit
 Content-Type: application/json
 Authorization: Bearer {{auth_token_student4}}
 
@@ -578,7 +614,7 @@ Authorization: Bearer {{auth_token_student4}}
 # Submit review for homework of 's222222' of 'assignment1' of 'c4'
 # Content is "no more submit" encoded to Base64 format
 # Student can't submit another version
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s222222/review?canReSubmit=false
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s222222/review?canReSubmit=false
 Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher2}}
 
@@ -595,7 +631,7 @@ Authorization: Bearer {{auth_token_teacher2}}
 # Submit review for homework of 's444444' of 'assignment1' of 'c4'
 # Content is "no more submit" encoded to Base64 format
 # Student can't submit another version
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s444444/review?canReSubmit=false
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s444444/review?canReSubmit=false
 Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher2}}
 
@@ -612,7 +648,7 @@ Authorization: Bearer {{auth_token_teacher2}}
 # Submit review for homework of 's222222' of 'assignment2' of 'c4'
 # Content is "reviewed" encoded to Base64 format
 # Student can submit another version
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId2}}/homework/s222222/review?canReSubmit=true
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId2}}/homework/s222222/review?canReSubmit=true
 Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher2}}
 
@@ -627,7 +663,7 @@ Authorization: Bearer {{auth_token_teacher2}}
 
 ###
 # Set score for homework of 's222222' of 'assignment1' of 'c4'
-POST http://localhost:8080/API/courses/c4/assignment/{{assignmentId1}}/homework/s222222/setScore
+POST http://localhost:8080/API/courses/{{c4_id}}/assignment/{{assignmentId1}}/homework/s222222/setScore
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 

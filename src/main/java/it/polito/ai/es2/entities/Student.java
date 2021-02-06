@@ -32,16 +32,16 @@ public class Student {
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "student_course",
             joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "course_name"))
+            inverseJoinColumns = @JoinColumn(name = "course_id"))
     private List<Course> courses = new ArrayList<>();
 
     @OneToMany(mappedBy = "creator")
-    private List<VmInstance> cretedVMs = new ArrayList<>();
+    private List<VmInstance> createdVMs = new ArrayList<>();
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(name = "student_vms",
             joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "vmIstance_id"))
+            inverseJoinColumns = @JoinColumn(name = "vmInstance_id"))
     private List<VmInstance> ownedVMs = new ArrayList<>();
 
     @ManyToMany(mappedBy = "members")
