@@ -53,6 +53,15 @@ public class CourseController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Course '" + courseId + "' not found!")));
     }
 
+    @DeleteMapping("/{courseId}")
+    void removeOne(@PathVariable Long courseId) {
+        try {
+            teamService.deleteCourse(courseId);
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
     @GetMapping("/{courseId}/teachers")
     List<TeacherDTO> listCourseTeachers(@PathVariable Long courseId) {
         try {
@@ -102,10 +111,28 @@ public class CourseController {
         }
     }
 
+    @PutMapping({"","/"})
+    CourseDTO editCourse(@RequestBody CourseDTO courseDTO, @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            return ModelHelper.enrich(teamService.editCourse(courseDTO, userDetails.getUsername()));
+        } catch (TeamServiceException t) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        }
+    }
+
     @PostMapping("/{courseId}/enrollOne")
-    Boolean enrollStudent(@PathVariable Long courseId, @RequestParam("studentId") String studentId) {
+    StudentDTO enrollStudent(@PathVariable Long courseId, @RequestParam("studentId") String studentId) {
         try {
             return teamService.addStudentToCourse(studentId, courseId);
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+
+    @PutMapping("/{courseId}/unenrollStudent")
+    StudentDTO unenrollStudent(@PathVariable Long courseId, @RequestParam("studentId") String studentId) {
+        try {
+            return teamService.removeStudentFromCourse(studentId, courseId);
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
@@ -132,6 +159,9 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
+
+
+
     @PostMapping("/{courseId}/teams")
     ProposalNotificationDTO createTeam(@RequestBody RequestTeamDTO team, @PathVariable Long courseId) {
         /*{

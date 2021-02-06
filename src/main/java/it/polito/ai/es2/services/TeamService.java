@@ -18,6 +18,10 @@ public interface TeamService {
 
     Optional<CourseDTO> getCourse(Long courseId);
 
+    void deleteCourse(Long courseId);
+
+    CourseDTO editCourse(CourseDTO courseDTO, String teacherId);
+
     List<CourseDTO> getAllCourses();
 
     boolean addStudent(StudentDTO student);
@@ -44,7 +48,9 @@ public interface TeamService {
 
     List<StudentDTO> getEnrolledStudents(Long courseId);
 
-    boolean addStudentToCourse(String studentId, Long courseId);
+    StudentDTO addStudentToCourse(String studentId, Long courseId);
+
+    StudentDTO removeStudentFromCourse(String studentId, Long courseId);
 
     void enableCourse(Long courseId);
 

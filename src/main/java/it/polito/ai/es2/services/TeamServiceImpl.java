@@ -115,6 +115,30 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    public void deleteCourse(Long courseId) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(CourseNotFoundException::new);
+        courseRepo.delete(course);
+    }
+
+    @Override
+    public CourseDTO editCourse(CourseDTO courseDTO, String teacherId) {
+        Optional<Course> optionalCourse = Optional.empty();
+        if (courseDTO.getId() != null) {
+             optionalCourse = courseRepo.findById(courseDTO.getId());
+        }
+        if (!optionalCourse.isPresent()) {
+            return addCourse(courseDTO, teacherId);
+        } else {
+            Course oldCourse = optionalCourse.get();
+            courseDTO.setId(oldCourse.getId());
+            Course newCourse = modelMapper.map(courseDTO, Course.class);
+            courseRepo.save(newCourse);
+            return courseDTO;
+        }
+    }
+
+    @Override
     public List<CourseDTO> getAllCourses() {
         return courseRepo.findAll()
                 .stream()
@@ -240,7 +264,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
-    public boolean addStudentToCourse(String studentId, Long courseId) {
+    public StudentDTO addStudentToCourse(String studentId, Long courseId) {
         Student student = studentRepo.findById(studentId)
                 .orElseThrow(() -> new StudentNotFoundException("Student id '" + studentId + "' not found!"));
 
@@ -253,9 +277,22 @@ public class TeamServiceImpl implements TeamService {
                         assignment -> generateHomeworkForStudent(assignment, student)
                 );
             }
-            return true;
+            return modelMapper.map(student, StudentDTO.class);
         } else
-            return false;
+            return null;
+    }
+
+    @Override
+    public StudentDTO removeStudentFromCourse(String studentId, Long courseId) {
+        Student student = studentRepo.findById(studentId)
+                .orElseThrow(() -> new TeacherNotFoundException("Student id '" + studentId + "' not found!"));
+
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException("Course '" + courseId + "' not found!"));
+
+        student.removeCourse(course);
+
+        return modelMapper.map(student, StudentDTO.class);
     }
 
     @Override
@@ -289,6 +326,7 @@ public class TeamServiceImpl implements TeamService {
     public List<Boolean> enrollAll(List<String> studentIds, Long courseId) {
         return studentIds.stream()
                 .map(s -> addStudentToCourse(s, courseId))
+                .map(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
