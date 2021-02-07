@@ -461,14 +461,13 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 
 --WebAppBoundary
-Content-Disposition: form-data; name="assignment"
-Content-Type: application/json
+Content-Disposition: form-data; name="name"
 
-{
-  "name": "assignment1",
-  "expiryDate": "2021-03-14T23:59:59.000+0000"
-}
+assignment1
+--WebAppBoundary
+Content-Disposition: form-data; name="expiryDate"
 
+1615726799000
 --WebAppBoundary
 Content-Disposition: form-data; name="content"; filename="assignment1.txt"
 Content-Type: application/txt
@@ -493,15 +492,15 @@ POST http://localhost:8080/API/courses/{{c4_id}}/assignment
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 
+
 --WebAppBoundary
-Content-Disposition: form-data; name="assignment"
-Content-Type: application/json
+Content-Disposition: form-data; name="name"
 
-{
-  "name": "assignment2",
-  "expiryDate": "2021-03-14T23:59:59.000+0000"
-}
+assignment2
+--WebAppBoundary
+Content-Disposition: form-data; name="expiryDate"
 
+1615726799000
 --WebAppBoundary
 Content-Disposition: form-data; name="content"; filename="assignment2.pdf"
 Content-Type: application/pdf
@@ -526,15 +525,15 @@ POST http://localhost:8080/API/courses/{{c4_id}}/assignment
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 Authorization: Bearer {{auth_token_teacher2}}
 
+
 --WebAppBoundary
-Content-Disposition: form-data; name="assignment"
-Content-Type: application/json
+Content-Disposition: form-data; name="name"
 
-{
-  "name": "assignment3",
-  "expiryDate": "2021-03-14T23:59:59.000+0000"
-}
+assignment3
+--WebAppBoundary
+Content-Disposition: form-data; name="expiryDate"
 
+1615726799000
 --WebAppBoundary
 Content-Disposition: form-data; name="content"; filename="assignment3.png"
 Content-Type: image/png
@@ -749,3 +748,5 @@ Content-Disposition: form-data; name="score"
 %}
 
 ###
+GET http://localhost:8080/API/courses/11/assignment/13/homeworks
+Authorization: Bearer {{auth_token_teacher1}}
