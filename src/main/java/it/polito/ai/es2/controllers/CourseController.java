@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -417,9 +418,14 @@ public class CourseController {
 
     @PostMapping("/{courseId}/assignment")
     AssignmentDTO addAssignment(@PathVariable Long courseId,
-                                @RequestPart("assignment") @Valid AssignmentDTO assignmentDTO,
+                                @RequestPart("name") String assignmentName,
+                                @RequestParam("expiryDate") Long expiryDate,
                                 @RequestPart("content") MultipartFile content) {
         try {
+            AssignmentDTO assignmentDTO = AssignmentDTO.builder()
+                    .name(assignmentName)
+                    .expiryDate(new Timestamp(expiryDate))
+                    .build();
             return ModelHelper.enrich(courseId, teamService.addAssignment(assignmentDTO, content, courseId));
         } catch (CourseNotFoundException c) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, courseId.toString());
