@@ -63,8 +63,9 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ai-mariadb
 ```
-* Run the following command:
+* Run the following commands:
 ```console
+docker-compose pull
 docker-compose up -d
 ```
 * Enjoy!
