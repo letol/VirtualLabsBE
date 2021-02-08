@@ -20,11 +20,11 @@ import java.util.List;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${security.jwt.token.secret-key:secret}")
-    private String secretKey = "segreto";
+    @Value("${security.jwt.token.secret-key:secret}") // Default: "secret"
+    private String secretKey;
 
-    @Value("${security.jwt.token.expire-length:3600000}")
-    private final long validityInMilliseconds = 3600000; // 1h
+    @Value("${security.jwt.token.expire-length:3600000}") // Default: 1h
+    private long validityInMilliseconds;
 
     @Autowired
     @Qualifier("userDetailsServiceImpl")
