@@ -295,6 +295,14 @@ public class TeamServiceImpl implements TeamService {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException("Course '" + courseId + "' not found!"));
 
+        List<Homework> homeworkOfStudentForCourse = student.getHomeworks().stream()
+                .filter(homework -> homework.getAssignment().getCourse() == course)
+                .collect(Collectors.toList());
+
+        homeworkOfStudentForCourse.forEach(homework -> {
+            student.removeHomework(homework);
+            homeworkRepo.delete(homework);
+        });
         student.removeCourse(course);
 
         return modelMapper.map(student, StudentDTO.class);

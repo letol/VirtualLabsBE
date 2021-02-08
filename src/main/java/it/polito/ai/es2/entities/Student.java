@@ -114,7 +114,6 @@ public class Student {
             return false;
         else {
             this.homeworks.add(homework);
-            homework.setStudent(this);
             return true;
         }
     }
@@ -122,7 +121,6 @@ public class Student {
     public boolean removeHomework(Homework homework) {
         if (this.homeworks.contains(homework)) {
             this.homeworks.remove(homework);
-            homework.setStudent(null);
             return true;
         } else
             return false;
