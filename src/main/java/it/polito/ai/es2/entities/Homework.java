@@ -41,7 +41,7 @@ public class Homework {
     @JoinColumn(name = "assignment_id", insertable = false, updatable = false)
     private Assignment assignment;
 
-    @OneToMany(mappedBy = "homework")
+    @OneToMany(mappedBy = "homework", orphanRemoval = true)
     private List<HomeworkVersion> versions = new ArrayList<>();
 
     @ManyToOne
