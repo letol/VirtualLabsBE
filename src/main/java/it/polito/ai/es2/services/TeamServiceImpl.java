@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 @Service
@@ -838,7 +839,16 @@ public class TeamServiceImpl implements TeamService {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT"))) {
-            homework.setCurrentStatus(Homework.homeworkStatus.READ);
+            // Get id of last homeworkVersion with status REVIEWED, leveraging sequential id.
+            Optional<Long> lastReviewedHomeworkVersionId = homework.getVersions().stream()
+                    .filter(hv -> hv.getVersionStatus() == Homework.homeworkStatus.REVIEWED)
+                    .map(HomeworkVersion::getId)
+                    .reduce(BinaryOperator.maxBy(Long::compare));
+
+            // Update homework status to READ, only if requested version is the one of the last review
+            if (lastReviewedHomeworkVersionId.isPresent() && homeworkVersion.getId().equals(lastReviewedHomeworkVersionId.get()))
+                if (homework.getCurrentStatus() == Homework.homeworkStatus.REVIEWED)
+                    homework.setCurrentStatus(Homework.homeworkStatus.READ);
         }
 
         return DocumentDTO.builder()
