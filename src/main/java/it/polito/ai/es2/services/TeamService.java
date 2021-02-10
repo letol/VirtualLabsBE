@@ -104,7 +104,7 @@ public interface TeamService {
 
     HomeworkVersionDTO reviewHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content, boolean canReSubmit) throws IOException, NoSuchAlgorithmException;
 
-    void setScore(Long courseId, HomeworkId homeworkId, int score);
+    HomeworkDTO setScore(Long courseId, HomeworkId homeworkId, int score);
 
     List<HomeworkVersionDTO> getHomeworkVersions(Long courseId, HomeworkId homeworkId);
 

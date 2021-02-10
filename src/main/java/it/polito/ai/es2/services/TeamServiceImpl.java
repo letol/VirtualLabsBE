@@ -753,7 +753,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourseOfAssignment(authentication.principal.username,#homeworkId.assignment_id)) or hasRole('ROLE_ADMIN')")
-    public void setScore(Long courseId, HomeworkId homeworkId, int score) {
+    public HomeworkDTO setScore(Long courseId, HomeworkId homeworkId, int score) {
         Course course = courseRepo.findById(courseId).orElseThrow(CourseNotFoundException::new);
         Assignment assignment = assignmentRepo.findById(homeworkId.getAssignment_id()).orElseThrow(AssignmentNotFoundException::new);
 
@@ -773,6 +773,7 @@ public class TeamServiceImpl implements TeamService {
                 homework.setCurrentStatus(Homework.homeworkStatus.SCORED);
             }
         }
+        return modelMapper.map(homework, HomeworkDTO.class);
     }
 
     @Override

@@ -516,9 +516,13 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/assignment/{assignmentId}/homework/{studentId}/setScore")
-    void setScore(@RequestParam("score") Integer score, @PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId) {
+    HomeworkDTO setScore(@RequestParam("score") Integer score, @PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
-            teamService.setScore(courseId, new HomeworkId(assignmentId, studentId), score);
+            return ModelHelper.enrich(courseId, assignmentId, teamService.setScore(
+                    courseId,
+                    new HomeworkId(assignmentId, studentId),
+                    score
+            ));
         } catch (TeamServiceException t) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
         }
