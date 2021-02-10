@@ -746,7 +746,3 @@ Content-Disposition: form-data; name="score"
         client.assert(response.status === 200, "Response status is not 200");
     });
 %}
-
-###
-GET http://localhost:8080/API/courses/11/assignment/13/homeworks
-Authorization: Bearer {{auth_token_teacher1}}
