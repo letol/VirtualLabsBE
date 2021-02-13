@@ -461,7 +461,7 @@ public class TeamServiceImpl implements TeamService {
                 .course(course)
                 .creator(student)
                 .token(UUID.randomUUID().toString())
-                .deadline(new Timestamp(teamRequest.getDeadline().getTime()+System.currentTimeMillis()))
+                .deadline(new Timestamp(teamRequest.getDeadline().getTime()))
                 .studentsInvitedWithStatus(studentStatusInvitations).build();
         /*
         Team newTeam = teamRepo.save(new Team(name,course.getVcpu(),course.getMemory(),course.getDisk(),course));
@@ -962,8 +962,7 @@ public class TeamServiceImpl implements TeamService {
         return teamRepo.findById(teamId).get().getVmInstances().stream().map(vm -> modelMapper.map(vm, VmInstanceDTO.class)).collect(Collectors.toList());
     }
 
-    //todo gestire stato vm aggiungendo lo stato alla instance. Valori di default per creare il team dove li mettiamo?
-    //gestire la faccenda dei nomi dei team
+
     @Override
     @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#tid))")
     public VmInstanceDTO changeStatusVM(VmStatus command, Long courseId, Long tid, Long vmid) {
@@ -1038,6 +1037,68 @@ public class TeamServiceImpl implements TeamService {
         if(!optionalProposalNotification.isPresent()) throw new TeamServiceException("ProposalNotification not exists");
 
         return modelMapper.map(optionalProposalNotification.get().getCreator(),StudentDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseId)")
+    public TeamDTO getStudentTeamByCourse(String id, Long courseId) {
+        if(!SecurityContextHolder.getContext().getAuthentication().getName().equals(id)) throw new TeamServiceException("You can not visit informations");
+        Student student = studentRepo.findById(id).get();
+        return modelMapper.map(teamRepo.findAllByCourse_IdAndMembersContaining(courseId,student),TeamDTO.class);
+
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseId)")
+    public List<StudentDTO> getMembersProposal(Long courseId, Long id) {
+        Optional<ProposalNotification> optionalProposalNotification = proposalNotificationRepository.findById(id);
+        if(!optionalProposalNotification.isPresent()) throw new TeamServiceException("ProposalNotification not exists");
+        return optionalProposalNotification.get().getStudentsInvitedWithStatus().stream().map(p -> studentRepo.getOne(p.getStudentId())).map(p -> modelMapper.map(p,StudentDTO.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_TEACHER') and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
+    public TeamDTO updateTeam(Long courseId, Long teamId, TeamDTO teamDTO) {
+        if(!teamId.equals(teamDTO.getId())) throw new TeamServiceException("Teamid and endpoint is not equal");
+        Optional<Team> optionalTeam = teamRepo.findById(teamId);
+        if(!optionalTeam.isPresent()) throw new TeamServiceException("Team not exists");
+        List<VmInstance> vmInstances = optionalTeam.get().getVmInstances();
+        int totCpu = 0;
+        float totMemory = 0;
+        float totDisk = 0;
+        int activeVm=0;
+        for (VmInstance var:
+                vmInstances) {
+            totCpu+=var.getVcpu();
+            totMemory+=var.getMemory();
+            totDisk+=var.getDisk();
+            if(var.getStatus()==VmStatus.RUNNING)
+                activeVm++;
+        }
+        if(totCpu <= teamDTO.getVcpuMAX() && totMemory <= teamDTO.getMemoryMAX() && totDisk <= teamDTO.getDiskMAX()
+            && activeVm <= teamDTO.getRunningVmInstance() && vmInstances.size() <= teamDTO.getMaxVmInstance())
+        {
+            optionalTeam.get().setDiskMAX(teamDTO.getDiskMAX());
+            optionalTeam.get().setMaxVmInstance(teamDTO.getMaxVmInstance());
+            optionalTeam.get().setMaxRunningVmInstance(teamDTO.getRunningVmInstance());
+            optionalTeam.get().setMemoryMAX(teamDTO.getMemoryMAX());
+            optionalTeam.get().setVcpuMAX(teamDTO.getVcpuMAX());
+            return modelMapper.map(optionalTeam.get(),TeamDTO.class);
+        }
+        throw new TeamServiceException("Invalid boundaries. Check virtual machines of team");
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId)")
+    public boolean deleteVmInstance(Long vid, Long courseId, Long teamId) {
+        Optional<VmInstance> optionalVmInstance = vmInstanceRepository.findById(vid);
+        if(!optionalVmInstance.isPresent()) throw new TeamServiceException("Vm not exist");
+        Student student = studentRepo.getOne(SecurityContextHolder.getContext().getAuthentication().getName());
+        try {
+            return teamRepo.getOne(teamId).removeVmInstance(optionalVmInstance.get(), student);
+        }catch (TeamServiceException t) {
+            throw t;
+        }
     }
 
 
