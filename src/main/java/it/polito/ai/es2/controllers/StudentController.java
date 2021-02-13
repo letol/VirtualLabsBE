@@ -53,6 +53,16 @@ public class StudentController {
         }
     }
 
+    @GetMapping("/{id}/courses/{courseId}/team")
+    TeamDTO getTeamByCourse(@PathVariable String id, @PathVariable Long courseId) {
+        try {
+            return teamService.getStudentTeamByCourse(id,courseId);
+        } catch (StudentNotFoundException s)
+        {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,id);
+        }
+    }
+
     @GetMapping("/{id}/courses")
     List<CourseDTO> getStudentcourses(@PathVariable String id) {
         try {
