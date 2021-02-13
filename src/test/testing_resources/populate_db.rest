@@ -281,6 +281,17 @@ Authorization: Bearer {{auth_token_teacher1}}
 %}
 
 ###
+# Enable course 'c1'
+GET http://localhost:8080/API/courses/{{c1_id}}/enableCourse
+Authorization: Bearer {{auth_token_teacher1}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
 # Add course 'c2'
 # Hint: should be done by teacher1
 POST http://localhost:8080/API/courses/
@@ -308,6 +319,17 @@ Authorization: Bearer {{auth_token_teacher1}}
 %}
 
 ###
+# Enable course 'c2'
+GET http://localhost:8080/API/courses/{{c2_id}}/enableCourse
+Authorization: Bearer {{auth_token_teacher1}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
 # Add course 'c3'
 # Hint: should be done by teacher1
 POST http://localhost:8080/API/courses/
@@ -329,6 +351,17 @@ Authorization: Bearer {{auth_token_teacher1}}
     if (response.status === 200) {
         client.global.set("c3_id", response.body.id);
     }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Enable course 'c3'
+GET http://localhost:8080/API/courses/{{c3_id}}/enableCourse
+Authorization: Bearer {{auth_token_teacher1}}
+
+> {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
     });
