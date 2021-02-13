@@ -137,4 +137,12 @@ public interface TeamService {
     List<ProposalNotificationDTO> getNotificationsForStudent(Long courseId);
 
     StudentDTO getCreatorProposal(Long name, Long id);
+
+    TeamDTO getStudentTeamByCourse(String id, Long courseId);
+
+    List<StudentDTO> getMembersProposal(Long courseId, Long id);
+
+    TeamDTO updateTeam(Long courseId, Long teamId, TeamDTO teamDTO);
+
+    boolean deleteVmInstance(Long vid, Long courseId, Long teamId);
 }

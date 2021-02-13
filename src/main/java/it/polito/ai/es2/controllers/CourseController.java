@@ -170,11 +170,8 @@ public class CourseController {
             "memberIds": [...]
     }*/
         try {
-
-                log.info("TEAM");
-
                 //String courseId = String
-                log.info("Propose team to members");
+                //log.info("Propose team to members");
                 //notificationService.notifyTeam(teamDTO,membersId);
                 //TeamDTO team = (TeamDTO) obj.get("te");
                 return teamService.proposeTeam(courseId,team);
@@ -188,6 +185,31 @@ public class CourseController {
         }
     }
 
+    @PostMapping("/{courseId}/teams/{teamId}")
+    TeamDTO updateTeam(@RequestBody TeamDTO teamDTO, @PathVariable Long courseId, @PathVariable Long teamId) {
+        try {
+            return teamService.updateTeam(courseId,teamId,teamDTO);
+
+        }catch(CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
+        } catch (StudentNotFoundException s) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"memberIds");
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{courseId}/teams/{teamId}/vmInstances/{vid}")
+    boolean deleteVmInstance(@PathVariable Long courseId, @PathVariable Long teamId, @PathVariable Long vid)
+    {
+        try {
+            return teamService.deleteVmInstance(vid,courseId,teamId);
+        }catch(CourseNotFoundException c) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }
+    }
     @PostMapping("/{courseId}/vmModel")
     VmModelDTO createVmModel(@RequestBody VmModelDTO vmModelDTO, @PathVariable Long courseId) {
         try {
@@ -387,6 +409,17 @@ public class CourseController {
     public StudentDTO getProposalCreator(@PathVariable Long courseId,@PathVariable Long id ){
         try{
             return teamService.getCreatorProposal(courseId,id);
+        }catch (CourseNotFoundException c){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
+        }catch (TeamServiceException t){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,t.getMessage());
+        }
+    }
+
+    @GetMapping("/{courseId}/proposalNotifications/{id}/members")
+    public List<StudentDTO> getProposalMembers(@PathVariable Long courseId,@PathVariable Long id ){
+        try{
+            return teamService.getMembersProposal(courseId,id);
         }catch (CourseNotFoundException c){
             throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
         }catch (TeamServiceException t){
