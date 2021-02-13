@@ -136,22 +136,11 @@ public class Team {
         throw new TeamServiceException("Command not correct, check vm status");
     }
 
-    public boolean removeVmInstance(VmInstance vmInstance) {
-        int totCpu = vmInstance.getVcpu();
-        Float totMemory = vmInstance.getMemory();
-        Float totDisk = vmInstance.getDisk();
-
-        for (VmInstance var:
-                vmInstances) {
-            totCpu+=var.getVcpu();
-            totMemory+=var.getMemory();
-            totDisk+=var.getDisk();
-        }
-        if(totCpu <= vcpuMAX && totMemory <= memoryMAX && totDisk <= diskMAX)
+    public boolean removeVmInstance(VmInstance vmInstance, Student student) {
+        if(!vmInstance.getOwners().contains(student)) throw new TeamServiceException("Permission denied");
+        if (vmInstance.getStatus() == VmStatus.SUSPENDED)
         {
-            vmInstances.add(vmInstance);
-            maxVmInstance++;
-            return true;
+            return vmInstances.remove(vmInstance);
         }
         return false;
     }
