@@ -399,6 +399,17 @@ Authorization: Bearer {{auth_token_teacher2}}
 %}
 
 ###
+# Enable course 'c4'
+GET http://localhost:8080/API/courses/{{c4_id}}/enableCourse
+Authorization: Bearer {{auth_token_teacher2}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
 # Add teacher1 to course 'c4'
 PUT http://localhost:8080/API/courses/{{c4_id}}/addTeacher
 Content-Type: multipart/form-data; boundary=WebAppBoundary
