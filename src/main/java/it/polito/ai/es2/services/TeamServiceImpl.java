@@ -1044,8 +1044,10 @@ public class TeamServiceImpl implements TeamService {
     public TeamDTO getStudentTeamByCourse(String id, Long courseId) {
         if(!SecurityContextHolder.getContext().getAuthentication().getName().equals(id)) throw new TeamServiceException("You can not visit informations");
         Student student = studentRepo.findById(id).get();
-        return modelMapper.map(teamRepo.findAllByCourse_IdAndMembersContaining(courseId,student),TeamDTO.class);
-
+        Optional<Team> teamOptional = student.getTeams().stream()
+                .filter(team -> team.getCourse().getId().equals(courseId))
+                .findAny();
+        return teamOptional.map(team -> modelMapper.map(team, TeamDTO.class)).orElse(null);
     }
 
     @Override
