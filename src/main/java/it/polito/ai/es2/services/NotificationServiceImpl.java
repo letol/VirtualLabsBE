@@ -1,6 +1,7 @@
 package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.entities.*;
+import it.polito.ai.es2.exceptions.NotificationServiceException;
 import it.polito.ai.es2.exceptions.TeamServiceException;
 import it.polito.ai.es2.exceptions.TokenNotFoundException;
 import it.polito.ai.es2.repositories.ProposalNotificationRepository;
@@ -56,7 +57,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
-    public boolean confirm(String token) {
+    public boolean confirm(String token) throws NotificationServiceException, TeamServiceException {
         Optional<Token> tokenOptional = tokenRepo.findById(token);
         if (!tokenOptional.isPresent())
             throw new TokenNotFoundException("Token '" + token + "' not found!");
@@ -114,7 +115,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
-    public boolean reject(String token) {
+    public boolean reject(String token) throws NotificationServiceException, TeamServiceException {
         /*
         Optional<Token> tokenOptional = tokenRepo.findById(token);
         if (!tokenOptional.isPresent())
