@@ -166,9 +166,12 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public void addAuthToStudent(StudentDTO studentDTO, User authUser) throws TeamServiceException {
+    public void addAuthToStudent(StudentDTO studentDTO, User authUser, MultipartFile avatar) throws TeamServiceException, IOException {
         Student student = studentRepo.findById(studentDTO.getId()).orElseThrow(StudentNotFoundException::new);
         student.setAuthUser(authUser);
+        if (!avatar.isEmpty()) {
+            student.setAvatar(avatar.getBytes());
+        }
         studentRepo.save(student);
     }
 
@@ -227,9 +230,12 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public void addAuthToTeacher(TeacherDTO teacherDTO, User authUser) throws TeamServiceException {
+    public void addAuthToTeacher(TeacherDTO teacherDTO, User authUser, MultipartFile avatar) throws TeamServiceException, IOException {
         Teacher teacher = teacherRepo.findById(teacherDTO.getId()).orElseThrow(TeacherNotFoundException::new);
         teacher.setAuthUser(authUser);
+        if (!avatar.isEmpty()) {
+            teacher.setAvatar(avatar.getBytes());
+        }
         teacherRepo.save(teacher);
     }
 
