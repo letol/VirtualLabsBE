@@ -930,5 +930,11 @@ Authorization: Bearer {{auth_token_student2}}
 GET http://localhost:8080/API/notifications/confirm/{{team_token}}
 Authorization: Bearer {{auth_token_student4}}
 
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
 ###
 

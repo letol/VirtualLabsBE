@@ -148,7 +148,7 @@ public interface TeamService {
 
     byte[] showVm(Long vmid, Long tid, Long courseId) throws TeamServiceException;
 
-    VmInstanceDTO updateVmInstance(Long vmid, Long tid, Long courseId, VmInstanceDTO vmInstanceDTO) throw TeamServiceException;
+    VmInstanceDTO updateVmInstance(Long vmid, Long tid, Long courseId, VmInstanceDTO vmInstanceDTO) throws TeamServiceException;
 
     boolean deleteVmInstance(Long vid, Long courseId, Long teamId) throws TeamServiceException;
 }
