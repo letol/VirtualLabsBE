@@ -5,7 +5,7 @@ import it.polito.ai.es2.dtos.TeacherDTO;
 import it.polito.ai.es2.dtos.UserDTO;
 import it.polito.ai.es2.entities.User;
 import it.polito.ai.es2.exceptions.EmailNotValidException;
-import it.polito.ai.es2.exceptions.TeamServiceException;
+import it.polito.ai.es2.exceptions.UserManagementServiceException;
 import it.polito.ai.es2.repositories.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     PasswordEncoder passwordEncoder;
 
     @Override
-    public User addUser(String id, String lastname, String firstname, String password, String email) {
+    public User addUser(String id, String lastname, String firstname, String password, String email) throws UserManagementServiceException {
         Pattern pattern = Pattern.compile("[sd][0-9]+@(polito|studenti\\.polito)\\.it");
         Matcher matcher = pattern.matcher(email);
 
@@ -108,21 +108,21 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public void removeUser(Long userId) {
+    public void removeUser(Long userId) throws UserManagementServiceException {
         userRepo.delete(userRepo.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id '" + userId + "' not found!")));
     }
 
     @Override
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public void removeUser(String username) {
+    public void removeUser(String username) throws UserManagementServiceException {
         userRepo.delete(userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username '" + username + "' not found!")));
     }
 
     @Override
     @PreAuthorize("#username == authentication.principal.username")
-    public void changePassword(Long userId, String newPassword) {
+    public void changePassword(Long userId, String newPassword) throws UserManagementServiceException {
         userRepo.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User with id '" + userId + "' not found!"))
                 .setPassword(passwordEncoder.encode(newPassword));
@@ -130,7 +130,7 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     @PreAuthorize("#username == authentication.principal.username")
-    public void changePassword(String username, String newPassword) {
+    public void changePassword(String username, String newPassword) throws UserManagementServiceException {
         userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username '" + username + "' not found!"))
                 .setPassword(passwordEncoder.encode(newPassword));
