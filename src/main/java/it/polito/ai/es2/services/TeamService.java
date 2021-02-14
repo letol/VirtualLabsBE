@@ -28,7 +28,7 @@ public interface TeamService {
 
     boolean addStudent(StudentDTO student);
 
-    void addAuthToStudent(StudentDTO studentDTO, User authUser) throws TeamServiceException;
+    void addAuthToStudent(StudentDTO studentDTO, User authUser, MultipartFile avatar) throws TeamServiceException, IOException;
 
     Optional<StudentDTO> getStudent(String studentId);
 
@@ -40,7 +40,7 @@ public interface TeamService {
 
     TeacherDTO removeTeacherFromCourse(String teacherId, Long courseId) throws TeamServiceException;
 
-    void addAuthToTeacher(TeacherDTO teacherDTO, User authUser) throws TeamServiceException;
+    void addAuthToTeacher(TeacherDTO teacherDTO, User authUser, MultipartFile avatar) throws TeamServiceException, IOException;
 
     Optional<TeacherDTO> getTeacher(String teacherId);
 

@@ -15,12 +15,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -58,33 +57,24 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public boolean createAuthenticationUser(@RequestBody Map<String,String> form) {
-        /*{
-            "id": String,
-            "lastname": String,
-            "firstname": String,
-            "password": String,
-            "email": String
-        }*/
+    public boolean createAuthenticationUser(@RequestPart("id") String id,
+                                            @RequestPart("lastName") String lastname,
+                                            @RequestPart("firstName") String firstname,
+                                            @RequestPart("password") String password,
+                                            @RequestPart("email") String email,
+                                            @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
         try {
-            if (form.containsKey("id") &&
-                    form.containsKey("lastName") &&
-                    form.containsKey("firstName") &&
-                    form.containsKey("password") &&
-                    form.containsKey("email")) {
-
-                userManagementService.addUser(form.get("id"),
-                        form.get("lastName"),
-                        form.get("firstName"),
-                        form.get("password"),
-                        form.get("email"));
-
-                return true;
-            } else {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Missing form key");
-            }
+            userManagementService.addUser(id,
+                    lastname,
+                    firstname,
+                    password,
+                    email,
+                    avatar);
+            return true;
         } catch (EmailNotValidException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -23,14 +23,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
@@ -172,9 +177,12 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public void addAuthToStudent(StudentDTO studentDTO, User authUser) throws TeamServiceException {
+    public void addAuthToStudent(StudentDTO studentDTO, User authUser, MultipartFile avatar) throws TeamServiceException, IOException {
         Student student = studentRepo.findById(studentDTO.getId()).orElseThrow(StudentNotFoundException::new);
         student.setAuthUser(authUser);
+        if (avatar != null && !avatar.isEmpty()) {
+            student.setAvatar(resizeAvatar(avatar));
+        }
         studentRepo.save(student);
     }
 
@@ -233,9 +241,12 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public void addAuthToTeacher(TeacherDTO teacherDTO, User authUser) throws TeamServiceException {
+    public void addAuthToTeacher(TeacherDTO teacherDTO, User authUser, MultipartFile avatar) throws TeamServiceException, IOException {
         Teacher teacher = teacherRepo.findById(teacherDTO.getId()).orElseThrow(TeacherNotFoundException::new);
         teacher.setAuthUser(authUser);
+        if (avatar != null && !avatar.isEmpty()) {
+            teacher.setAvatar(resizeAvatar(avatar));
+        }
         teacherRepo.save(teacher);
     }
 
@@ -1144,4 +1155,14 @@ public class TeamServiceImpl implements TeamService {
     }
 
 
+    private byte[] resizeAvatar(MultipartFile avatar) throws IOException {
+        BufferedImage originalImage = ImageIO.read(avatar.getInputStream());
+        BufferedImage resizedImage = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = resizedImage.createGraphics();
+        graphics2D.drawImage(originalImage, 0, 0, 512, 512, null);
+        graphics2D.dispose();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(resizedImage, "png", byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
+    }
 }

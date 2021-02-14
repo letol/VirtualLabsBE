@@ -38,15 +38,30 @@ Authorization: Bearer {{auth_token_admin}}
 ###
 # Register teacher 'd111111'
 POST http://localhost:8080/auth/register
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
-{
-  "id": "d111111",
-  "lastName": "Malnati",
-  "firstName": "Giovanni",
-  "password": "pd1",
-  "email": "d111111@polito.it"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="id"
+
+d111111
+--WebAppBoundary
+Content-Disposition: form-data; name="lastName"
+
+Malnati
+--WebAppBoundary
+Content-Disposition: form-data; name="firstName"
+
+Giovanni
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+pd1
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+d111111@polito.it
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -74,15 +89,30 @@ Authorization: Bearer {{auth_token_admin}}
 ###
 # Register teacher 'd222222'
 POST http://localhost:8080/auth/register
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
-{
-  "id": "d222222",
-  "lastName": "Servetti",
-  "firstName": "Antonio",
-  "password": "pd2",
-  "email": "d222222@polito.it"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="id"
+
+d222222
+--WebAppBoundary
+Content-Disposition: form-data; name="lastName"
+
+Servetti
+--WebAppBoundary
+Content-Disposition: form-data; name="firstName"
+
+Antonio
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+pd2
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+d222222@polito.it
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -110,15 +140,30 @@ Authorization: Bearer {{auth_token_admin}}
 ###
 # Register student 's111111'
 POST http://localhost:8080/auth/register
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
-{
-  "id": "s111111",
-  "lastName": "Rossi",
-  "firstName": "Mario",
-  "password": "ps1",
-  "email": "s111111@studenti.polito.it"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="id"
+
+s111111
+--WebAppBoundary
+Content-Disposition: form-data; name="lastName"
+
+Rossi
+--WebAppBoundary
+Content-Disposition: form-data; name="firstName"
+
+Mario
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+ps1
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+s111111@studenti.polito.it
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -146,15 +191,30 @@ Authorization: Bearer {{auth_token_admin}}
 ###
 # Register student 's222222'
 POST http://localhost:8080/auth/register
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
-{
-  "id": "s222222",
-  "lastName": "Bianchi",
-  "firstName": "Giulio",
-  "password": "ps2",
-  "email": "s222222@studenti.polito.it"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="id"
+
+s222222
+--WebAppBoundary
+Content-Disposition: form-data; name="lastName"
+
+Bianchi
+--WebAppBoundary
+Content-Disposition: form-data; name="firstName"
+
+Giulio
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+ps2
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+s222222@studenti.polito.it
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -182,15 +242,30 @@ Authorization: Bearer {{auth_token_admin}}
 ###
 # Register student 's333333'
 POST http://localhost:8080/auth/register
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
-{
-  "id": "s333333",
-  "lastName": "Verdi",
-  "firstName": "Giuseppe",
-  "password": "ps3",
-  "email": "s333333@studenti.polito.it"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="id"
+
+s333333
+--WebAppBoundary
+Content-Disposition: form-data; name="lastName"
+
+Verdi
+--WebAppBoundary
+Content-Disposition: form-data; name="firstName"
+
+Giuseppe
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+ps3
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+s333333@studenti.polito.it
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
@@ -218,15 +293,30 @@ Authorization: Bearer {{auth_token_admin}}
 ###
 # Register student 's444444'
 POST http://localhost:8080/auth/register
-Content-Type: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
 
-{
-  "id": "s444444",
-  "lastName": "Bruni",
-  "firstName": "Giorgio",
-  "password": "ps4",
-  "email": "s444444@studenti.polito.it"
-}
+--WebAppBoundary
+Content-Disposition: form-data; name="id"
+
+s444444
+--WebAppBoundary
+Content-Disposition: form-data; name="lastName"
+
+Bruni
+--WebAppBoundary
+Content-Disposition: form-data; name="firstName"
+
+Giorgio
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+ps4
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+s444444@studenti.polito.it
+--WebAppBoundary
+
 > {%
     client.test("Request executed successfully", function() {
         client.assert(response.status === 200, "Response status is not 200");
