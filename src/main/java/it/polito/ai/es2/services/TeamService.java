@@ -2,6 +2,7 @@ package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.dtos.*;
+import it.polito.ai.es2.entities.VmInstance;
 import it.polito.ai.es2.utility.VmStatus;
 import it.polito.ai.es2.entities.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -145,4 +146,8 @@ public interface TeamService {
     TeamDTO updateTeam(Long courseId, Long teamId, TeamDTO teamDTO);
 
     boolean deleteVmInstance(Long vid, Long courseId, Long teamId);
+
+    byte[] showVm(Long vmid, Long tid, Long courseId);
+
+    VmInstanceDTO updateVmInstance(Long vmid, Long tid, Long courseId, VmInstanceDTO vmInstanceDTO);
 }
