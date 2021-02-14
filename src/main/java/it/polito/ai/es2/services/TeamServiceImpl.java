@@ -174,8 +174,8 @@ public class TeamServiceImpl implements TeamService {
     public void addAuthToStudent(StudentDTO studentDTO, User authUser, MultipartFile avatar) throws TeamServiceException, IOException {
         Student student = studentRepo.findById(studentDTO.getId()).orElseThrow(StudentNotFoundException::new);
         student.setAuthUser(authUser);
-        if (!avatar.isEmpty()) {
-            student.setAvatar(avatar.getBytes());
+        if (avatar != null && !avatar.isEmpty()) {
+            student.setAvatar(resizeAvatar(avatar));
         }
         studentRepo.save(student);
     }
@@ -238,15 +238,8 @@ public class TeamServiceImpl implements TeamService {
     public void addAuthToTeacher(TeacherDTO teacherDTO, User authUser, MultipartFile avatar) throws TeamServiceException, IOException {
         Teacher teacher = teacherRepo.findById(teacherDTO.getId()).orElseThrow(TeacherNotFoundException::new);
         teacher.setAuthUser(authUser);
-        if (!avatar.isEmpty()) {
-            BufferedImage originalImage = ImageIO.read(avatar.getInputStream());
-            BufferedImage resizedImage = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
-            Graphics2D graphics2D = resizedImage.createGraphics();
-            graphics2D.drawImage(originalImage, 0, 0, 512, 512, null);
-            graphics2D.dispose();
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ImageIO.write(resizedImage, "png", byteArrayOutputStream);
-            teacher.setAvatar(byteArrayOutputStream.toByteArray());
+        if (avatar != null && !avatar.isEmpty()) {
+            teacher.setAvatar(resizeAvatar(avatar));
         }
         teacherRepo.save(teacher);
     }
@@ -1110,5 +1103,14 @@ public class TeamServiceImpl implements TeamService {
         return teamRepo.getOne(teamId).removeVmInstance(optionalVmInstance.get(), student);
     }
 
-
+    private byte[] resizeAvatar(MultipartFile avatar) throws IOException {
+        BufferedImage originalImage = ImageIO.read(avatar.getInputStream());
+        BufferedImage resizedImage = new BufferedImage(512, 512, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = resizedImage.createGraphics();
+        graphics2D.drawImage(originalImage, 0, 0, 512, 512, null);
+        graphics2D.dispose();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ImageIO.write(resizedImage, "png", byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
+    }
 }
