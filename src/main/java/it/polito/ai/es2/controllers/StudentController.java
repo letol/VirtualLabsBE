@@ -3,7 +3,7 @@ package it.polito.ai.es2.controllers;
 import it.polito.ai.es2.dtos.CourseDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.dtos.TeamDTO;
-import it.polito.ai.es2.exceptions.StudentNotFoundException;
+import it.polito.ai.es2.exceptions.TeamServiceException;
 import it.polito.ai.es2.services.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,9 +47,9 @@ public class StudentController {
         try {
             return teamService.getTeamsForStudent(id);
         }
-        catch (StudentNotFoundException s)
+        catch (TeamServiceException e)
         {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,id);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -57,9 +57,9 @@ public class StudentController {
     TeamDTO getTeamByCourse(@PathVariable String id, @PathVariable Long courseId) {
         try {
             return teamService.getStudentTeamByCourse(id,courseId);
-        } catch (StudentNotFoundException s)
+        } catch (TeamServiceException e)
         {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,id);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -67,9 +67,9 @@ public class StudentController {
     List<CourseDTO> getStudentcourses(@PathVariable String id) {
         try {
             return teamService.getCourses(id);
-        } catch (StudentNotFoundException s)
+        } catch (TeamServiceException e)
         {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,id);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

@@ -58,8 +58,8 @@ public class CourseController {
     void removeOne(@PathVariable Long courseId) {
         try {
             teamService.deleteCourse(courseId);
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -69,8 +69,8 @@ public class CourseController {
             return teamService.getTeachersOfCourse(courseId).stream()
                     .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -78,8 +78,8 @@ public class CourseController {
     TeacherDTO addTeacher(@PathVariable Long courseId, @RequestParam("teacherId") String teacherId) {
         try {
             return ModelHelper.enrich(teamService.addTeacherToCourse(teacherId, courseId));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -87,8 +87,8 @@ public class CourseController {
     TeacherDTO removeTeacher(@PathVariable Long courseId, @RequestParam("teacherId") String teacherId) {
         try {
             return ModelHelper.enrich(teamService.removeTeacherFromCourse(teacherId, courseId));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -107,8 +107,8 @@ public class CourseController {
     CourseDTO addCourse(@RequestBody @Valid CourseDTO courseDTO, @AuthenticationPrincipal UserDetails userDetails) {
         try{
             return ModelHelper.enrich(teamService.addCourse(courseDTO, userDetails.getUsername()));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -116,8 +116,8 @@ public class CourseController {
     CourseDTO editCourse(@RequestBody CourseDTO courseDTO, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             return ModelHelper.enrich(teamService.editCourse(courseDTO, userDetails.getUsername()));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -176,12 +176,8 @@ public class CourseController {
                 //TeamDTO team = (TeamDTO) obj.get("te");
                 return teamService.proposeTeam(courseId,team);
 
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        } catch (StudentNotFoundException s) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,"memberIds");
-        }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -189,13 +185,8 @@ public class CourseController {
     TeamDTO updateTeam(@RequestBody TeamDTO teamDTO, @PathVariable Long courseId, @PathVariable Long teamId) {
         try {
             return teamService.updateTeam(courseId,teamId,teamDTO);
-
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        } catch (StudentNotFoundException s) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,"memberIds");
-        }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -204,20 +195,16 @@ public class CourseController {
     {
         try {
             return teamService.deleteVmInstance(vid,courseId,teamId);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
     @PostMapping("/{courseId}/vmModel")
     VmModelDTO createVmModel(@RequestBody VmModelDTO vmModelDTO, @PathVariable Long courseId) {
         try {
             return teamService.addVmModel(vmModelDTO,courseId);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -225,12 +212,8 @@ public class CourseController {
     VmModelDTO getVmModelDTO( @PathVariable Long courseId) {
         try {
             return teamService.getVmModel(courseId);
-        }catch(TeamNotFoundException t){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -238,10 +221,8 @@ public class CourseController {
     VmInstanceDTO createVmInstance(@RequestBody VmInstanceDTO vmInstanceDTO, @PathVariable Long courseId, @PathVariable Long id) {
         try {
             return teamService.createVmInstance(vmInstanceDTO,courseId,id);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -250,10 +231,8 @@ public class CourseController {
     {
         try {
             return teamService.getVmInstancesOfTeam(courseId,tid);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -262,10 +241,8 @@ public class CourseController {
     {
         try {
             return teamService.getVmInstanceOfTeam(vid,courseId,id);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
         }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -275,10 +252,8 @@ public class CourseController {
     {
         try {
             return teamService.getStudentsInATeam(courseId,tid);
-        } catch(TeamNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
-        }catch(CourseNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+        }catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -286,14 +261,8 @@ public class CourseController {
     VmInstanceDTO changeStatusVM(@RequestBody VmStatus command, @PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
             return teamService.changeStatusVM(command,courseId,tid,vmid);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(VmInstanceNotFound e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }catch(VmPermissionDenied e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
         }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -302,14 +271,8 @@ public class CourseController {
     List<Boolean> addOwners(@RequestParam("studentIds") List<String> studentIds, @PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
             return teamService.addOwnersVM(studentIds,vmid,tid,courseId);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(VmInstanceNotFound e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
-        }catch(VmPermissionDenied e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
-        }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -317,14 +280,8 @@ public class CourseController {
     List<StudentDTO> getOwnersVm(@PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
             return teamService.getOwnersVm(vmid,tid,courseId);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(VmInstanceNotFound e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
-        }catch(VmPermissionDenied e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -332,14 +289,8 @@ public class CourseController {
     StudentDTO getCreatorVm(@PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
             return teamService.getCreatorVm(vmid,tid,courseId);
-        }catch(CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
-        }catch(VmInstanceNotFound e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
-        }catch(VmPermissionDenied e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
-        }catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -347,8 +298,8 @@ public class CourseController {
     List<TeamDTO> listTeams(@PathVariable Long courseId) {
         try {
             return teamService.getTeamsForCourse(courseId);
-        } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -358,8 +309,8 @@ public class CourseController {
             return teamService.getAvailableStudents(courseId).stream()
                     .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
-        } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -369,8 +320,8 @@ public class CourseController {
             return teamService.getStudentsInTeams(courseId).stream()
                     .map(ModelHelper::enrich)
                     .collect(Collectors.toList());
-        } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -380,8 +331,8 @@ public class CourseController {
         try{
             teamService.enableCourse(courseId);
             return true;
-        }catch (CourseNotFoundException c){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
+        } catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -391,8 +342,8 @@ public class CourseController {
         try{
             teamService.disableCourse(courseId);
             return true;
-        }catch (CourseNotFoundException c){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,courseId.toString());
+        } catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -400,8 +351,8 @@ public class CourseController {
     public List<ProposalNotificationDTO> getNotifications(@PathVariable Long courseId ){
         try{
             return teamService.getNotificationsForStudent(courseId);
-        }catch (CourseNotFoundException c){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
+        } catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -409,10 +360,8 @@ public class CourseController {
     public StudentDTO getProposalCreator(@PathVariable Long courseId,@PathVariable Long id ){
         try{
             return teamService.getCreatorProposal(courseId,id);
-        }catch (CourseNotFoundException c){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
-        }catch (TeamServiceException t){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,t.getMessage());
+        } catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -420,10 +369,8 @@ public class CourseController {
     public List<StudentDTO> getProposalMembers(@PathVariable Long courseId,@PathVariable Long id ){
         try{
             return teamService.getMembersProposal(courseId,id);
-        }catch (CourseNotFoundException c){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,c.getMessage());
-        }catch (TeamServiceException t){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,t.getMessage());
+        }catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -433,8 +380,8 @@ public class CourseController {
             return teamService.getAssignmentsForCourse(courseId).stream()
                     .map(assignmentDTO -> ModelHelper.enrich(courseId, assignmentDTO))
                     .collect(Collectors.toList());
-        } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, courseId.toString());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -444,8 +391,8 @@ public class CourseController {
             return teamService.getHomeworksForCourse(courseId).stream()
                     .map(homeworkDTO -> ModelHelper.enrich(courseId, homeworkDTO.getAssignment_id(), homeworkDTO))
                     .collect(Collectors.toList());
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -460,8 +407,8 @@ public class CourseController {
                     .expiryDate(new Timestamp(expiryDate))
                     .build();
             return ModelHelper.enrich(courseId, teamService.addAssignment(assignmentDTO, content, courseId));
-        } catch (CourseNotFoundException c) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, courseId.toString());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -471,8 +418,8 @@ public class CourseController {
     AssignmentDTO getAssignment(@PathVariable Long courseId, @PathVariable Long assignmentId) {
         try {
             return ModelHelper.enrich(courseId, teamService.getAssignment(courseId, assignmentId));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -487,8 +434,8 @@ public class CourseController {
                     .body(documentDTO.getContent());
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -498,8 +445,8 @@ public class CourseController {
             return teamService.getHomeworksForAssignment(courseId, assignmentId).stream()
                     .map(homeworkDTO -> ModelHelper.enrich(courseId, assignmentId, homeworkDTO))
                     .collect(Collectors.toList());
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -507,8 +454,8 @@ public class CourseController {
     HomeworkDTO getHomework(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId) {
         try {
             return ModelHelper.enrich(courseId, assignmentId, teamService.getHomework(courseId, new HomeworkId(assignmentId, studentId)));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -523,8 +470,8 @@ public class CourseController {
             ));
         } catch (HomeworkCannotBeSubmittedException noSubmission) {
             throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Homework submission has been denied");
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -541,8 +488,8 @@ public class CourseController {
                     content,
                     canReSubmit
             ));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -556,8 +503,8 @@ public class CourseController {
                     new HomeworkId(assignmentId, studentId),
                     score
             ));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -567,8 +514,8 @@ public class CourseController {
             return teamService.getHomeworkVersions(courseId, new HomeworkId(assignmentId, studentId)).stream()
                     .map(homeworkVersionDTO -> ModelHelper.enrich(courseId, assignmentId, studentId, homeworkVersionDTO))
                     .collect(Collectors.toList());
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -576,8 +523,8 @@ public class CourseController {
     HomeworkVersionDTO getHomeworkVersion(@PathVariable Long courseId, @PathVariable Long assignmentId, @PathVariable String studentId, @PathVariable Long versionId) {
         try {
             return ModelHelper.enrich(courseId, assignmentId, studentId, teamService.getHomeworkVersion(courseId, new HomeworkId(assignmentId, studentId), versionId));
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 
@@ -592,8 +539,8 @@ public class CourseController {
                     .body(documentDTO.getContent());
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (TeamServiceException t) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, t.getMessage());
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

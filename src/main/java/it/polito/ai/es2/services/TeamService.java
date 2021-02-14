@@ -2,6 +2,7 @@ package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.dtos.*;
+import it.polito.ai.es2.exceptions.TeamServiceException;
 import it.polito.ai.es2.utility.VmStatus;
 import it.polito.ai.es2.entities.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,11 +15,11 @@ import java.util.Optional;
 
 public interface TeamService {
 
-    CourseDTO addCourse(CourseDTO course, String teacherId);
+    CourseDTO addCourse(CourseDTO course, String teacherId) throws TeamServiceException;
 
     Optional<CourseDTO> getCourse(Long courseId);
 
-    void deleteCourse(Long courseId);
+    void deleteCourse(Long courseId) throws TeamServiceException;
 
     CourseDTO editCourse(CourseDTO courseDTO, String teacherId);
 
@@ -26,7 +27,7 @@ public interface TeamService {
 
     boolean addStudent(StudentDTO student);
 
-    void addAuthToStudent(StudentDTO studentDTO, User authUser);
+    void addAuthToStudent(StudentDTO studentDTO, User authUser) throws TeamServiceException;
 
     Optional<StudentDTO> getStudent(String studentId);
 
@@ -34,27 +35,27 @@ public interface TeamService {
 
     boolean addTeacher(TeacherDTO teacher);
 
-    TeacherDTO addTeacherToCourse(String teacherId, Long courseId);
+    TeacherDTO addTeacherToCourse(String teacherId, Long courseId) throws TeamServiceException;
 
-    TeacherDTO removeTeacherFromCourse(String teacherId, Long courseId);
+    TeacherDTO removeTeacherFromCourse(String teacherId, Long courseId) throws TeamServiceException;
 
-    void addAuthToTeacher(TeacherDTO teacherDTO, User authUser);
+    void addAuthToTeacher(TeacherDTO teacherDTO, User authUser) throws TeamServiceException;
 
     Optional<TeacherDTO> getTeacher(String teacherId);
 
     List<TeacherDTO> getAllTeachers();
 
-    List<TeacherDTO> getTeachersOfCourse(Long courseId);
+    List<TeacherDTO> getTeachersOfCourse(Long courseId) throws TeamServiceException;
 
-    List<StudentDTO> getEnrolledStudents(Long courseId);
+    List<StudentDTO> getEnrolledStudents(Long courseId) throws TeamServiceException;
 
-    StudentDTO addStudentToCourse(String studentId, Long courseId);
+    StudentDTO addStudentToCourse(String studentId, Long courseId) throws TeamServiceException;
 
-    StudentDTO removeStudentFromCourse(String studentId, Long courseId);
+    StudentDTO removeStudentFromCourse(String studentId, Long courseId) throws TeamServiceException;
 
-    void enableCourse(Long courseId);
+    void enableCourse(Long courseId) throws TeamServiceException;
 
-    void disableCourse(Long courseId);
+    void disableCourse(Long courseId) throws TeamServiceException;
 
     List<Boolean> addAll(List<StudentDTO> students);
 
@@ -62,87 +63,87 @@ public interface TeamService {
 
     List<Boolean> addAndEnroll(Reader r, Long courseId);
 
-    List<CourseDTO> getCourses(String studentId);
+    List<CourseDTO> getCourses(String studentId) throws TeamServiceException;
 
-    List<TeamDTO> getTeamsForStudent(String studentId);
+    List<TeamDTO> getTeamsForStudent(String studentId) throws TeamServiceException;
 
-    List<CourseDTO> getCoursesForTeacher(String teacherId);
+    List<CourseDTO> getCoursesForTeacher(String teacherId) throws TeamServiceException;
 
-    List<StudentDTO> getMembers(Long teamId);
+    List<StudentDTO> getMembers(Long teamId) throws TeamServiceException;
 
-    ProposalNotificationDTO proposeTeam(Long courseId, RequestTeamDTO team);
+    ProposalNotificationDTO proposeTeam(Long courseId, RequestTeamDTO team) throws TeamServiceException;
 
-    List<TeamDTO> getTeamsForCourse(Long courseId);
+    List<TeamDTO> getTeamsForCourse(Long courseId) throws TeamServiceException;
 
-    List<StudentDTO> getStudentsInTeams(Long courseId);
+    List<StudentDTO> getStudentsInTeams(Long courseId) throws TeamServiceException;
 
-    List<StudentDTO> getAvailableStudents(Long courseId);
+    List<StudentDTO> getAvailableStudents(Long courseId)throws TeamServiceException;
 
-    void enableTeam(Long teamId);
+    void enableTeam(Long teamId) throws TeamServiceException;
 
-    void evictTeam(Long teamId);
+    void evictTeam(Long teamId) throws TeamServiceException;
 
-    CourseDTO getCourseOfTeam(Long teamId);
+    CourseDTO getCourseOfTeam(Long teamId) throws TeamServiceException;
 
-    List<CourseDTO> getTeacherCourses(String professor);
+    List<CourseDTO> getTeacherCourses(String professor) throws TeamServiceException;
 
-    AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, MultipartFile content, Long courseId) throws IOException, NoSuchAlgorithmException;
+    AssignmentDTO addAssignment(AssignmentDTO assignmentDTO, MultipartFile content, Long courseId) throws IOException, NoSuchAlgorithmException, TeamServiceException;
 
-    DocumentDTO getDocumentOfAssignment(Long courseId, Long assignmentId) throws IOException;
+    DocumentDTO getDocumentOfAssignment(Long courseId, Long assignmentId) throws IOException, TeamServiceException;
 
-    List<AssignmentDTO> getAssignmentsForCourse(Long courseId);
+    List<AssignmentDTO> getAssignmentsForCourse(Long courseId) throws TeamServiceException;
 
-    AssignmentDTO getAssignment(Long courseId, Long assignmentId);
+    AssignmentDTO getAssignment(Long courseId, Long assignmentId) throws TeamServiceException;
 
-    List<HomeworkDTO> getHomeworksForAssignment(Long courseId, Long assignmentId);
+    List<HomeworkDTO> getHomeworksForAssignment(Long courseId, Long assignmentId) throws TeamServiceException;
 
-    List<HomeworkDTO> getHomeworksForCourse(Long courseId);
+    List<HomeworkDTO> getHomeworksForCourse(Long courseId) throws TeamServiceException;
 
-    HomeworkDTO getHomework(Long courseId, HomeworkId homeworkId);
+    HomeworkDTO getHomework(Long courseId, HomeworkId homeworkId) throws TeamServiceException;
 
-    HomeworkVersionDTO submitHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content) throws IOException, NoSuchAlgorithmException;
+    HomeworkVersionDTO submitHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content) throws IOException, NoSuchAlgorithmException, TeamServiceException;
 
-    HomeworkVersionDTO reviewHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content, boolean canReSubmit) throws IOException, NoSuchAlgorithmException;
+    HomeworkVersionDTO reviewHomeworkVersion(Long courseId, HomeworkId homeworkId, MultipartFile content, boolean canReSubmit) throws IOException, NoSuchAlgorithmException, TeamServiceException;
 
-    HomeworkDTO setScore(Long courseId, HomeworkId homeworkId, int score);
+    HomeworkDTO setScore(Long courseId, HomeworkId homeworkId, int score) throws TeamServiceException;
 
-    List<HomeworkVersionDTO> getHomeworkVersions(Long courseId, HomeworkId homeworkId);
+    List<HomeworkVersionDTO> getHomeworkVersions(Long courseId, HomeworkId homeworkId) throws TeamServiceException;
 
-    HomeworkVersionDTO getHomeworkVersion(Long courseId, HomeworkId homeworkId, Long homeworkVersionId);
+    HomeworkVersionDTO getHomeworkVersion(Long courseId, HomeworkId homeworkId, Long homeworkVersionId) throws TeamServiceException;
 
-    DocumentDTO getDocumentOfHomeworkVersion(Long courseId, HomeworkId homeworkId, Long homeworkVersionId) throws IOException;
+    DocumentDTO getDocumentOfHomeworkVersion(Long courseId, HomeworkId homeworkId, Long homeworkVersionId) throws IOException, TeamServiceException;
 
     List<String> submitHomeworksOfExpiredAssignments();
 
-    VmModelDTO addVmModel(VmModelDTO vmModelDTO, Long courseId);
+    VmModelDTO addVmModel(VmModelDTO vmModelDTO, Long courseId) throws TeamServiceException;
 
-    VmModelDTO getVmModel(Long courseId);
+    VmModelDTO getVmModel(Long courseId) throws TeamServiceException;
 
-    VmInstanceDTO createVmInstance (VmInstanceDTO vmInstanceDTO, Long courseId, Long teamId);
+    VmInstanceDTO createVmInstance (VmInstanceDTO vmInstanceDTO, Long courseId, Long teamId) throws TeamServiceException;
 
-    VmInstanceDTO getVmInstanceOfTeam(Long vmId, Long courseId, Long teamId);
+    VmInstanceDTO getVmInstanceOfTeam(Long vmId, Long courseId, Long teamId) throws TeamServiceException;
 
     List<VmInstanceDTO> getVmInstancesOfTeam(Long courseId, Long teamId);
 
     List<StudentDTO> getStudentsInATeam(Long courseId,Long id);
 
-    VmInstanceDTO changeStatusVM(VmStatus command, Long courseId, Long tid, Long vmid);
+    VmInstanceDTO changeStatusVM(VmStatus command, Long courseId, Long tid, Long vmid) throws TeamServiceException;
 
-    List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, Long teamId, Long courseId);
+    List<Boolean> addOwnersVM(List<String> studentsId, Long vmId, Long teamId, Long courseId) throws TeamServiceException;
 
-    List<StudentDTO> getOwnersVm(Long vmId, Long teamId, Long courseId);
+    List<StudentDTO> getOwnersVm(Long vmId, Long teamId, Long courseId) throws TeamServiceException;
 
-    StudentDTO getCreatorVm(Long vmId, Long teamId, Long courseId);
+    StudentDTO getCreatorVm(Long vmId, Long teamId, Long courseId) throws TeamServiceException;
 
     List<ProposalNotificationDTO> getNotificationsForStudent(Long courseId);
 
-    StudentDTO getCreatorProposal(Long name, Long id);
+    StudentDTO getCreatorProposal(Long name, Long id) throws TeamServiceException;
 
-    TeamDTO getStudentTeamByCourse(String id, Long courseId);
+    TeamDTO getStudentTeamByCourse(String id, Long courseId) throws TeamServiceException;
 
-    List<StudentDTO> getMembersProposal(Long courseId, Long id);
+    List<StudentDTO> getMembersProposal(Long courseId, Long id) throws TeamServiceException;
 
-    TeamDTO updateTeam(Long courseId, Long teamId, TeamDTO teamDTO);
+    TeamDTO updateTeam(Long courseId, Long teamId, TeamDTO teamDTO) throws TeamServiceException;
 
-    boolean deleteVmInstance(Long vid, Long courseId, Long teamId);
+    boolean deleteVmInstance(Long vid, Long courseId, Long teamId) throws TeamServiceException;
 }

@@ -2,7 +2,7 @@ package it.polito.ai.es2.exceptions;
 
 public class TeamMembersMinNotReachedException extends TeamServiceException {
     public TeamMembersMinNotReachedException() {
-        super();
+        super("Not enough members for team!");
     }
 
     public TeamMembersMinNotReachedException(String message) {

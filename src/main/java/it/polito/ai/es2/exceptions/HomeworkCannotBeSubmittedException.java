@@ -2,7 +2,7 @@ package it.polito.ai.es2.exceptions;
 
 public class HomeworkCannotBeSubmittedException extends TeamServiceException {
     public HomeworkCannotBeSubmittedException() {
-        super();
+        super("Homework cannot be submitted!");
     }
 
     public HomeworkCannotBeSubmittedException(String message) {

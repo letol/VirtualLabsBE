@@ -2,7 +2,7 @@ package it.polito.ai.es2.exceptions;
 
 public class StudentNotEnrolledToCourseException extends TeamServiceException {
     public StudentNotEnrolledToCourseException() {
-        super();
+        super("Student not enrolled in course!");
     }
 
     public StudentNotEnrolledToCourseException(String message) {
