@@ -22,7 +22,7 @@ public class Teacher {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, length = 100000)
     private byte[] avatar;
 
     @OneToOne
