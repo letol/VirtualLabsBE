@@ -413,14 +413,14 @@ Authorization: Bearer {{auth_token_teacher2}}
 
 {
   "acronym": "c4",
-  "name": "corso di pino",
-  "min": 3,
+  "name": "corso di hamza",
+  "min": 1,
   "max": 5,
-  "vcpu": 5,
-  "disk": 10,
-  "memory": 15,
+  "vcpu": 10,
+  "disk": 500,
+  "memory": 200,
   "maxVmInstance": 3,
-  "maxRunningVmInstance": 1
+  "maxRunningVmInstance": 2
 }
 > {%
     if (response.status === 200) {
@@ -790,3 +790,55 @@ Content-Disposition: form-data; name="score"
         client.assert(response.status === 200, "Response status is not 200");
     });
 %}
+
+###
+# Login with student2
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "s222222",
+  "password": "ps2"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token_student2", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Add team1
+# Hint: should be done by student2
+POST http://localhost:8080/API/courses/{{c4_id}}/teams
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
+
+{
+  "teamName": "Rasputin",
+  "deadline": 1897319263000,
+  "selectedStudentsId" :[
+    "s444444",
+    "s222222"
+  ]
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("team_token", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Accept team 'Rasputin'
+GET http://localhost:8080/API/notifications/confirm/{{team_token}}
+Authorization: Bearer {{auth_token_student4}}
+
+###
+

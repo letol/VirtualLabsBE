@@ -40,6 +40,8 @@ public class TeamServiceImpl implements TeamService {
 
     byte[] defaultAvatar;
 
+    byte[] runningVmAvatar;
+
     @Autowired
     CourseRepository courseRepo;
 
@@ -88,6 +90,10 @@ public class TeamServiceImpl implements TeamService {
         InputStream defaultAvatarInputStream = resource.getInputStream();
         defaultAvatar = new byte[defaultAvatarInputStream.available()];
         defaultAvatarInputStream.read(defaultAvatar);
+        resource = new ClassPathResource("img/vm_running.png");
+        defaultAvatarInputStream = resource.getInputStream();
+        runningVmAvatar = new byte[defaultAvatarInputStream.available()];
+        defaultAvatarInputStream.read(runningVmAvatar);
     }
 
     @Override
@@ -1090,6 +1096,51 @@ public class TeamServiceImpl implements TeamService {
         if(!optionalVmInstance.isPresent()) throw new TeamServiceException("Vm not exist");
         Student student = studentRepo.getOne(SecurityContextHolder.getContext().getAuthentication().getName());
         return teamRepo.getOne(teamId).removeVmInstance(optionalVmInstance.get(), student);
+    }
+
+    @Override
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId)) or " +
+            "(hasRole('ROLE_TEACHER')and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId))")
+    public byte[] showVm(Long vmid, Long tid, Long courseId) {
+        Optional<VmInstance> optionalVmInstance = vmInstanceRepository.findById(vmid);
+        if(!optionalVmInstance.isPresent()) throw new TeamServiceException("Virtual machine not found");
+        if(optionalVmInstance.get().getStatus() != VmStatus.RUNNING) throw new TeamServiceException("Start virtual machine before use it");
+        return runningVmAvatar;
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId)")
+    public VmInstanceDTO updateVmInstance(Long vmid, Long teamId, Long courseId, VmInstanceDTO vmInstanceDTO) {
+        if(!vmInstanceDTO.getId().equals(vmid)) throw new TeamServiceException("Virtual Machine id and endpoint is not equal");
+        Optional<VmInstance> optionalVmInstance = vmInstanceRepository.findById(vmid);
+        if(!optionalVmInstance.isPresent()) throw new TeamServiceException("Vm not exists");
+        if(optionalVmInstance.get().getStatus()!=VmStatus.SUSPENDED) throw new TeamServiceException("Virtual machine must be suspended");
+        Student student = studentRepo.getOne(SecurityContextHolder.getContext().getAuthentication().getName());
+        if(!optionalVmInstance.get().getOwners().contains(student)) throw new TeamServiceException("Member not owner");
+        Optional<Team> optionalTeam = teamRepo.findById(teamId);
+        if(!optionalTeam.isPresent()) throw new TeamServiceException("Team not exists");
+        List<VmInstance> vmInstances = optionalTeam.get().getVmInstances();
+        int totCpu = vmInstanceDTO.getVcpu();
+        float totMemory = vmInstanceDTO.getMemory();
+        float totDisk = vmInstanceDTO.getDisk();
+        for (VmInstance var:
+                vmInstances) {
+            if (var.getId() != vmid) {
+                totCpu += var.getVcpu();
+                totMemory += var.getMemory();
+                totDisk += var.getDisk();
+
+        }
+        }
+        if(totCpu <= optionalTeam.get().getVcpuMAX() && totDisk <= optionalTeam.get().getDiskMAX() && totMemory <= optionalTeam.get().getMemoryMAX())
+        {
+            optionalVmInstance.get().setDisk(vmInstanceDTO.getDisk());
+            optionalVmInstance.get().setMemory(vmInstanceDTO.getMemory());
+            optionalVmInstance.get().setVcpu(vmInstanceDTO.getVcpu());
+            return modelMapper.map(optionalVmInstance,VmInstanceDTO.class);
+
+        }
+        throw new TeamServiceException("Invalid boundaries. Check virtual machines of team");
     }
 
 

@@ -2,6 +2,7 @@ package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.dtos.*;
+import it.polito.ai.es2.entities.VmInstance;
 import it.polito.ai.es2.exceptions.TeamServiceException;
 import it.polito.ai.es2.utility.VmStatus;
 import it.polito.ai.es2.entities.User;
@@ -144,6 +145,10 @@ public interface TeamService {
     List<StudentDTO> getMembersProposal(Long courseId, Long id) throws TeamServiceException;
 
     TeamDTO updateTeam(Long courseId, Long teamId, TeamDTO teamDTO) throws TeamServiceException;
+
+    byte[] showVm(Long vmid, Long tid, Long courseId) throws TeamServiceException;
+
+    VmInstanceDTO updateVmInstance(Long vmid, Long tid, Long courseId, VmInstanceDTO vmInstanceDTO) throw TeamServiceException;
 
     boolean deleteVmInstance(Long vid, Long courseId, Long teamId) throws TeamServiceException;
 }

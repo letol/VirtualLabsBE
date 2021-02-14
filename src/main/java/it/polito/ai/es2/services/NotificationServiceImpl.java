@@ -80,11 +80,11 @@ public class NotificationServiceImpl implements NotificationService {
                     studentStatusInvitation.setAccepted(ResponseTypeInvitation.ACCEPTED);
                     accepted = true;
                     numAccepted++;
-                } else if (studentStatusInvitation.getAccepted() == ResponseTypeInvitation.ACCEPTED)
-                {
-                    numAccepted ++;
                 }
 
+            } else if (studentStatusInvitation.getAccepted() == ResponseTypeInvitation.ACCEPTED)
+            {
+                numAccepted ++;
             }
 
         }
@@ -92,6 +92,10 @@ public class NotificationServiceImpl implements NotificationService {
         if (numAccepted == proposalNotification.get().getStudentsInvitedWithStatus().size() && accepted)
         {
             Course course = proposalNotification.get().getCourse();
+            List<Team> teams = teamRepository.getTeamsByNameAndCourse_Id(proposalNotification.get().getTeamName(),course.getId());
+            int count = teams.size();
+            if(count >0)
+                proposalNotification.get().setTeamName(proposalNotification.get().getTeamName()+"_"+count);
             Team newTeam = teamRepository.save(new Team(proposalNotification.get().getTeamName(),course.getVcpu(),course.getMemory(),course.getDisk(),course));
             Set<String> memberIdsSet = new HashSet<>(proposalNotification.get().getStudentsInvitedWithStatus().stream().map(p -> p.getStudentId()).collect(Collectors.toList()));
             memberIdsSet.add(proposalNotification.get().getCreator().getId());
@@ -102,7 +106,6 @@ public class NotificationServiceImpl implements NotificationService {
             newTeam.setStatus(TeamStatus.ACTIVE);
             tokenRepo.delete(t);
             proposalNotificationRepository.delete(proposalNotification.get());
-
 
         }
 
@@ -144,11 +147,12 @@ public class NotificationServiceImpl implements NotificationService {
         {
             if(studentStatusInvitation.getStudentId().equals(studentId))
             {
-                System.out.println("Aggiorno lo stato dello studente");
+                //System.out.println("Aggiorno lo stato dello studente");
                 present = true;
                 if(studentStatusInvitation.getAccepted()==ResponseTypeInvitation.NOT_REPLY) {
-                    studentStatusInvitation.setAccepted(ResponseTypeInvitation.ACCEPTED);
+                    studentStatusInvitation.setAccepted(ResponseTypeInvitation.DECLINED);
                     modified = true;
+
                 }
             }
         }
@@ -158,13 +162,16 @@ public class NotificationServiceImpl implements NotificationService {
         if (modified)
         {
 
+            /*
             tokenRepo.delete(t);
             proposalNotificationRepository.delete(proposalNotification.get());
             return true;
+            */
+            proposalNotification.get().setDeadline(new Timestamp(System.currentTimeMillis()+86400000));
         }
 
 
-        return false;
+        return modified;
     }
 
     @Override
