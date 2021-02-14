@@ -57,12 +57,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public void createAuthenticationUser(@RequestPart("id") String id,
+    public boolean createAuthenticationUser(@RequestPart("id") String id,
                                             @RequestPart("lastName") String lastname,
                                             @RequestPart("firstName") String firstname,
                                             @RequestPart("password") String password,
                                             @RequestPart("email") String email,
-                                            @RequestPart("avatar") MultipartFile avatar) {
+                                            @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
         try {
             userManagementService.addUser(id,
                     lastname,
@@ -70,6 +70,7 @@ public class AuthController {
                     password,
                     email,
                     avatar);
+            return true;
         } catch (EmailNotValidException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (IOException e) {
