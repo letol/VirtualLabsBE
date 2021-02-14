@@ -2,7 +2,7 @@ package it.polito.ai.es2.exceptions;
 
 public class HomeworkInvalidScoreException extends TeamServiceException {
     public HomeworkInvalidScoreException() {
-        super();
+        super("Invalid score!");
     }
 
     public HomeworkInvalidScoreException(String message) {

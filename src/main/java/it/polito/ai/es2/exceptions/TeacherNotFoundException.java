@@ -4,7 +4,7 @@ import it.polito.ai.es2.exceptions.TeamServiceException;
 
 public class TeacherNotFoundException extends TeamServiceException {
     public TeacherNotFoundException() {
-        super();
+        super("Teacher not found!");
     }
 
     public TeacherNotFoundException(String message) {

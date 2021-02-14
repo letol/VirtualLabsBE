@@ -1,16 +1,15 @@
 package it.polito.ai.es2.services;
 
-import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.dtos.UserDTO;
-import it.polito.ai.es2.entities.Teacher;
 import it.polito.ai.es2.entities.User;
+import it.polito.ai.es2.exceptions.UserManagementServiceException;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface UserManagementService {
 
-    User addUser(String id, String lastname, String firstname, String password, String email);
+    User addUser(String id, String lastname, String firstname, String password, String email) throws UserManagementServiceException;
 
     Optional<UserDTO> getUser(Long userId);
 
@@ -18,11 +17,11 @@ public interface UserManagementService {
 
     List<UserDTO> getAllUsers();
 
-    void removeUser(Long userId);
+    void removeUser(Long userId) throws UserManagementServiceException;
 
-    void removeUser(String username);
+    void removeUser(String username) throws UserManagementServiceException;
 
-    void changePassword(Long userId, String newPassword);
+    void changePassword(Long userId, String newPassword) throws UserManagementServiceException;
 
-    void changePassword(String username, String newPassword);
+    void changePassword(String username, String newPassword) throws UserManagementServiceException;
 }
