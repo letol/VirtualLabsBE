@@ -13,7 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +39,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     PasswordEncoder passwordEncoder;
 
     @Override
-    public User addUser(String id, String lastname, String firstname, String password, String email) throws UserManagementServiceException {
+    public User addUser(String id, String lastname, String firstname, String password, String email, MultipartFile avatar) throws UserManagementServiceException, IOException {
         Pattern pattern = Pattern.compile("[sd][0-9]+@(polito|studenti\\.polito)\\.it");
         Matcher matcher = pattern.matcher(email);
 
@@ -54,7 +56,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                             .roles(Collections.singletonList("ROLE_STUDENT"))
                             .build()
                     );
-                    teamService.addAuthToStudent(opstudentDTO.get(), user);
+                    teamService.addAuthToStudent(opstudentDTO.get(), user, avatar);
                     return user;
                 } else throw new EmailNotValidException("Some fields are not valid");
 
@@ -67,7 +69,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                 );
                 StudentDTO studentDTO = new StudentDTO(id, lastname, firstname, email, null);
                 teamService.addStudent(studentDTO);
-                teamService.addAuthToStudent(studentDTO, user);
+                teamService.addAuthToStudent(studentDTO, user, avatar);
                 return user;
             }
 
@@ -80,7 +82,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             );
             TeacherDTO teacherDTO = new TeacherDTO(id, lastname, firstname, email, null);
             teamService.addTeacher(teacherDTO);
-            teamService.addAuthToTeacher(teacherDTO, user);
+            teamService.addAuthToTeacher(teacherDTO, user, avatar);
             return user;
         } else throw new EmailNotValidException("Email id is not valid");
     }
