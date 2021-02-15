@@ -1,6 +1,7 @@
 package it.polito.ai.es2.controllers;
 
 import it.polito.ai.es2.dtos.CourseDTO;
+import it.polito.ai.es2.dtos.ProposalNotificationDTO;
 import it.polito.ai.es2.dtos.StudentDTO;
 import it.polito.ai.es2.dtos.TeamDTO;
 import it.polito.ai.es2.exceptions.TeamServiceException;
@@ -69,6 +70,25 @@ public class StudentController {
             return teamService.getCourses(id);
         } catch (TeamServiceException e)
         {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+
+    }
+
+    @GetMapping("/{id}/courses/{courseId}/notifications/created")
+    List<ProposalNotificationDTO> getNotificationsCreated(@PathVariable String id, @PathVariable Long courseId) {
+        try {
+            return teamService.getNotificationsCreated(id,courseId);
+        } catch (TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/courses/{courseId}/notifications/invited")
+    List<ProposalNotificationDTO> getNotificationsForStudent(@PathVariable String id, @PathVariable Long courseId) {
+        try {
+            return teamService.getNotificationsForStudent(id,courseId);
+        } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
