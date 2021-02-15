@@ -434,7 +434,7 @@ public class TeamServiceImpl implements TeamService {
         if (!courseOptional.isPresent())
             throw new CourseNotFoundException("Course '" + courseId + "' not found!");
         Course course = courseOptional.get();
-        System.out.println("Propose team "+memberIds.toString());
+        //System.out.println("Propose team "+memberIds.toString());
         if (!course.isEnabled())
             throw new CourseNotEnabledException("Course not yet enabled!");
         if (course.getTeams().stream().anyMatch(x -> x.getName().equals(name))) throw new TeamServiceException("name already used");
@@ -1035,8 +1035,9 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseId)")
-    public List<ProposalNotificationDTO> getNotificationsForStudent(Long courseId) {
-        List<ProposalNotification> proposalNotifications =proposalNotificationRepository.getProposalNotificationsForStudentByCourse(courseId,SecurityContextHolder.getContext().getAuthentication().getName());
+    public List<ProposalNotificationDTO> getNotificationsForStudent(String studentId, Long courseId) {
+        if(!studentId.equals(SecurityContextHolder.getContext().getAuthentication().getName())) throw new TeamServiceException("Permission denied");
+        List<ProposalNotification> proposalNotifications =proposalNotificationRepository.getProposalNotificationsForStudentByCourse(courseId,studentId);
         return proposalNotifications.stream().map(p->modelMapper.map(p,ProposalNotificationDTO.class)).collect(Collectors.toList());
     }
 
@@ -1047,6 +1048,16 @@ public class TeamServiceImpl implements TeamService {
         if(!optionalProposalNotification.isPresent()) throw new TeamServiceException("ProposalNotification not exists");
 
         return modelMapper.map(optionalProposalNotification.get().getCreator(),StudentDTO.class);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourse(authentication.principal.username,#courseId)")
+    public List<ProposalNotificationDTO> getNotificationsCreated(String studentId, Long courseId) {
+        if(!studentId.equals(SecurityContextHolder.getContext().getAuthentication().getName())) throw new TeamServiceException("Current user can't get other user");
+        return proposalNotificationRepository
+                .getProposalNotificationsByCreator_idAndCourse_Id(studentId,courseId)
+                .stream().map(p -> modelMapper.map(p, ProposalNotificationDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -1104,9 +1115,18 @@ public class TeamServiceImpl implements TeamService {
     @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId)")
     public boolean deleteVmInstance(Long vid, Long courseId, Long teamId) throws TeamServiceException {
         Optional<VmInstance> optionalVmInstance = vmInstanceRepository.findById(vid);
-        if(!optionalVmInstance.isPresent()) throw new TeamServiceException("Vm not exist");
+        if(!optionalVmInstance.isPresent()) throw new TeamServiceException("Vm not exists");
         Student student = studentRepo.getOne(SecurityContextHolder.getContext().getAuthentication().getName());
-        return teamRepo.getOne(teamId).removeVmInstance(optionalVmInstance.get(), student);
+        try {
+            if(teamRepo.getOne(teamId).removeVmInstance(optionalVmInstance.get(), student))
+            {
+                Team team = teamRepo.getOne(teamId);
+                vmInstanceRepository.deleteById(vid);
+                return true;
+            } return false;
+        }catch (TeamServiceException t) {
+            throw t;
+        }
     }
 
     @Override
@@ -1122,6 +1142,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     @PreAuthorize("hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId)")
     public VmInstanceDTO updateVmInstance(Long vmid, Long teamId, Long courseId, VmInstanceDTO vmInstanceDTO) {
+        if(vmInstanceDTO.getId() == null) throw new TeamServiceException("Missing vm instance id");
         if(!vmInstanceDTO.getId().equals(vmid)) throw new TeamServiceException("Virtual Machine id and endpoint is not equal");
         Optional<VmInstance> optionalVmInstance = vmInstanceRepository.findById(vmid);
         if(!optionalVmInstance.isPresent()) throw new TeamServiceException("Vm not exists");
@@ -1140,7 +1161,6 @@ public class TeamServiceImpl implements TeamService {
                 totCpu += var.getVcpu();
                 totMemory += var.getMemory();
                 totDisk += var.getDisk();
-
         }
         }
         if(totCpu <= optionalTeam.get().getVcpuMAX() && totDisk <= optionalTeam.get().getDiskMAX() && totMemory <= optionalTeam.get().getMemoryMAX())
@@ -1148,8 +1168,7 @@ public class TeamServiceImpl implements TeamService {
             optionalVmInstance.get().setDisk(vmInstanceDTO.getDisk());
             optionalVmInstance.get().setMemory(vmInstanceDTO.getMemory());
             optionalVmInstance.get().setVcpu(vmInstanceDTO.getVcpu());
-            return modelMapper.map(optionalVmInstance,VmInstanceDTO.class);
-
+            return modelMapper.map(optionalVmInstance.get(),VmInstanceDTO.class);
         }
         throw new TeamServiceException("Invalid boundaries. Check virtual machines of team");
     }

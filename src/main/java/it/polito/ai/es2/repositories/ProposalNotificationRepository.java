@@ -13,4 +13,6 @@ public interface ProposalNotificationRepository extends JpaRepository <ProposalN
     @Query("SELECT p FROM ProposalNotification p JOIN p.studentsInvitedWithStatus sp WHERE sp.studentId=:studentId and p.course.id=:courseId")
     List<ProposalNotification> getProposalNotificationsForStudentByCourse(Long courseId, String studentId);
 
+    List<ProposalNotification> getProposalNotificationsByCreator_idAndCourse_Id(String studentId, Long courseId);
+
 }

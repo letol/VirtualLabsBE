@@ -1,6 +1,7 @@
 package it.polito.ai.es2.entities;
 import javax.persistence.*;
 
+import antlr.CharScanner;
 import it.polito.ai.es2.utility.VmStatus;
 import lombok.*;
 

@@ -2,7 +2,6 @@ package it.polito.ai.es2.services;
 
 import it.polito.ai.es2.HomeworkId;
 import it.polito.ai.es2.dtos.*;
-import it.polito.ai.es2.entities.VmInstance;
 import it.polito.ai.es2.exceptions.TeamServiceException;
 import it.polito.ai.es2.utility.VmStatus;
 import it.polito.ai.es2.entities.User;
@@ -136,9 +135,11 @@ public interface TeamService {
 
     StudentDTO getCreatorVm(Long vmId, Long teamId, Long courseId) throws TeamServiceException;
 
-    List<ProposalNotificationDTO> getNotificationsForStudent(Long courseId);
+    List<ProposalNotificationDTO> getNotificationsForStudent(String studentId,Long courseId) throws TeamServiceException;
 
     StudentDTO getCreatorProposal(Long name, Long id) throws TeamServiceException;
+
+    List<ProposalNotificationDTO> getNotificationsCreated(String studentId,Long courseId);
 
     TeamDTO getStudentTeamByCourse(String id, Long courseId) throws TeamServiceException;
 

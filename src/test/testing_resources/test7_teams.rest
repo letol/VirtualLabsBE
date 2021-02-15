@@ -14,8 +14,23 @@ POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
-  "username": "{{id}}",
-  "password": "{{password}}"
+  "username": "s222222",
+  "password": "ps2"
+}
+
+> {%
+if (response.status === 200) {
+    client.global.set("auth_token", response.body.token);
+}
+ %}
+
+###
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "d111111",
+  "password": "pd1"
 }
 
 > {%
@@ -46,7 +61,7 @@ Authorization: Bearer {{auth_token}}
 
 ###
 # Get course 'c4'
-GET http://localhost:8080/API/courses/5/enableCourse
+GET http://localhost:8080/API/courses/10/enableCourse
 Authorization: Bearer {{auth_token}}
 
 ###
@@ -78,24 +93,33 @@ s222222
 ###
 # Add team1
 # Hint: should be done by student1
-POST http://localhost:8080/API/courses/5/teams
+POST http://localhost:8080/API/courses/11/teams
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
   "teamName": "team1",
-  "deadline": 86400000,
+  "deadline": 83289423974,
   "selectedStudentsId" :[
     "s111111",
+    "s444444",
     "s222222"
 ]
 }
 
-
 ###
-# Get course 'c4'
-GET http://localhost:8080/API/notifications/confirm/abf7868a-7480-4a28-adfd-288c917cd735
+# Delete course 'c4'
+GET http://localhost:8080/API/courses/vmstatus
 Authorization: Bearer {{auth_token}}
 
-###
+#Command vm
+DELETE http://localhost:8080/API/courses/{{c4_id}}/teams/{{team_id}}/vmInstances/{{vm_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
 
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}

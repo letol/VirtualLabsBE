@@ -140,8 +140,13 @@ public class Team {
         if(!vmInstance.getOwners().contains(student)) throw new TeamServiceException("Permission denied");
         if (vmInstance.getStatus() == VmStatus.SUSPENDED)
         {
-            return vmInstances.remove(vmInstance);
+            vmInstances.remove(vmInstance);
+            vmInstance.getCreator().removeCreatedVm(vmInstance);
+            List<Student> owners = vmInstance.getOwners();
+            vmInstance.getOwners().stream().forEach(s -> s.removeOwnedVm(vmInstance));
+            return true;
         }
-        return false;
+        throw new TeamServiceException("Virtual Machine must be suspended");
+
     }
 }
