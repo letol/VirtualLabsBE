@@ -569,6 +569,42 @@ s222222
 %}
 
 ###
+# Enroll student 's333333' to 'c4'
+POST http://localhost:8080/API/courses/{{c4_id}}/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token_teacher2}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s333333
+--WebAppBoundary--
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
+# Enroll student 's222222' to 'c4'
+POST http://localhost:8080/API/courses/{{c4_id}}/enrollOne
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization: Bearer {{auth_token_teacher2}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="studentId"
+
+s111111
+--WebAppBoundary--
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
 # Enroll student 's444444' to 'c4'
 POST http://localhost:8080/API/courses/{{c4_id}}/enrollOne
 Content-Type: multipart/form-data; boundary=WebAppBoundary
@@ -918,6 +954,50 @@ Authorization: Bearer {{auth_token_student2}}
 
 > {%
     if (response.status === 200) {
+        client.global.set("team_token1", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Login with student1
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "s111111",
+  "password": "ps1"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token_student1", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Add team1
+# Hint: should be done by student2
+POST http://localhost:8080/API/courses/{{c4_id}}/teams
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student1}}
+
+{
+  "teamName": "Rasputin",
+  "deadline": 1897319263000,
+  "selectedStudentsId" :[
+    "s111111",
+    "s333333"
+  ]
+}
+
+> {%
+    if (response.status === 200) {
         client.global.set("team_token", response.body.token);
     }
     client.test("Request executed successfully", function() {
@@ -926,8 +1006,27 @@ Authorization: Bearer {{auth_token_student2}}
  %}
 
 ###
+# Login with student3
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "username": "s333333",
+  "password": "ps3"
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("auth_token_student3", response.body.token);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
 # Accept team 'Rasputin'
-GET http://localhost:8080/API/notifications/confirm/{{team_token}}
+GET http://localhost:8080/API/notifications/confirm/{{team_token1}}
 Authorization: Bearer {{auth_token_student4}}
 
 > {%
@@ -937,4 +1036,125 @@ Authorization: Bearer {{auth_token_student4}}
  %}
 
 ###
+# Accept team 'Rasputin'
+GET http://localhost:8080/API/notifications/confirm/{{team_token}}
+Authorization: Bearer {{auth_token_student3}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Add vmModel
+# Hint: should be done by student1
+POST http://localhost:8080/API/courses/{{c4_id}}/vmModel
+Content-Type: application/json
+Authorization: Bearer {{auth_token_teacher2}}
+
+{
+  "name": "ubuntu",
+  "configuration": "FROM ubuntu 18:04 RUN ping 10.10.10.10"
+
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Geat student2 team
+# Hint: should be done by student2
+GET http://localhost:8080/API/students/s222222/courses/{{c4_id}}/team
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("team_id", response.body.id);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+# Add vmInstance
+# Hint: should be done by student1
+POST http://localhost:8080/API/courses/{{c4_id}}/teams/{{team_id}}/vmInstances
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
+
+{
+  "name": "ubuntuMio",
+  "vcpu": 1,
+  "disk": 1,
+  "memory": 1
+
+}
+
+> {%
+    if (response.status === 200) {
+        client.global.set("vm_id", response.body.id);
+    }
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+
+###
+#
+PUT http://localhost:8080/API/courses/{{c4_id}}/teams/{{team_id}}/vmInstances/{{vm_id}}
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
+
+{
+  "id": {{vm_id}},
+  "name": "ubuntuMio",
+  "vcpu": 3,
+  "disk": 1,
+  "memory": 100
+}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+#Command vm
+POST http://localhost:8080/API/courses/{{c4_id}}/teams/{{team_id}}/vmInstances/{{vm_id}}/command
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
+
+"RUNNING"
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+###
+#Command vm
+POST http://localhost:8080/API/courses/{{c4_id}}/teams/{{team_id}}/vmInstances/{{vm_id}}/command
+Content-Type: application/json
+Authorization: Bearer {{auth_token_student2}}
+
+"RUNNING"
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+ %}
+
+
+###
+
 

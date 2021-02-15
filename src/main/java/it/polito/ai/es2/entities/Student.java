@@ -125,4 +125,20 @@ public class Student {
         } else
             return false;
     }
+
+    public boolean removeOwnedVm(VmInstance vmInstance) {
+        if (this.ownedVMs.contains(vmInstance)) {
+
+            this.ownedVMs.remove(vmInstance);
+            return true;
+        } else
+            return false;
+    }
+    public boolean removeCreatedVm(VmInstance vmInstance) {
+        if (this.createdVMs.contains(vmInstance)) {
+            this.createdVMs.remove(vmInstance);
+            return true;
+        } else
+            return false;
+    }
 }

@@ -365,10 +365,20 @@ public class CourseController {
         }
     }
 
+    /*
     @GetMapping("/{courseId}/proposalNotifications")
     public List<ProposalNotificationDTO> getNotifications(@PathVariable Long courseId ){
         try{
-            return teamService.getNotificationsForStudent(courseId);
+            return teamService.getNotificationsForStudent(, courseId);
+        } catch (TeamServiceException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+    */
+    @GetMapping("/vmstatus")
+    public VmStatus getNotifications( ){
+        try{
+            return VmStatus.RUNNING;
         } catch (TeamServiceException e){
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
