@@ -365,16 +365,8 @@ public class CourseController {
         }
     }
 
-    /*
-    @GetMapping("/{courseId}/proposalNotifications")
-    public List<ProposalNotificationDTO> getNotifications(@PathVariable Long courseId ){
-        try{
-            return teamService.getNotificationsForStudent(, courseId);
-        } catch (TeamServiceException e){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        }
-    }
-    */
+/*
+    //Only for testing
     @GetMapping("/vmstatus")
     public VmStatus getNotifications( ){
         try{
@@ -383,7 +375,8 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
-
+*/
+    
     @GetMapping("/{courseId}/proposalNotifications/{id}/creator")
     public StudentDTO getProposalCreator(@PathVariable Long courseId,@PathVariable Long id ){
         try{
