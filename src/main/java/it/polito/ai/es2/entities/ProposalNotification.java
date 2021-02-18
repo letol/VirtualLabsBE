@@ -2,6 +2,7 @@ package it.polito.ai.es2.entities;
 
 import it.polito.ai.es2.utility.StudentStatusInvitation;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.sql.Timestamp;

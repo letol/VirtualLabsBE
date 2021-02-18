@@ -67,4 +67,57 @@ public class ModelHelper {
                         .slash("version").slash(homeworkVersionDTO.getId())
                         .withSelfRel());
     }
+    public static VmInstanceDTO enrich(Long courseId, Long teamId, VmInstanceDTO vmInstanceDTO)
+    {
+        return vmInstanceDTO
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("teams").slash(teamId).slash("vmInstances").slash(vmInstanceDTO.getId()).withSelfRel())
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("teams").slash(teamId).slash("vmInstances").slash(vmInstanceDTO.getId())
+                        .slash("command").withRel("command"))
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("teams").slash(teamId).slash("vmInstances").slash(vmInstanceDTO.getId())
+                        .slash("creator").withRel("creator"))
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("teams").slash(teamId).slash("vmInstances").slash(vmInstanceDTO.getId())
+                        .slash("owners").withRel("owners"))
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("teams").slash(teamId).slash("vmInstances").slash(vmInstanceDTO.getId())
+                        .slash("show").withRel("show"));
+
+
+    }
+
+    public static VmModelDTO enrich(Long courseId, VmModelDTO vmModelDTO)
+    {
+        return vmModelDTO
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("vmModel").slash(vmModelDTO.getId()).withSelfRel());
+    }
+
+    public static ProposalNotificationDTO enrich(Long courseId,ProposalNotificationDTO proposalNotificationDTO)
+    {
+        return proposalNotificationDTO
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("proposalNotifications").slash(proposalNotificationDTO.getId()).slash("creator").withRel("creator"))
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("proposalNotifications").slash(proposalNotificationDTO.getId()).slash("members").withRel("members"))
+                .add(linkTo(NotificationController.class).slash("confirm")
+                        .slash(proposalNotificationDTO.getToken()).withRel("accept"))
+                .add(linkTo(NotificationController.class).slash("reject")
+                        .slash(proposalNotificationDTO.getToken()).withRel("reject"));
+
+    }
+
+    public static TeamDTO enrich(Long courseId, TeamDTO teamDTO)
+    {
+        return teamDTO
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("teams").slash(teamDTO.getId()).withSelfRel())
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("teams").slash(teamDTO.getId()).slash("students").withRel("members"))
+                .add(linkTo(CourseController.class).slash(courseId)
+                        .slash("teams").slash(teamDTO.getId()).slash("vmInstances").withRel("vmInstances"));
+
+    }
 }
