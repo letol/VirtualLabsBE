@@ -21,18 +21,18 @@ public class TeamDTO extends RepresentationModel<TeamDTO>{
 
     private TeamStatus status = TeamStatus.PENDING;
 
-    @Min(value = 1, message = "Minimum numbers of students per team must be 1")
+    @Min(value = 1, message = "Minimum numbers of cpu per team must be 1")
     private int vcpuMAX;
 
-    @Min(value = 1, message = "Minimum numbers of students per team must be 1")
+    @Min(value = 1, message = "Minimum numbers of memory per team must be 1")
     private Float memoryMAX;
 
-    @Min(value = 1, message = "Minimum numbers of students per team must be 1")
+    @Min(value = 1, message = "Minimum numbers of disk per team must be 1")
     private Float diskMAX;
 
-    @Min(value = 1, message = "Minimum numbers of students per team must be 1")
+    @Min(value = 1, message = "Minimum numbers of maximum vm instances per team must be 1")
     private int maxVmInstance;
 
-    @Min(value = 1, message = "Minimum numbers of students per team must be 1")
+    @Min(value = 1, message = "Minimum numbers of running vm instances per team must be 1")
     private int runningVmInstance;
 }
