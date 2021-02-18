@@ -78,7 +78,7 @@ public class StudentController {
     @GetMapping("/{id}/courses/{courseId}/notifications/created")
     List<ProposalNotificationDTO> getNotificationsCreated(@PathVariable String id, @PathVariable Long courseId) {
         try {
-            return teamService.getNotificationsCreated(id,courseId);
+            return teamService.getNotificationsCreated(id,courseId).stream().map(p -> ModelHelper.enrich(courseId,p)).collect(Collectors.toList());
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
@@ -87,7 +87,7 @@ public class StudentController {
     @GetMapping("/{id}/courses/{courseId}/notifications/invited")
     List<ProposalNotificationDTO> getNotificationsForStudent(@PathVariable String id, @PathVariable Long courseId) {
         try {
-            return teamService.getNotificationsForStudent(id,courseId);
+            return teamService.getNotificationsForStudent(id,courseId).stream().map(p -> ModelHelper.enrich(courseId,p)).collect(Collectors.toList());
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }

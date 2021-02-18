@@ -105,7 +105,7 @@ public class TeamServiceImpl implements TeamService {
     @PreAuthorize("hasRole('ROLE_TEACHER') and #teacherId == authentication.principal.username")
     public CourseDTO addCourse(CourseDTO courseDTO, String teacherId) throws TeamServiceException {
         try {
-            System.out.println("Add course");
+            //System.out.println("Add course");
             Teacher teacher = teacherRepo.findById(teacherId)
                     .orElseThrow(TeacherNotFoundException::new);
             Course course = courseRepo.save(modelMapper.map(courseDTO, Course.class));
@@ -1120,7 +1120,6 @@ public class TeamServiceImpl implements TeamService {
         try {
             if(teamRepo.getOne(teamId).removeVmInstance(optionalVmInstance.get(), student))
             {
-                Team team = teamRepo.getOne(teamId);
                 vmInstanceRepository.deleteById(vid);
                 return true;
             } return false;
@@ -1130,7 +1129,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#teamId)) or " +
+    @PreAuthorize("(hasRole('ROLE_STUDENT') and @permissionEvaluator.studentEnrolledInCourseOfTeam(authentication.principal.username,#tid)) or " +
             "(hasRole('ROLE_TEACHER')and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId))")
     public byte[] showVm(Long vmid, Long tid, Long courseId) {
         Optional<VmInstance> optionalVmInstance = vmInstanceRepository.findById(vmid);

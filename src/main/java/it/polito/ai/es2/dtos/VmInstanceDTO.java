@@ -2,6 +2,7 @@ package it.polito.ai.es2.dtos;
 
 import it.polito.ai.es2.utility.VmStatus;
 import lombok.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -9,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VmInstanceDTO {
+public class VmInstanceDTO extends RepresentationModel<VmInstanceDTO> {
 
     private Long id;
 

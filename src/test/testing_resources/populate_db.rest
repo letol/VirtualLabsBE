@@ -918,25 +918,6 @@ Content-Disposition: form-data; name="score"
 %}
 
 ###
-# Login with student2
-POST http://localhost:8080/auth/login
-Content-Type: application/json
-
-{
-  "username": "s222222",
-  "password": "ps2"
-}
-
-> {%
-    if (response.status === 200) {
-        client.global.set("auth_token_student2", response.body.token);
-    }
-    client.test("Request executed successfully", function() {
-        client.assert(response.status === 200, "Response status is not 200");
-    });
- %}
-
-###
 # Add team1
 # Hint: should be done by student2
 POST http://localhost:8080/API/courses/{{c4_id}}/teams
@@ -1066,7 +1047,7 @@ Authorization: Bearer {{auth_token_teacher2}}
  %}
 
 ###
-# Geat student2 team
+# Get student2 team
 # Hint: should be done by student2
 GET http://localhost:8080/API/students/s222222/courses/{{c4_id}}/team
 Content-Type: application/json
@@ -1142,11 +1123,19 @@ Authorization: Bearer {{auth_token_student2}}
 
 ###
 #Command vm
-POST http://localhost:8080/API/courses/{{c4_id}}/teams/{{team_id}}/vmInstances/{{vm_id}}/command
+PUT http://localhost:8080/API/courses/{{c4_id}}/teams/{{team_id}}/
 Content-Type: application/json
-Authorization: Bearer {{auth_token_student2}}
+Authorization: Bearer {{auth_token_teacher1}}
 
-"RUNNING"
+{
+  "id": {{team_id}},
+  "name": "Rasputin",
+  "vcpuMAX": 300,
+  "diskMAX": 177,
+  "memoryMAX": 400,
+  "maxVmInstance": 300,
+  "runningVmInstance": 10
+}
 
 > {%
     client.test("Request executed successfully", function() {
@@ -1155,6 +1144,5 @@ Authorization: Bearer {{auth_token_student2}}
  %}
 
 
-###
 
 
