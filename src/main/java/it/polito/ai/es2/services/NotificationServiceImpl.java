@@ -65,7 +65,10 @@ public class NotificationServiceImpl implements NotificationService {
         Token t = tokenOptional.get();
         Optional<ProposalNotification> proposalNotification = proposalNotificationRepository.findById(t.getTeamId());
         if(!proposalNotification.isPresent()) throw new TeamServiceException("Proposal Notification Not found");
-        if (t.getExpiryDate().before(new Timestamp(System.currentTimeMillis()))) return false;
+        if (t.getExpiryDate().before(new Timestamp(System.currentTimeMillis()))) {
+            //rejectExpired();
+            throw new TeamServiceException("Invite expired");
+        }
         String studentId = SecurityContextHolder.getContext().getAuthentication().getName();
         Boolean accepted = false;
         Boolean present = false;
@@ -139,7 +142,10 @@ public class NotificationServiceImpl implements NotificationService {
         Token t = tokenOptional.get();
         Optional<ProposalNotification> proposalNotification = proposalNotificationRepository.findById(t.getTeamId());
         if(!proposalNotification.isPresent()) throw new TeamServiceException("Proposal Notification Not found");
-        if (t.getExpiryDate().before(new Timestamp(System.currentTimeMillis()))) return false;
+        if (t.getExpiryDate().before(new Timestamp(System.currentTimeMillis()))) {
+            //rejectExpired();
+            throw new TeamServiceException("Invite expired");
+        }
         String studentId = SecurityContextHolder.getContext().getAuthentication().getName();
         Boolean modified = false;
         Boolean present = false;
@@ -179,7 +185,7 @@ public class NotificationServiceImpl implements NotificationService {
         List<Token> expiredTokens = tokenRepo.findAllByExpiryDateBefore(
                 new Timestamp(System.currentTimeMillis())
         );
-
+        System.out.println("Reject expired");
         expiredTokens.stream()
                 .forEach(tokenRepo::delete);
 
@@ -189,6 +195,13 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
         for (Long id:uniqueIds
              ) {
+    /*
+            ProposalNotification proposalNotification = proposalNotificationRepository.getOne(id);
+            proposalNotification.removeCreator();
+            proposalNotification.removeCourse();
+            proposalNotification.setStudentsInvitedWithStatus(null);
+
+     */
             proposalNotificationRepository.deleteById(id);
         }
 
