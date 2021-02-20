@@ -25,10 +25,10 @@ public class TeamDTO extends RepresentationModel<TeamDTO>{
     private int vcpuMAX;
 
     @Min(value = 1, message = "Minimum numbers of memory per team must be 1")
-    private Float memoryMAX;
+    private float memoryMAX;
 
     @Min(value = 1, message = "Minimum numbers of disk per team must be 1")
-    private Float diskMAX;
+    private float diskMAX;
 
     @Min(value = 1, message = "Minimum numbers of maximum vm instances per team must be 1")
     private int maxVmInstance;
