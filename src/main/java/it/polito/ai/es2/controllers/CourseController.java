@@ -307,14 +307,6 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}/show")
-    byte[] showVm(@PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
-        try {
-            return teamService.showVm(vmid,tid,courseId);
-        } catch(TeamServiceException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
-        }
-    }
 
     @PutMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}")
     VmInstanceDTO updateVm(@RequestBody VmInstanceDTO vmInstanceDTO, @PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
@@ -473,8 +465,8 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
-    @GetMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}/showNew")
-    ResponseEntity<Resource> showVmNew(@PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
+    @GetMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}/show")
+    ResponseEntity<Resource> showVm(@PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
             byte[] ret = teamService.showVm(vmid,tid,courseId);
             return ResponseEntity
