@@ -12,6 +12,7 @@ import org.apache.tika.Tika;
 import org.apache.tika.metadata.HttpHeaders;
 import org.apache.tika.metadata.Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -470,6 +471,18 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (TeamServiceException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+    @GetMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}/showNew")
+    ResponseEntity<Resource> showVmNew(@PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
+        try {
+            byte[] ret = teamService.showVm(vmid,tid,courseId);
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(new ByteArrayResource(ret));
+        } catch(TeamServiceException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,e.getMessage());
         }
     }
 
