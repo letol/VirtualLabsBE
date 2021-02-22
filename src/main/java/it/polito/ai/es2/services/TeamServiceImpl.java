@@ -134,12 +134,14 @@ public class TeamServiceImpl implements TeamService {
 
         if (course.isEnabled()) throw new CannotDeleteEnabledCourseException();
 
-        List<VmInstance> vmInstances = course.getVmModel().getVmInstances();
-        Map<VmInstance, Student> vmOwnerships = new HashMap<>();
-        vmInstances.forEach(vmInstance ->
-            vmInstance.getOwners().forEach(student -> vmOwnerships.put(vmInstance, student))
-        );
-        vmOwnerships.forEach(VmInstance::removeOwner);
+        if (course.getVmModel() != null) {
+            List<VmInstance> vmInstances = course.getVmModel().getVmInstances();
+            Map<VmInstance, Student> vmOwnerships = new HashMap<>();
+            vmInstances.forEach(vmInstance ->
+                    vmInstance.getOwners().forEach(student -> vmOwnerships.put(vmInstance, student))
+            );
+            vmOwnerships.forEach(VmInstance::removeOwner);
+        }
 
         List<Student> enrolledStudents = course.getStudents();
         Map<Student, Course> enrollments = new HashMap<>();
