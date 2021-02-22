@@ -19,7 +19,7 @@ public interface TeamService {
 
     Optional<CourseDTO> getCourse(Long courseId);
 
-    void deleteCourse(Long courseId) throws TeamServiceException;
+    void deleteCourse(Long courseId) throws TeamServiceException, IOException;
 
     CourseDTO editCourse(CourseDTO courseDTO, String teacherId);
 

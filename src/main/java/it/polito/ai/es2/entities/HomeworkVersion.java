@@ -20,7 +20,7 @@ public class HomeworkVersion {
     @Column(nullable = false)
     private Homework.homeworkStatus versionStatus;
 
-    @OneToOne
+    @OneToOne(orphanRemoval = true)
     private Document content;
 
     @ManyToOne

@@ -25,7 +25,7 @@ public class Assignment {
     @Column(nullable = false)
     private Timestamp expiryDate;
 
-    @OneToOne
+    @OneToOne(orphanRemoval = true)
     private Document content;
 
     @ManyToOne
