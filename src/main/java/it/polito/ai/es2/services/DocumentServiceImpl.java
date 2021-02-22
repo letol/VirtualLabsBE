@@ -44,6 +44,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public void removeDocument(Document document) throws IOException {
+        deleteDocument(document.getHash());
+    }
+
+    @Override
     public ByteArrayResource getDocumentContent(Document document) throws IOException {
         return new ByteArrayResource(readDocument(document.getHash()));
     }
@@ -51,6 +56,11 @@ public class DocumentServiceImpl implements DocumentService {
     private void storeDocument(MultipartFile file, String hash) throws IOException {
         Path targetLocation = this.docStorageLocation.resolve(hash);
         Files.copy(file.getInputStream(), targetLocation);
+    }
+
+    private void deleteDocument(String hash) throws IOException {
+        Path targetLocation = this.docStorageLocation.resolve(hash);
+        Files.delete(targetLocation);
     }
 
     private byte[] readDocument(String hash) throws IOException {

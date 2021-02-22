@@ -11,5 +11,7 @@ public interface DocumentService {
 
     Document addDocument(MultipartFile multipartFile) throws NoSuchAlgorithmException, IOException;
 
+    void removeDocument(Document document) throws IOException;
+
     ByteArrayResource getDocumentContent(Document document) throws IOException;
 }

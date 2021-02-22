@@ -128,7 +128,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @PreAuthorize("(hasRole('ROLE_TEACHER')  and @permissionEvaluator.teacherHasCourse(authentication.principal.username,#courseId)) or hasRole('ROLE_ADMIN')")
-    public void deleteCourse(Long courseId) throws TeamServiceException {
+    public void deleteCourse(Long courseId) throws TeamServiceException, IOException {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(CourseNotFoundException::new);
 
@@ -141,6 +141,22 @@ public class TeamServiceImpl implements TeamService {
                     vmInstance.getOwners().forEach(student -> vmOwnerships.put(vmInstance, student))
             );
             vmOwnerships.forEach(VmInstance::removeOwner);
+        }
+
+        List<Document> relatedDocuments = course.getAssignments().stream()
+                .map(Assignment::getContent)
+                .collect(Collectors.toList());
+        course.getAssignments().stream()
+                .flatMap(assignment -> assignment.getHomeworks().stream())
+                .flatMap(homework -> homework.getVersions().stream())
+                .map(HomeworkVersion::getContent)
+                .forEach(relatedDocuments::add);
+        for (Document document : relatedDocuments) {
+            try {
+                documentService.removeDocument(document);
+            } catch (IOException e) {
+                throw new IOException(e);
+            }
         }
 
         List<Student> enrolledStudents = course.getStudents();
