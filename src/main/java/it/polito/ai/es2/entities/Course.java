@@ -1,12 +1,14 @@
 package it.polito.ai.es2.entities;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Data
@@ -59,17 +61,17 @@ public class Course {
     @ManyToMany(mappedBy = "courses")
     private List<Student> students = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Team> teams;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<Assignment> assignments;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "vmModel_id", referencedColumnName = "id")
     private VmModel vmModel;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
     private List<ProposalNotification> proposalNotifications;
 
     public boolean addTeacher(Teacher teacher) {
@@ -99,6 +101,15 @@ public class Course {
             student.getCourses().add(this);
             return true;
         }
+    }
+
+    public boolean removeStudent(Student student) {
+        if (this.students.contains(student)) {
+            this.students.remove(student);
+            student.getCourses().remove(this);
+            return true;
+        } else
+            return false;
     }
 
     public boolean addTeam(Team team) {
@@ -137,5 +148,18 @@ public class Course {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return Objects.equals(id, course.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

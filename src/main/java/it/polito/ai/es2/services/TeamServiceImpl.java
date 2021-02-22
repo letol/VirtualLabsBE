@@ -131,6 +131,26 @@ public class TeamServiceImpl implements TeamService {
     public void deleteCourse(Long courseId) throws TeamServiceException {
         Course course = courseRepo.findById(courseId)
                 .orElseThrow(CourseNotFoundException::new);
+
+        if (course.isEnabled()) throw new CannotDeleteEnabledCourseException();
+
+        List<VmInstance> vmInstances = course.getVmModel().getVmInstances();
+        Map<VmInstance, Student> vmOwnerships = new HashMap<>();
+        vmInstances.forEach(vmInstance ->
+            vmInstance.getOwners().forEach(student -> vmOwnerships.put(vmInstance, student))
+        );
+        vmOwnerships.forEach(VmInstance::removeOwner);
+
+        List<Student> enrolledStudents = course.getStudents();
+        Map<Student, Course> enrollments = new HashMap<>();
+        enrolledStudents.forEach(student -> enrollments.put(student, course));
+        enrollments.forEach(Student::removeCourse);
+
+        List<Teacher> courseTeachers = course.getTeachers();
+        Map<Teacher, Course> courseOwnerships = new HashMap<>();
+        courseTeachers.forEach(teacher -> courseOwnerships.put(teacher, course));
+        courseOwnerships.forEach(Teacher::removeCourse);
+
         courseRepo.delete(course);
     }
 

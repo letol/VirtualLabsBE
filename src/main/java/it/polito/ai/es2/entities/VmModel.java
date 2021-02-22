@@ -3,6 +3,7 @@ import javax.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Data
@@ -24,8 +25,20 @@ public class VmModel {
     @OneToOne(mappedBy = "vmModel")
     private Course course;
 
-    @OneToMany(mappedBy = "vmModel")
+    @OneToMany(mappedBy = "vmModel", cascade = CascadeType.REMOVE)
     private List<VmInstance> vmInstances;
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VmModel vmModel = (VmModel) o;
+        return Objects.equals(id, vmModel.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

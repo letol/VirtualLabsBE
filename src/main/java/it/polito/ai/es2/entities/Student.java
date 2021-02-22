@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Entity
@@ -83,11 +84,7 @@ public class Student {
     }
 
     public boolean isOwner(VmInstance vmInstance) {
-        if (this.ownedVMs.contains(vmInstance))
-            return true;
-        else {
-            return false;
-        }
+        return this.ownedVMs.contains(vmInstance);
     }
 
     public boolean addTeam(Team team) {
@@ -140,5 +137,18 @@ public class Student {
             return true;
         } else
             return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Student student = (Student) o;
+        return Objects.equals(id, student.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

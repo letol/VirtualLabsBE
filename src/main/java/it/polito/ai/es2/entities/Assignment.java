@@ -31,7 +31,7 @@ public class Assignment {
     @ManyToOne
     private Course course;
 
-    @OneToMany(mappedBy = "assignment")
+    @OneToMany(mappedBy = "assignment", cascade = CascadeType.REMOVE)
     private List<Homework> homeworks = new ArrayList<>();
 
     public boolean setCourse(Course course) {

@@ -55,7 +55,7 @@ public class Team {
             inverseJoinColumns = @JoinColumn(name = "student_id"))
     private List<Student> members = new ArrayList<>();
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE)
     private List<VmInstance> vmInstances = new ArrayList<>();
 
     public boolean setCourse(Course course) {

@@ -1,7 +1,6 @@
 package it.polito.ai.es2.entities;
 import javax.persistence.*;
 
-import antlr.CharScanner;
 import it.polito.ai.es2.utility.VmStatus;
 import lombok.*;
 
@@ -64,6 +63,14 @@ public class VmInstance {
         }
     }
 
+    public boolean removeOwner(Student student) {
+        if (this.owners.contains(student)) {
+            this.owners.remove(student);
+            student.getOwnedVMs().remove(this);
+            return true;
+        } else
+            return false;
+    }
 
 }
 
