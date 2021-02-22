@@ -2,6 +2,7 @@ package it.polito.ai.es2.entities;
 import javax.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,7 +27,7 @@ public class VmModel {
     private Course course;
 
     @OneToMany(mappedBy = "vmModel", cascade = CascadeType.REMOVE)
-    private List<VmInstance> vmInstances;
+    private List<VmInstance> vmInstances = new ArrayList<>();
 
 
     @Override
