@@ -95,7 +95,7 @@ public class TeamServiceImpl implements TeamService {
         InputStream defaultAvatarInputStream = resource.getInputStream();
         defaultAvatar = new byte[defaultAvatarInputStream.available()];
         defaultAvatarInputStream.read(defaultAvatar);
-        resource = new ClassPathResource("img/vm_running.png");
+        resource = new ClassPathResource("img/vmscreen.png");
         defaultAvatarInputStream = resource.getInputStream();
         runningVmAvatar = new byte[defaultAvatarInputStream.available()];
         defaultAvatarInputStream.read(runningVmAvatar);
