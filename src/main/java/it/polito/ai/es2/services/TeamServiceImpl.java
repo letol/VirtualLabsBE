@@ -184,9 +184,16 @@ public class TeamServiceImpl implements TeamService {
             return addCourse(courseDTO, teacherId);
         } else {
             Course oldCourse = optionalCourse.get();
-            courseDTO.setId(oldCourse.getId());
-            Course newCourse = modelMapper.map(courseDTO, Course.class);
-            courseRepo.save(newCourse);
+            oldCourse.setName(courseDTO.getName());
+            oldCourse.setAcronym(courseDTO.getAcronym());
+            oldCourse.setMin(courseDTO.getMin());
+            oldCourse.setMax(courseDTO.getMax());
+            oldCourse.setVcpu(courseDTO.getVcpu());
+            oldCourse.setDisk(courseDTO.getDisk());
+            oldCourse.setMemory(courseDTO.getMemory());
+            oldCourse.setMaxVmInstance(courseDTO.getMaxVmInstance());
+            oldCourse.setMaxRunningVmInstance(courseDTO.getMaxRunningVmInstance());
+            oldCourse.setEnabled(courseDTO.getEnabled());
             return courseDTO;
         }
     }
