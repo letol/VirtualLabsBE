@@ -118,7 +118,7 @@ public class CourseController {
     }
 
     @PutMapping({"","/"})
-    CourseDTO editCourse(@RequestBody CourseDTO courseDTO, @AuthenticationPrincipal UserDetails userDetails) {
+    CourseDTO editCourse(@RequestBody @Valid CourseDTO courseDTO, @AuthenticationPrincipal UserDetails userDetails) {
         try {
             return ModelHelper.enrich(teamService.editCourse(courseDTO, userDetails.getUsername()));
         } catch (TeamServiceException e) {
