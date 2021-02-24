@@ -827,7 +827,7 @@ public class TeamServiceImpl implements TeamService {
         if (homework.getCurrentStatus() != Homework.homeworkStatus.DEFINITELY_REVIEWED) {
             throw new HomeworkInvalidStatusException("Cannot set score of submittable homework");
         } else {
-            if (score < 0 || score > 31) {
+            if (score < 0 || score > 33) {
                 throw new HomeworkInvalidScoreException();
             } else {
                 homework.setScore(score);
