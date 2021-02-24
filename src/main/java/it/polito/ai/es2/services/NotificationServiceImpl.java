@@ -77,7 +77,6 @@ public class NotificationServiceImpl implements NotificationService {
         {
             if(studentStatusInvitation.getStudentId().equals(studentId))
             {
-                //System.out.println("Aggiorno lo stato dello studente");
                 present = true;
                 if(studentStatusInvitation.getAccepted()==ResponseTypeInvitation.NOT_REPLY) {
                     studentStatusInvitation.setAccepted(ResponseTypeInvitation.ACCEPTED);
@@ -119,22 +118,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @PreAuthorize("hasRole('ROLE_STUDENT') or hasRole('ROLE_ADMIN')")
     public boolean reject(String token) throws NotificationServiceException, TeamServiceException {
-        /*
-        Optional<Token> tokenOptional = tokenRepo.findById(token);
-        if (!tokenOptional.isPresent())
-            throw new TokenNotFoundException("Token '" + token + "' not found!");
-
-        Token t = tokenOptional.get();
-        if (t.getExpiryDate().after(new Timestamp(System.currentTimeMillis()))) {
-            List<Token> pending = tokenRepo.findAllByTeamId(t.getTeamId());
-            pending.forEach(i -> tokenRepo.delete(i));
-            teamService.evictTeam(t.getTeamId());
-            return true;
-        }
-
-        return false;
-        */
-
         Optional<Token> tokenOptional = tokenRepo.findById(token);
         if (!tokenOptional.isPresent())
             throw new TokenNotFoundException("Token '" + token + "' not found!");
@@ -153,7 +136,6 @@ public class NotificationServiceImpl implements NotificationService {
         {
             if(studentStatusInvitation.getStudentId().equals(studentId))
             {
-                //System.out.println("Aggiorno lo stato dello studente");
                 present = true;
                 if(studentStatusInvitation.getAccepted()==ResponseTypeInvitation.NOT_REPLY) {
                     studentStatusInvitation.setAccepted(ResponseTypeInvitation.DECLINED);
@@ -167,7 +149,6 @@ public class NotificationServiceImpl implements NotificationService {
 
         if (modified)
         {
-
             /*
             tokenRepo.delete(t);
             proposalNotificationRepository.delete(proposalNotification.get());

@@ -22,7 +22,6 @@ public class VmModel {
     @Column(nullable = false)
     private String configuration;
 
-    //Todo corretto?
     @OneToOne(mappedBy = "vmModel")
     private Course course;
 

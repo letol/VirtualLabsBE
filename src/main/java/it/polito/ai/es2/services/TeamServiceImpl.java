@@ -479,7 +479,6 @@ public class TeamServiceImpl implements TeamService {
         if (!courseOptional.isPresent())
             throw new CourseNotFoundException("Course '" + courseId + "' not found!");
         Course course = courseOptional.get();
-        //System.out.println("Propose team "+memberIds.toString());
         if (!course.isEnabled())
             throw new CourseNotEnabledException("Course not yet enabled!");
         if (course.getTeams().stream().anyMatch(x -> x.getName().equals(name))) throw new TeamServiceException("name already used");

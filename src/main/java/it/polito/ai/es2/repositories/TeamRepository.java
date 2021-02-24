@@ -7,6 +7,5 @@ import java.util.List;
 
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
-    //List<Team> getTeamsByCourse_Id(Long courseId);
     List<Team> getTeamsByNameAndCourse_Id(String name, Long courseId);
  }
