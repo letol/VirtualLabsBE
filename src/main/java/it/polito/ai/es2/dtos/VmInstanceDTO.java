@@ -17,14 +17,14 @@ public class VmInstanceDTO extends RepresentationModel<VmInstanceDTO> {
     @NotEmpty
     private String name;
 
-    @NotEmpty
+    @Min(value = 1, message = "Minimum numbers of cpu must be 1")
     private int vcpu;
 
-    @NotEmpty
-    private Float disk;
+    @Min(value = 1, message = "Minimum numbers of disk must be 1")
+    private float disk;
 
-    @NotEmpty
-    private Float memory;
+    @Min(value = 1, message = "Minimum numbers of memory must be 1")
+    private float memory;
 
     private VmStatus status;
 
