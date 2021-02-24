@@ -179,7 +179,7 @@ public class CourseController {
     }
 
     @PutMapping("/{courseId}/teams/{teamId}")
-    TeamDTO updateTeam(@RequestBody TeamDTO teamDTO, @PathVariable Long courseId, @PathVariable Long teamId) {
+    TeamDTO updateTeam(@Valid @RequestBody TeamDTO teamDTO, @PathVariable Long courseId, @PathVariable Long teamId) {
         try {
             return ModelHelper.enrich(courseId,teamService.updateTeam(courseId,teamId,teamDTO));
         } catch (TeamServiceException e) {
@@ -294,7 +294,7 @@ public class CourseController {
 
 
     @PutMapping("/{courseId}/teams/{tid}/vmInstances/{vmid}")
-    VmInstanceDTO updateVm(@RequestBody VmInstanceDTO vmInstanceDTO, @PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
+    VmInstanceDTO updateVm(@Valid @RequestBody VmInstanceDTO vmInstanceDTO, @PathVariable Long courseId, @PathVariable Long tid, @PathVariable Long vmid) {
         try {
             return ModelHelper.enrich(courseId,tid,teamService.updateVmInstance(vmid,tid,courseId, vmInstanceDTO));
         } catch(TeamServiceException e) {
