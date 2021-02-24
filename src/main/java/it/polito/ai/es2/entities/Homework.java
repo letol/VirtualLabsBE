@@ -1,12 +1,9 @@
 package it.polito.ai.es2.entities;
 
 import it.polito.ai.es2.HomeworkId;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 

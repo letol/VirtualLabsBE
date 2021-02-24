@@ -7,9 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.io.*;
-import java.util.Arrays;
-
 @SpringBootApplication
 public class Es2Application {
     @Bean

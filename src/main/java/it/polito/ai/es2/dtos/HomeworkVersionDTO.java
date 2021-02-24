@@ -4,7 +4,6 @@ import it.polito.ai.es2.entities.Homework;
 import lombok.*;
 import org.springframework.hateoas.RepresentationModel;
 
-import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 
 @Data

@@ -3,7 +3,6 @@ package it.polito.ai.es2.entities;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
 import java.sql.Timestamp;
 
 @Entity

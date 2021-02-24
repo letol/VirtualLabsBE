@@ -1,7 +1,6 @@
 package it.polito.ai.es2.entities;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 

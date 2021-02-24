@@ -1,11 +1,6 @@
 package it.polito.ai.es2.controllers;
 
 import it.polito.ai.es2.dtos.*;
-import it.polito.ai.es2.entities.Assignment;
-import it.polito.ai.es2.entities.Course;
-import it.polito.ai.es2.entities.Homework;
-import it.polito.ai.es2.entities.HomeworkVersion;
-import it.polito.ai.es2.exceptions.HomeworkVersionNotFoundException;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
