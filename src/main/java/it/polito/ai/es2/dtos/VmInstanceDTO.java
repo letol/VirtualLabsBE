@@ -21,10 +21,10 @@ public class VmInstanceDTO extends RepresentationModel<VmInstanceDTO> {
     private int vcpu;
 
     @Min(value = 1, message = "Minimum numbers of disk must be 1")
-    private Float disk;
+    private float disk;
 
     @Min(value = 1, message = "Minimum numbers of memory must be 1")
-    private Float memory;
+    private float memory;
 
     private VmStatus status;
 
