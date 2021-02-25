@@ -215,7 +215,7 @@ public class CourseController {
     }
 
     @PostMapping("/{courseId}/teams/{id}/vmInstances")
-    VmInstanceDTO createVmInstance(@RequestBody VmInstanceDTO vmInstanceDTO, @PathVariable Long courseId, @PathVariable Long id) {
+    VmInstanceDTO createVmInstance(@Valid @RequestBody VmInstanceDTO vmInstanceDTO, @PathVariable Long courseId, @PathVariable Long id) {
         try {
             return ModelHelper.enrich(courseId,id,teamService.createVmInstance(vmInstanceDTO,courseId,id));
         } catch (TeamServiceException e) {
