@@ -1,5 +1,9 @@
 # VirtualLabsBE
-AI project 2019/2020 Polytechnic of Turin
+Politecnico di Torino - Master's Degree in Computer Engineering.
+
+VirtualLabs is the project of the Internet Applications course of the academic year 2019/2020.
+
+This is the VirtualLabs backend repository. For the frontend part refer to [VirtualLabsFE](https://github.com/pinoOgni/VirtualLabsFE).
 
 ## Developers
 
@@ -70,8 +74,14 @@ docker-compose up -d
 ```
 * Enjoy!
     * VirtualLabs-BE is available at ``http://localhost:8080``
+        * Default username: ``admin``
+        * Default password: ``admin``
     * phpMyAdmin is available at ``http://localhost:8082``
+        * Default username: ``root``
+        * Default password: ``ai-mariadb``
     * MariaDB is available at ``http://localhost:3306``
+        * Default username: ``root``
+        * Default password: ``ai-mariadb``
 
 ## Build from code
 
