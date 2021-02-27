@@ -351,8 +351,8 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher1}}
 
 {
-  "acronym": "c1",
-  "name": "corso di pino",
+  "acronym": "moa",
+  "name": "Mobile application development",
   "min": 2,
   "max": 4,
   "vcpu": 5,
@@ -389,8 +389,8 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher1}}
 
 {
-  "acronym": "c2",
-  "name": "corso di alex",
+  "acronym": "did",
+  "name": "Digital interaction design",
   "min": 1,
   "max": 2,
   "vcpu": 5,
@@ -427,8 +427,8 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher1}}
 
 {
-  "acronym": "c3",
-  "name": "corso di leo",
+  "acronym": "wa2",
+  "name": "Web Applications II",
   "min": 2,
   "max": 4,
   "vcpu": 5,
@@ -502,8 +502,8 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token_teacher2}}
 
 {
-  "acronym": "c4",
-  "name": "corso di hamza",
+  "acronym": "ai",
+  "name": "Applicazioni Internet",
   "min": 1,
   "max": 5,
   "vcpu": 10,
