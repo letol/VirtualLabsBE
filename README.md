@@ -7,13 +7,13 @@ This is the VirtualLabs backend repository. For the frontend part refer to [Virt
 
 ## Developers
 
-* Ognibene Giuseppe: ***REMOVED***
+* [Giuseppe Ognibene](https://github.com/pinoOgni)
 
-* Pagano Alessandro: ***REMOVED***
+* [Alessandro Pagano](https://github.com/alexCodeRider)
 
-* Rhaouati Hamza: ***REMOVED***
+* [Hamza Rhaouati](https://github.com/ReddaHawk)
 
-* Tolomei Leonardo: ***REMOVED***
+* [Leonardo Tolomei](https://github.com/letol)
 
 ## Run latest image
 
